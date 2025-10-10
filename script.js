@@ -1,4 +1,5 @@
-const projectNotes = {
+// Projects data structure
+    const projectNotes = {
       1: [
         { text: "Initial project planning completed", date: "05/10/2025" }
       ],
@@ -261,12 +262,6 @@ const projectNotes = {
       initializeProjectsTable();
       updateStatusCounts();
       closeProjectModal();
-      
-      if (editProjectId) {
-        alert('Project updated successfully');
-      } else {
-        alert('Project added successfully');
-      }
     }
 
     function editProject(projectId) {
@@ -284,8 +279,6 @@ const projectNotes = {
           selectedProjectId = null;
           document.querySelector('.notes-content').innerHTML = '<div class="note-item"><p>Select a project to view notes</p></div>';
         }
-        
-        alert('Project removed successfully');
       }
     }
 
