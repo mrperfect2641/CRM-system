@@ -35,10 +35,6 @@
         <i class="fas fa-chart-bar"></i>
         <span>Connections</span>
       </div>
-      <div class="nav-item">
-        <i class="fas fa-cog"></i>
-        <span>To-Do</span>
-      </div>
     </div>
   </div>
 
@@ -61,7 +57,6 @@
       </div>
     </div>
 
-    
       <!-- Status Boxes -->
       <div class="status-boxes">
         <div class="status-box all-projects">
@@ -151,64 +146,45 @@
           </div>
         </div>
       </div>
-
-      <!-- To-Do Section -->
-      <div class="todo-section">
-        <h2>To Do</h2>
-        <div class="table-container todo-table">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Associated with</th>
-                <th>Task to do</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- To-do items will be dynamically loaded here -->
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   </div>
   
   <!-- Project Modal -->
-<div id="project-modal" class="pj-modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
-  <div class="pj-overlay" id="pjOverlay"></div>
-  <div class="pj-dialog" role="document" aria-labelledby="pjTitle">
-    <h3 id="pjTitle" class="pj-title">New Project</h3>
-    <form id="project-form" class="pj-form" autocomplete="off">
-      <div class="pj-row">
-        <label for="pj-name">Project Name</label>
-        <input id="pj-name" name="projectName" class="pj-input" type="text" placeholder="e.g. Logo Design" required>
-      </div>
-      <div class="pj-row">
-        <label for="pj-client">Client</label>
-        <input id="pj-client" name="client" class="pj-input" type="text" placeholder="Client name" required>
-      </div>
-      <div class="pj-row small-grid">
-        <div>
-          <label for="pj-start">Start Date</label>
-          <input id="pj-start" name="startDate" class="pj-input" type="date" required>
+  <div id="project-modal" class="pj-modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="pj-overlay" id="pjOverlay"></div>
+    <div class="pj-dialog" role="document" aria-labelledby="pjTitle">
+      <h3 id="pjTitle" class="pj-title">New Project</h3>
+      <form id="project-form" class="pj-form" autocomplete="off">
+        <div class="pj-row">
+          <label for="pj-name">Project Name</label>
+          <input id="pj-name" name="projectName" class="pj-input" type="text" placeholder="e.g. Logo Design" required>
         </div>
-        <div>
-          <label for="pj-status">Status</label>
-          <select id="pj-status" name="status" class="pj-input" required>
-            <option value="planned">Planned</option>
-            <option value="in-process">In Process</option>
-            <option value="waiting">Waiting</option>
-            <option value="completed">Completed</option>
-          </select>
+        <div class="pj-row">
+          <label for="pj-client">Client</label>
+          <input id="pj-client" name="client" class="pj-input" type="text" placeholder="Client name" required>
         </div>
-      </div>
-      <div class="pj-actions">
-        <button type="button" class="btn secondary" id="project-cancel-btn">Cancel</button>
-        <button type="submit" class="btn primary" id="project-save-btn">Save</button>
-      </div>
-    </form>
+        <div class="pj-row small-grid">
+          <div>
+            <label for="pj-start">Start Date</label>
+            <input id="pj-start" name="startDate" class="pj-input" type="date" required>
+          </div>
+          <div>
+            <label for="pj-status">Status</label>
+            <select id="pj-status" name="status" class="pj-input" required>
+              <option value="planned">Planned</option>
+              <option value="in-process">In Process</option>
+              <option value="waiting">Waiting</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="pj-actions">
+          <button type="button" class="btn secondary" id="project-cancel-btn">Cancel</button>
+          <button type="submit" class="btn primary" id="project-save-btn">Save</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
 
   <script src="script.js"></script>
 </body>
