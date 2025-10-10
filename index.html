@@ -62,6 +62,9 @@
     </div>
 
     <div class="content-area">
+      <div class="page-header">
+       
+      </div>
 
       <!-- Status Boxes -->
       <div class="status-boxes">
@@ -120,117 +123,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr data-project-id="1">
-                  <td>1</td>
-                  <td>Perfect Solution Website</td>
-                  <td>Anurag Yadav</td>
-                  <td>05/10/2025</td>
-                  <td><span class="status completed">Completed</span></td>
-                  <td class="actions">
-                    <button class="btn btn-edit">Edit</button>
-                    <button class="btn btn-remove">Remove</button>
-                  </td>
-                </tr>
-                <tr data-project-id="2">
-                  <td>2</td>
-                  <td>Perfect Solution Website</td>
-                  <td>Anurag Yadav</td>
-                  <td>05/10/2025</td>
-                  <td><span class="status in-process">In Process</span></td>
-                  <td class="actions">
-                    <button class="btn btn-edit">Edit</button>
-                    <button class="btn btn-remove">Remove</button>
-                  </td>
-                </tr>
-                <tr data-project-id="3">
-                  <td>3</td>
-                  <td>Perfect Solution Website</td>
-                  <td>Anurag Yadav</td>
-                  <td>05/10/2025</td>
-                  <td><span class="status waiting">Waiting</span></td>
-                  <td class="actions">
-                    <button class="btn btn-edit">Edit</button>
-                    <button class="btn btn-remove">Remove</button>
-                  </td>
-                </tr>
-                <!-- Additional sample rows to demonstrate scrolling -->
-                <tr data-project-id="4">
-                  <td>4</td>
-                  <td>E-commerce Platform</td>
-                  <td>John Smith</td>
-                  <td>06/15/2025</td>
-                  <td><span class="status in-process">In Process</span></td>
-                  <td class="actions">
-                    <button class="btn btn-edit">Edit</button>
-                    <button class="btn btn-remove">Remove</button>
-                  </td>
-                </tr>
-                <tr data-project-id="5">
-                  <td>5</td>
-                  <td>Mobile App Development</td>
-                  <td>Sarah Johnson</td>
-                  <td>07/01/2025</td>
-                  <td><span class="status waiting">Waiting</span></td>
-                  <td class="actions">
-                    <button class="btn btn-edit">Edit</button>
-                    <button class="btn btn-remove">Remove</button>
-                  </td>
-                </tr>
-                <tr data-project-id="6">
-                  <td>6</td>
-                  <td>CRM System</td>
-                  <td>Mike Wilson</td>
-                  <td>04/20/2025</td>
-                  <td><span class="status completed">Completed</span></td>
-                  <td class="actions">
-                    <button class="btn btn-edit">Edit</button>
-                    <button class="btn btn-remove">Remove</button>
-                  </td>
-                </tr>
-                <tr data-project-id="7">
-                  <td>7</td>
-                  <td>Dashboard Design</td>
-                  <td>Emily Brown</td>
-                  <td>08/10/2025</td>
-                  <td><span class="status in-process">In Process</span></td>
-                  <td class="actions">
-                    <button class="btn btn-edit">Edit</button>
-                    <button class="btn btn-remove">Remove</button>
-                  </td>
-                </tr>
-                <tr data-project-id="8">
-                  <td>8</td>
-                  <td>API Integration</td>
-                  <td>David Lee</td>
-                  <td>09/05/2025</td>
-                  <td><span class="status waiting">Waiting</span></td>
-                  <td class="actions">
-                    <button class="btn btn-edit">Edit</button>
-                    <button class="btn btn-remove">Remove</button>
-                  </td>
-                </tr>
-                <tr data-project-id="9">
-                  <td>9</td>
-                  <td>Social Media Campaign</td>
-                  <td>Lisa Anderson</td>
-                  <td>10/12/2025</td>
-                  <td><span class="status completed">Completed</span></td>
-                  <td class="actions">
-                    <button class="btn btn-edit">Edit</button>
-                    <button class="btn btn-remove">Remove</button>
-                  </td>
-                </tr>
-                <tr data-project-id="10">
-                  <td>10</td>
-                  <td>Brand Identity Design</td>
-                  <td>Robert Taylor</td>
-                  <td>11/20/2025</td>
-                  <td><span class="status in-process">In Process</span></td>
-                  <td class="actions">
-                    <button class="btn btn-edit">Edit</button>
-                    <button class="btn btn-remove">Remove</button>
-                  </td>
-                </tr>
+                <!-- Projects will be dynamically loaded here -->
               </tbody>
             </table>
           </div>
@@ -241,6 +134,13 @@
 
         <!-- Notes Box -->
         <div class="notes-box">
+          <!-- Add Project Button -->
+          <div class="add-project-btn">
+            <button id="open-project-btn" class="btn primary">
+              <i class="fas fa-plus"></i> Add Project
+            </button>
+          </div>
+
           <div class="notes-header">
             <h3>Project Notes</h3>
           </div>
@@ -269,32 +169,51 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="empty-row">
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr class="empty-row">
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr class="empty-row">
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr class="empty-row">
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
+              <!-- To-do items will be dynamically loaded here -->
             </tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
+  
+  <!-- Project Modal -->
+  <div id="project-modal" class="pj-modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="pj-overlay" id="pjOverlay"></div>
+    <div class="pj-dialog" role="document" aria-labelledby="pjTitle">
+      <h3 id="pjTitle" class="pj-title">New Project</h3>
+      <form id="project-form" class="pj-form" autocomplete="off">
+        <div class="pj-row">
+          <label for="pj-name">Project Name</label>
+          <input id="pj-name" name="projectName" class="pj-input" type="text" placeholder="e.g. Logo Design" required>
+        </div>
+        <div class="pj-row">
+          <label for="pj-client">Client</label>
+          <input id="pj-client" name="client" class="pj-input" type="text" placeholder="Client name" required>
+        </div>
+        <div class="pj-row small-grid">
+          <div>
+            <label for="pj-start">Start Date</label>
+            <input id="pj-start" name="startDate" class="pj-input" type="date" required>
+          </div>
+          <div>
+            <label for="pj-status">Status</label>
+            <select id="pj-status" name="status" class="pj-input" required>
+              <option value="planned">Planned</option>
+              <option value="in-process">In Process</option>
+              <option value="waiting">Waiting</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="pj-actions">
+          <button type="button" class="btn secondary" id="project-cancel-btn">Cancel</button>
+          <button type="submit" class="btn primary" id="project-save-btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>

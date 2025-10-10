@@ -350,18 +350,23 @@
     }
 
     .status.completed {
-      background-color: #e6f7ee;
       color: #10b759;
+      background-color: #e6f7ee;
     }
 
     .status.in-process {
-      background-color: #fff4e6;
       color: #f59e0b;
+      background-color: #fff4e6;
     }
 
     .status.waiting {
-      background-color: #f0f4ff;
       color: #3b82f6;
+      background-color: #f0f4ff;
+    }
+
+    .status.planned {
+      color: #95a5a6;
+      background-color: #f8f9fa;
     }
 
     .actions {
@@ -443,6 +448,33 @@
       flex-direction: column;
     }
 
+    /* Style for the Add Project button inside notes box */
+    .notes-box .add-project-btn {
+      padding: 15px 20px 15px 20px;
+      margin: 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .notes-box .add-project-btn button {
+      width: 100%;
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+
+    .notes-box .add-project-btn button:hover {
+      background: #2980b9;
+    }
+
     .notes-header {
       padding: 15px 20px;
       border-bottom: 1px solid #f0f0f0;
@@ -465,6 +497,7 @@
     .note-item {
       padding: 12px 0;
       border-bottom: 1px solid #f0f0f0;
+      animation: fadeIn 0.3s ease-in;
     }
 
     .note-item:last-child {
@@ -527,6 +560,15 @@
       margin-top: 15px;
     }
 
+    .todo-task.completed {
+      text-decoration: line-through;
+      color: #999;
+    }
+
+    .todo-checkbox {
+      margin-right: 8px;
+    }
+
     .empty-row td {
       height: 50px;
       color: #999;
@@ -543,6 +585,61 @@
     }
 
     /* Active row styling */
+    .projects-table-container tbody tr {
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .projects-table-container tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+
     .projects-table-container tbody tr.active {
       background-color: #f0f7ff;
+      border-left: 3px solid #3498db;
     }
+
+    .projects-table-container tbody tr.active td {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Project Popup Styles ===== */
+    .pj-modal.hidden { display: none; }
+    .pj-modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      font-family: inherit;
+    }
+    .pj-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px);
+    }
+    .pj-dialog {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      width: min(600px, 94%);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      z-index: 2;
+    }
+    .pj-title { font-size: 18px; margin-bottom: 12px; }
+    .pj-form { display: grid; gap: 10px; }
+    .pj-row { display: flex; flex-direction: column; gap: 5px; }
+    .pj-row.small-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pj-input { padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+    .pj-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+    .btn.primary { background: #007bff; color: #fff; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+    .btn.secondary { background: #f2f2f2; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
