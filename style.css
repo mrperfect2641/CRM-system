@@ -428,7 +428,7 @@
       display: none;
     }
 
-    .projects-table-container:not(.scroll-active) + .show-more-indicator {
+    .projects-table-container.has-more-rows + .show-more-indicator {
       display: block;
     }
 

@@ -22,6 +22,12 @@ const projectNotes = {
       ],
       8: [
         { text: "API integration pending third-party response", date: "09/05/2025" }
+      ],
+      9: [
+        { text: "Social media campaign completed successfully", date: "10/12/2025" }
+      ],
+      10: [
+        { text: "Brand identity design in final stages", date: "11/20/2025" }
       ]
     };
 
@@ -34,35 +40,32 @@ const projectNotes = {
       const showMoreIndicator = document.getElementById('showMoreIndicator');
       const rows = tableContainer.querySelectorAll('tbody tr');
       
-      // Show only first 5 rows initially
-      rows.forEach((row, index) => {
-        if (index >= 5) {
-          row.style.display = 'none';
-        }
-      });
-      
-      // Add scroll event listener
-      tableContainer.addEventListener('scroll', function() {
-        const scrollTop = tableContainer.scrollTop;
-        const scrollHeight = tableContainer.scrollHeight;
-        const clientHeight = tableContainer.clientHeight;
+      // Check if we have more than 5 rows
+      if (rows.length > 5) {
+        tableContainer.classList.add('has-more-rows');
+        showMoreIndicator.style.display = 'block';
         
-        // If user scrolls near the bottom, show all rows
-        if (scrollTop + clientHeight >= scrollHeight - 10) {
-          tableContainer.classList.add('scroll-active');
-          showMoreIndicator.style.display = 'none';
+        // Add scroll event listener
+        tableContainer.addEventListener('scroll', function() {
+          const scrollTop = tableContainer.scrollTop;
+          const scrollHeight = tableContainer.scrollHeight;
+          const clientHeight = tableContainer.clientHeight;
           
-          // Show all rows
-          rows.forEach(row => {
-            row.style.display = 'table-row';
-          });
-        }
-      });
-      
-      // Click event for show more indicator
-      showMoreIndicator.addEventListener('click', function() {
-        tableContainer.scrollBy({ top: 100, behavior: 'smooth' });
-      });
+          // If user scrolls near the bottom, hide the indicator
+          if (scrollTop + clientHeight >= scrollHeight - 10) {
+            showMoreIndicator.style.display = 'none';
+          } else {
+            showMoreIndicator.style.display = 'block';
+          }
+        });
+        
+        // Click event for show more indicator
+        showMoreIndicator.addEventListener('click', function() {
+          tableContainer.scrollBy({ top: 100, behavior: 'smooth' });
+        });
+      } else {
+        showMoreIndicator.style.display = 'none';
+      }
     }
 
     // Function to update status box counts
