@@ -14,7 +14,7 @@
       <i class="fas fa-cube"></i>
       <span>CRM PRO</span>
     </div>
-    
+  
     <div class="nav-menu">
       <div class="nav-item">
         <i class="fas fa-th-large"></i>
@@ -63,97 +63,177 @@
     </div>
 
     <div class="content-area">
-    <!-- Add this after the page-header div and before the filters div -->
-<div class="status-boxes">
-  <div class="status-box all-projects">
-    <div class="status-icon">
-      <i class="fas fa-folder-open"></i>
-    </div>
-    <div class="status-info">
-      <div class="count">0</div>
-      <div class="label">All Projects</div>
-    </div>
-  </div>
-  <div class="status-box pending">
-    <div class="status-icon">
-      <i class="fas fa-clock"></i>
-    </div>
-    <div class="status-info">
-      <div class="count">0</div>
-      <div class="label">Pending</div>
-    </div>
-  </div>
-  <div class="status-box waiting">
-    <div class="status-icon">
-      <i class="fas fa-pause-circle"></i>
-    </div>
-    <div class="status-info">
-      <div class="count">0</div>
-      <div class="label">Waiting</div>
-    </div>
-  </div>
-  <div class="status-box completed">
-    <div class="status-icon">
-      <i class="fas fa-check-circle"></i>
-    </div>
-    <div class="status-info">
-      <div class="count">0</div>
-      <div class="label">Completed</div>
-    </div>
-  </div>
-</div>  
+
+      <!-- Status Boxes -->
+      <div class="status-boxes">
+        <div class="status-box all-projects">
+          <div class="status-icon">
+            <i class="fas fa-folder-open"></i>
+          </div>
+          <div class="status-info">
+            <div class="count">0</div>
+            <div class="label">All Projects</div>
+          </div>
+        </div>
+        <div class="status-box pending">
+          <div class="status-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="status-info">
+            <div class="count">0</div>
+            <div class="label">Pending</div>
+          </div>
+        </div>
+        <div class="status-box waiting">
+          <div class="status-icon">
+            <i class="fas fa-pause-circle"></i>
+          </div>
+          <div class="status-info">
+            <div class="count">0</div>
+            <div class="label">Waiting</div>
+          </div>
+        </div>
+        <div class="status-box completed">
+          <div class="status-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="status-info">
+            <div class="count">0</div>
+            <div class="label">Completed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search projects...">
+        </div>
+        <select class="filter-select">
+          <option>All Status</option>
+          <option>Completed</option>
+          <option>In Process</option>
+          <option>Waiting</option>
+        </select>
+        <select class="filter-select">
+          <option>All Clients</option>
+          <option>Anurag Yadav</option>
+        </select>
+      </div>
 
       <!-- Projects Section with Notes Box -->
       <div class="projects-section">
         <!-- Projects Table -->
         <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Project Name</th>
-                <th>Client</th>
-                <th>Start Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr data-project-id="1">
-                <td>1</td>
-                <td>Perfect Solution Website</td>
-                <td>Anurag Yadav</td>
-                <td>05/10/2025</td>
-                <td><span class="status completed">Completed</span></td>
-                <td class="actions">
-                  <button class="btn btn-edit">Edit</button>
-                  <button class="btn btn-remove">Remove</button>
-                </td>
-              </tr>
-              <tr data-project-id="2">
-                <td>2</td>
-                <td>Perfect Solution Website</td>
-                <td>Anurag Yadav</td>
-                <td>05/10/2025</td>
-                <td><span class="status in-process">In Process</span></td>
-                <td class="actions">
-                  <button class="btn btn-edit">Edit</button>
-                  <button class="btn btn-remove">Remove</button>
-                </td>
-              </tr>
-              <tr data-project-id="3">
-                <td>3</td>
-                <td>Perfect Solution Website</td>
-                <td>Anurag Yadav</td>
-                <td>05/10/2025</td>
-                <td><span class="status waiting">Waiting</span></td>
-                <td class="actions">
-                  <button class="btn btn-edit">Edit</button>
-                  <button class="btn btn-remove">Remove</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="projects-table-container" id="projectsTableContainer">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Project Name</th>
+                  <th>Client</th>
+                  <th>Start Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-project-id="1">
+                  <td>1</td>
+                  <td>Perfect Solution Website</td>
+                  <td>Anurag Yadav</td>
+                  <td>05/10/2025</td>
+                  <td><span class="status completed">Completed</span></td>
+                  <td class="actions">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-remove">Remove</button>
+                  </td>
+                </tr>
+                <tr data-project-id="2">
+                  <td>2</td>
+                  <td>Perfect Solution Website</td>
+                  <td>Anurag Yadav</td>
+                  <td>05/10/2025</td>
+                  <td><span class="status in-process">In Process</span></td>
+                  <td class="actions">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-remove">Remove</button>
+                  </td>
+                </tr>
+                <tr data-project-id="3">
+                  <td>3</td>
+                  <td>Perfect Solution Website</td>
+                  <td>Anurag Yadav</td>
+                  <td>05/10/2025</td>
+                  <td><span class="status waiting">Waiting</span></td>
+                  <td class="actions">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-remove">Remove</button>
+                  </td>
+                </tr>
+                <!-- Additional sample rows to demonstrate scrolling -->
+                <tr data-project-id="4">
+                  <td>4</td>
+                  <td>E-commerce Platform</td>
+                  <td>John Smith</td>
+                  <td>06/15/2025</td>
+                  <td><span class="status in-process">In Process</span></td>
+                  <td class="actions">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-remove">Remove</button>
+                  </td>
+                </tr>
+                <tr data-project-id="5">
+                  <td>5</td>
+                  <td>Mobile App Development</td>
+                  <td>Sarah Johnson</td>
+                  <td>07/01/2025</td>
+                  <td><span class="status waiting">Waiting</span></td>
+                  <td class="actions">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-remove">Remove</button>
+                  </td>
+                </tr>
+                <tr data-project-id="6">
+                  <td>6</td>
+                  <td>CRM System</td>
+                  <td>Mike Wilson</td>
+                  <td>04/20/2025</td>
+                  <td><span class="status completed">Completed</span></td>
+                  <td class="actions">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-remove">Remove</button>
+                  </td>
+                </tr>
+                <tr data-project-id="7">
+                  <td>7</td>
+                  <td>Dashboard Design</td>
+                  <td>Emily Brown</td>
+                  <td>08/10/2025</td>
+                  <td><span class="status in-process">In Process</span></td>
+                  <td class="actions">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-remove">Remove</button>
+                  </td>
+                </tr>
+                <tr data-project-id="8">
+                  <td>8</td>
+                  <td>API Integration</td>
+                  <td>David Lee</td>
+                  <td>09/05/2025</td>
+                  <td><span class="status waiting">Waiting</span></td>
+                  <td class="actions">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-remove">Remove</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="show-more-indicator" id="showMoreIndicator">
+            <i class="fas fa-chevron-down"></i> Scroll to see more projects
+          </div>
         </div>
 
         <!-- Notes Box -->
