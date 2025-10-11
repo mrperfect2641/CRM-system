@@ -396,16 +396,17 @@
     }
 
     .btn-edit {
-      background-color: #cad2d7;
-      color: #5e707c;
+      background-color: #5e707c;
+      color: #fff;
     }
 
     .btn-edit:hover {
-      background-color: #e3e7ea;
+      background-color: #a5b2bb;
+      color: #353A40;
     }
 
     .btn-remove {
-      background-color: #5e707c;
+      background-color: #353A40;
       color: #fff;
     }
 
