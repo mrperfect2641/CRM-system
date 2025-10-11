@@ -1,74 +1,121 @@
-const projectNotes = {
-      1: [
-        { text: "Initial project planning completed", date: "05/10/2025" }
-      ],
-      2: [
-        { text: "Design phase in progress", date: "05/10/2025" }
-      ],
-      3: [
-        { text: "Waiting for client feedback", date: "05/10/2025" }
-      ],
-      4: [
-        { text: "E-commerce platform development in progress", date: "06/15/2025" }
-      ],
-      5: [
-        { text: "Waiting for client approval on design", date: "07/01/2025" }
-      ],
-      6: [
-        { text: "CRM system successfully deployed", date: "04/20/2025" }
-      ],
-      7: [
-        { text: "Dashboard design in progress", date: "08/10/2025" }
-      ],
-      8: [
-        { text: "API integration pending third-party response", date: "09/05/2025" }
-      ],
-      9: [
-        { text: "Social media campaign completed successfully", date: "10/12/2025" }
-      ],
-      10: [
-        { text: "Brand identity design in final stages", date: "11/20/2025" }
-      ]
-    };
+const SUPABASE_URL = 'https://kqaqnhbdqnflbpjhrazq.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtxYXFuaGJkcW5mbGJwamhyYXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxMTIyMTksImV4cCI6MjA3NTY4ODIxOX0.5tAfWDw2gnkrgICmOr0ZQ8EiPG3aLMQ5TxuCuBUI5sU';
 
-    let projects = [
-      { id: 1, name: "Perfect Solution Website", client: "Anurag Yadav", startDate: "05/10/2025", status: "completed" },
-      { id: 2, name: "Perfect Solution Website", client: "Anurag Yadav", startDate: "05/10/2025", status: "in-process" },
-      { id: 3, name: "Perfect Solution Website", client: "Anurag Yadav", startDate: "05/10/2025", status: "waiting" },
-      { id: 4, name: "E-commerce Platform", client: "John Smith", startDate: "06/15/2025", status: "in-process" },
-      { id: 5, name: "Mobile App Development", client: "Sarah Johnson", startDate: "07/01/2025", status: "waiting" },
-      { id: 6, name: "CRM System", client: "Mike Wilson", startDate: "04/20/2025", status: "completed" },
-      { id: 7, name: "Dashboard Design", client: "Emily Brown", startDate: "08/10/2025", status: "in-process" },
-      { id: 8, name: "API Integration", client: "David Lee", startDate: "09/05/2025", status: "waiting" },
-      { id: 9, name: "Social Media Campaign", client: "Lisa Anderson", startDate: "10/12/2025", status: "completed" },
-      { id: 10, name: "Brand Identity Design", client: "Robert Taylor", startDate: "11/20/2025", status: "in-process" }
-    ];
+    // Initialize Supabase client
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Current selected project
+    // Global variables
+    let projects = [];
     let selectedProjectId = null;
     let editProjectId = null;
 
     // DOM Content Loaded
     document.addEventListener('DOMContentLoaded', function() {
-      initializeProjectsTable();
+      console.log('DOM loaded, initializing app...');
+      initializeApp();
+    });
+
+    // Initialize the application
+    async function initializeApp() {
+      showLoading();
+      await loadProjects();
       updateStatusCounts();
       initializeProjectsTableScroll();
       setupEventListeners();
-    });
+      hideLoading();
+    }
+
+    // Show/hide loading spinner
+    function showLoading() {
+      document.getElementById('loading').style.display = 'block';
+    }
+
+    function hideLoading() {
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    // Load projects from Supabase
+    async function loadProjects() {
+      try {
+        console.log('Loading projects from Supabase...');
+        const { data, error } = await supabaseClient
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
+
+        console.log('Projects loaded:', data);
+        projects = data || [];
+        initializeProjectsTable();
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        alert('Error loading projects: ' + error.message);
+      }
+    }
+
+    // Load notes for a project from Supabase
+    async function loadNotes(projectId) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('project_notes')
+          .select('*')
+          .eq('project_id', projectId)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        return data || [];
+      } catch (error) {
+        console.error('Error loading notes:', error);
+        return [];
+      }
+    }
 
     // Initialize projects table
     function initializeProjectsTable() {
       const tableBody = document.querySelector('#projectsTableContainer tbody');
       tableBody.innerHTML = '';
       
-      projects.forEach(project => {
+      if (projects.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; color: #999; padding: 40px;">
+              No projects found. Click "Add Project" to create your first project.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // projects.forEach(project => {
+      //   const tr = document.createElement('tr');
+      //   tr.setAttribute('data-project-id', project.id);
+      //   tr.innerHTML = `
+      //     <td>${project.id}</td>
+      //     <td>${project.name}</td>
+      //     <td>${project.client}</td>
+      //     <td>${formatDisplayDate(project.start_date)}</td>
+      //     <td><span class="status ${project.status}">${getStatusText(project.status)}</span></td>
+      //     <td class="actions">
+      //       <button class="btn btn-edit" data-project-id="${project.id}">Edit</button>
+      //       <button class="btn btn-remove" data-project-id="${project.id}">Remove</button>
+      //     </td>
+      //   `;
+      //   tableBody.appendChild(tr);
+      // });
+      // ======================================================= fix the numbering issue=========================
+      projects.forEach((project, index) => {
         const tr = document.createElement('tr');
         tr.setAttribute('data-project-id', project.id);
         tr.innerHTML = `
-          <td>${project.id}</td>
+          <td>${index + 1}</td>
           <td>${project.name}</td>
           <td>${project.client}</td>
-          <td>${project.startDate}</td>
+          <td>${formatDisplayDate(project.start_date)}</td>
           <td><span class="status ${project.status}">${getStatusText(project.status)}</span></td>
           <td class="actions">
             <button class="btn btn-edit" data-project-id="${project.id}">Edit</button>
@@ -77,6 +124,8 @@ const projectNotes = {
         `;
         tableBody.appendChild(tr);
       });
+
+
       
       // Add click events to rows
       document.querySelectorAll('.projects-table-container tbody tr').forEach(row => {
@@ -88,6 +137,8 @@ const projectNotes = {
 
     // Setup event listeners
     function setupEventListeners() {
+      console.log('Setting up event listeners...');
+      
       // Search functionality
       document.querySelector('.search-box input').addEventListener('input', function(e) {
         filterProjects(e.target.value);
@@ -131,30 +182,60 @@ const projectNotes = {
       const cancelBtn = document.getElementById('project-cancel-btn');
       const form = document.getElementById('project-form');
       
+      console.log('Modal elements:', { openBtn, overlay, cancelBtn, form });
+      
       if (openBtn) {
-        openBtn.addEventListener('click', function() {
+        openBtn.addEventListener('click', function(e) {
+          console.log('Add Project button clicked');
+          e.preventDefault();
+          e.stopPropagation();
           openProjectModal();
         });
+      } else {
+        console.error('Add Project button not found!');
       }
       
       if (overlay) {
-        overlay.addEventListener('click', closeProjectModal);
+        overlay.addEventListener('click', function(e) {
+          console.log('Overlay clicked');
+          e.preventDefault();
+          e.stopPropagation();
+          closeProjectModal();
+        });
       }
       
       if (cancelBtn) {
-        cancelBtn.addEventListener('click', closeProjectModal);
+        cancelBtn.addEventListener('click', function(e) {
+          console.log('Cancel button clicked');
+          e.preventDefault();
+          e.stopPropagation();
+          closeProjectModal();
+        });
       }
       
       if (form) {
-        form.addEventListener('submit', handleProjectSubmit);
+        form.addEventListener('submit', function(e) {
+          console.log('Form submitted');
+          e.preventDefault();
+          e.stopPropagation();
+          handleProjectSubmit(e);
+        });
       }
+      
+      console.log('Event listeners setup complete');
     }
 
     // Project functions
     function openProjectModal(projectId = null) {
+      console.log('Opening project modal for:', projectId);
       const modal = document.getElementById('project-modal');
       const form = document.getElementById('project-form');
       const title = document.getElementById('pjTitle');
+      
+      if (!modal) {
+        console.error('Modal element not found!');
+        return;
+      }
       
       if (projectId) {
         // Edit mode
@@ -163,7 +244,7 @@ const projectNotes = {
         title.textContent = 'Edit Project';
         document.getElementById('pj-name').value = project.name;
         document.getElementById('pj-client').value = project.client;
-        document.getElementById('pj-start').value = formatDateForInput(project.startDate);
+        document.getElementById('pj-start').value = project.start_date;
         document.getElementById('pj-status').value = project.status;
       } else {
         // Add mode
@@ -176,15 +257,20 @@ const projectNotes = {
       }
       
       modal.classList.remove('hidden');
+      console.log('Modal should be visible now');
     }
 
     function closeProjectModal() {
+      console.log('Closing project modal');
       const modal = document.getElementById('project-modal');
-      modal.classList.add('hidden');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
       editProjectId = null;
     }
 
-    function handleProjectSubmit(e) {
+    async function handleProjectSubmit(e) {
+      console.log('Handling project submit...');
       e.preventDefault();
       
       const name = document.getElementById('pj-name').value.trim();
@@ -197,49 +283,88 @@ const projectNotes = {
         return;
       }
       
-      if (editProjectId) {
-        // Update existing project
-        const projectIndex = projects.findIndex(p => p.id == editProjectId);
-        if (projectIndex !== -1) {
-          projects[projectIndex] = {
-            ...projects[projectIndex],
-            name,
-            client,
-            startDate: formatDateFromInput(start),
-            status: status.toLowerCase()
-          };
-        }
-      } else {
-        // Add new project
-        const newId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
-        const newProject = {
-          id: newId,
-          name,
-          client,
-          startDate: formatDateFromInput(start),
-          status: status.toLowerCase()
-        };
-        projects.push(newProject);
-        
-        // Initialize empty notes for new project
-        if (!projectNotes[newId]) {
-          projectNotes[newId] = [];
-        }
-      }
+      console.log('Submitting project:', { name, client, start, status });
+      showLoading();
       
-      initializeProjectsTable();
-      updateStatusCounts();
-      closeProjectModal();
+      try {
+        if (editProjectId) {
+          // Update existing project
+          console.log('Updating project:', editProjectId);
+          const { error } = await supabaseClient
+            .from('projects')
+            .update({
+              name: name,
+              client: client,
+              start_date: start,
+              status: status,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', editProjectId);
+
+          if (error) throw error;
+        } else {
+          // Add new project
+          console.log('Creating new project');
+          const { data, error } = await supabaseClient
+            .from('projects')
+            .insert([
+              {
+                name: name,
+                client: client,
+                start_date: start,
+                status: status
+              }
+            ])
+            .select();
+
+          if (error) throw error;
+          console.log('Project created:', data);
+        }
+        
+        // Reload projects
+        await loadProjects();
+        updateStatusCounts();
+        closeProjectModal();
+      } catch (error) {
+        console.error('Error saving project:', error);
+        alert('Error saving project: ' + error.message);
+      } finally {
+        hideLoading();
+      }
     }
 
     function editProject(projectId) {
+      console.log('Editing project:', projectId);
       openProjectModal(projectId);
     }
 
-    function removeProject(projectId) {
-      if (confirm('Are you sure you want to remove this project?')) {
-        projects = projects.filter(p => p.id != projectId);
-        initializeProjectsTable();
+    async function removeProject(projectId) {
+      if (!confirm('Are you sure you want to remove this project?')) {
+        return;
+      }
+      
+      console.log('Removing project:', projectId);
+      showLoading();
+      
+      try {
+        // First, delete all notes associated with this project
+        const { error: notesError } = await supabaseClient
+          .from('project_notes')
+          .delete()
+          .eq('project_id', projectId);
+
+        if (notesError) throw notesError;
+
+        // Then delete the project
+        const { error: projectError } = await supabaseClient
+          .from('projects')
+          .delete()
+          .eq('id', projectId);
+
+        if (projectError) throw projectError;
+
+        // Reload projects
+        await loadProjects();
         updateStatusCounts();
         
         // Clear notes if selected project was removed
@@ -247,10 +372,16 @@ const projectNotes = {
           selectedProjectId = null;
           document.querySelector('.notes-content').innerHTML = '<div class="note-item"><p>Select a project to view notes</p></div>';
         }
+      } catch (error) {
+        console.error('Error removing project:', error);
+        alert('Error removing project: ' + error.message);
+      } finally {
+        hideLoading();
       }
     }
 
-    function selectProject(projectId) {
+    async function selectProject(projectId) {
+      console.log('Selecting project:', projectId);
       // Remove active class from all rows
       document.querySelectorAll('.projects-table-container tbody tr').forEach(r => {
         r.classList.remove('active');
@@ -263,13 +394,15 @@ const projectNotes = {
       }
       
       selectedProjectId = projectId;
-      displayNotes(projectId);
+      await displayNotes(projectId);
     }
 
     // Notes functions
-    function displayNotes(projectId) {
+    async function displayNotes(projectId) {
       const notesContent = document.querySelector('.notes-content');
-      const notes = projectNotes[projectId] || [];
+      notesContent.innerHTML = '<div class="note-item"><p>Loading notes...</p></div>';
+      
+      const notes = await loadNotes(projectId);
       
       notesContent.innerHTML = '';
       
@@ -282,30 +415,40 @@ const projectNotes = {
         const noteItem = document.createElement('div');
         noteItem.className = 'note-item';
         noteItem.innerHTML = `
-          <p>${note.text}</p>
-          <div class="note-date">${note.date}</div>
+          <p>${note.note_text}</p>
+          <div class="note-date">${formatDisplayDate(note.created_at)}</div>
         `;
         notesContent.appendChild(noteItem);
       });
     }
 
-    function addNote() {
+    async function addNote() {
       const noteTextarea = document.querySelector('.notes-input textarea');
       const noteText = noteTextarea.value.trim();
       
       if (noteText && selectedProjectId) {
-        if (!projectNotes[selectedProjectId]) {
-          projectNotes[selectedProjectId] = [];
+        showLoading();
+        
+        try {
+          const { error } = await supabaseClient
+            .from('project_notes')
+            .insert([
+              {
+                project_id: selectedProjectId,
+                note_text: noteText
+              }
+            ]);
+
+          if (error) throw error;
+
+          await displayNotes(selectedProjectId);
+          noteTextarea.value = '';
+        } catch (error) {
+          console.error('Error adding note:', error);
+          alert('Error adding note: ' + error.message);
+        } finally {
+          hideLoading();
         }
-        
-        const currentDate = new Date().toLocaleDateString();
-        projectNotes[selectedProjectId].push({
-          text: noteText,
-          date: currentDate
-        });
-        
-        displayNotes(selectedProjectId);
-        noteTextarea.value = '';
       } else if (!selectedProjectId) {
         alert('Please select a project first');
       }
@@ -400,12 +543,11 @@ const projectNotes = {
       return statusMap[status] || status;
     }
 
-    function formatDateForInput(dateString) {
-      const [month, day, year] = dateString.split('/');
-      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-    }
-
-    function formatDateFromInput(dateString) {
+    function formatDisplayDate(dateString) {
       const date = new Date(dateString);
-      return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
     }

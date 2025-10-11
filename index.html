@@ -5,9 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CRM Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Loading Spinner -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+  </div>
+
   <!-- Sidebar Navigation -->
   <div class="sidebar">
     <div class="logo">
@@ -56,7 +62,6 @@
         </div>
       </div>
     </div>
-
       <!-- Status Boxes -->
       <div class="status-boxes">
         <div class="status-box all-projects">
@@ -114,7 +119,7 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Projects will be dynamically loaded here -->
+                <!-- Projects will be dynamically loaded from Supabase -->
               </tbody>
             </table>
           </div>
@@ -150,11 +155,11 @@
   </div>
   
   <!-- Project Modal -->
-  <div id="project-modal" class="pj-modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
+  <div id="project-modal" class="pj-modal hidden">
     <div class="pj-overlay" id="pjOverlay"></div>
-    <div class="pj-dialog" role="document" aria-labelledby="pjTitle">
+    <div class="pj-dialog">
       <h3 id="pjTitle" class="pj-title">New Project</h3>
-      <form id="project-form" class="pj-form" autocomplete="off">
+      <form id="project-form" class="pj-form">
         <div class="pj-row">
           <label for="pj-name">Project Name</label>
           <input id="pj-name" name="projectName" class="pj-input" type="text" placeholder="e.g. Logo Design" required>

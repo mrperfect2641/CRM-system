@@ -13,6 +13,30 @@
       overflow: hidden;
     }
 
+    /* Loading Spinner */
+    .loading {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     /* Sidebar */
     .sidebar {
       width: 260px;
@@ -210,8 +234,7 @@
     .status-boxes {
       display: flex;
       gap: 20px;
-      margin-bottom: 25px;
-      margin-top: 25px;
+      margin: 25px 0;
     }
 
     .status-box {
@@ -556,7 +579,6 @@
     }
 
     /* ===== Project Popup Styles ===== */
-    .pj-modal.hidden { display: none; }
     .pj-modal {
       position: fixed;
       inset: 0;
@@ -566,12 +588,18 @@
       z-index: 2000;
       font-family: inherit;
     }
+    
+    .pj-modal.hidden { 
+      display: none; 
+    }
+    
     .pj-overlay {
       position: absolute;
       inset: 0;
       background: rgba(0,0,0,0.5);
       backdrop-filter: blur(2px);
     }
+    
     .pj-dialog {
       background: #fff;
       border-radius: 10px;
@@ -580,11 +608,55 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.25);
       z-index: 2;
     }
-    .pj-title { font-size: 18px; margin-bottom: 12px; }
-    .pj-form { display: grid; gap: 10px; }
-    .pj-row { display: flex; flex-direction: column; gap: 5px; }
-    .pj-row.small-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .pj-input { padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
-    .pj-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
-    .btn.primary { background: #007bff; color: #fff; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
-    .btn.secondary { background: #f2f2f2; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+    
+    .pj-title { 
+      font-size: 18px; 
+      margin-bottom: 12px; 
+    }
+    
+    .pj-form { 
+      display: grid; 
+      gap: 10px; 
+    }
+    
+    .pj-row { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 5px; 
+    }
+    
+    .pj-row.small-grid { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 10px; 
+    }
+    
+    .pj-input { 
+      padding: 8px; 
+      border: 1px solid #ccc; 
+      border-radius: 6px; 
+    }
+    
+    .pj-actions { 
+      display: flex; 
+      justify-content: flex-end; 
+      gap: 8px; 
+      margin-top: 10px; 
+    }
+    
+    .btn.primary { 
+      background: #007bff; 
+      color: #fff; 
+      border: none; 
+      border-radius: 6px; 
+      padding: 8px 12px; 
+      cursor: pointer; 
+    }
+    
+    .btn.secondary { 
+      background: #f2f2f2; 
+      border: 1px solid #ddd; 
+      border-radius: 6px; 
+      padding: 8px 12px; 
+      cursor: pointer; 
+    }
