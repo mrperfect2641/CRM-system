@@ -56,6 +56,7 @@
 
     <!-- Freelance Projects Section -->
     <div class="content-section" id="freelance-section">
+
       <!-- Status Boxes -->
       <div class="status-boxes">
         <div class="status-box all-projects">
@@ -150,6 +151,7 @@
     <!-- Portfolio Website Section -->
     <div class="content-section hidden" id="portfolio-section">
       
+      <!-- Portfolio Stats -->
       <div class="portfolio-stats">
         <div class="stat-card">
           <div class="stat-icon">
@@ -192,42 +194,20 @@
       <!-- Portfolio Content -->
       <div class="portfolio-content">
         <div class="content-grid">
-          <!-- Projects Showcase -->
+          <!-- Portfolio Images Section -->
           <div class="content-card">
             <div class="card-header">
-              <h3>Featured Projects</h3>
-              <button class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add Project
+              <h3>Portfolio Images</h3>
+              <button class="btn btn-primary" id="addPortfolioImageBtn">
+                <i class="fas fa-plus"></i> Add Image
               </button>
             </div>
             <div class="card-body">
-              <div class="project-showcase">
-                <div class="showcase-item">
-                  <div class="showcase-image">
-                    <i class="fas fa-laptop-code"></i>
-                  </div>
-                  <div class="showcase-info">
-                    <h4>E-commerce Website</h4>
-                    <p>React, Node.js, MongoDB</p>
-                    <div class="showcase-actions">
-                      <button class="btn btn-sm btn-edit">Edit</button>
-                      <button class="btn btn-sm btn-remove">Remove</button>
-                    </div>
-                  </div>
-                </div>
-                <div class="showcase-item">
-                  <div class="showcase-image">
-                    <i class="fas fa-mobile-alt"></i>
-                  </div>
-                  <div class="showcase-info">
-                    <h4>Mobile App UI</h4>
-                    <p>React Native, Figma</p>
-                    <div class="showcase-actions">
-                      <button class="btn btn-sm btn-edit">Edit</button>
-                      <button class="btn btn-sm btn-remove">Remove</button>
-                    </div>
-                  </div>
-                </div>
+              <div class="portfolio-images-container" id="portfolioImagesContainer">
+                <!-- Portfolio images will be loaded here -->
+              </div>
+              <div class="show-more-indicator" id="portfolioImagesMore">
+                <i class="fas fa-chevron-down"></i> Scroll to see more images
               </div>
             </div>
           </div>
@@ -350,13 +330,12 @@
       </div>
     </div>
 
-    <!-- Other sections can be added here -->
+    <!-- Other sections -->
     <div class="content-section hidden" id="info-section">
       <div class="portfolio-header">
         <h1 class="page-title">Important Info</h1>
         <p class="page-description">Important information and resources</p>
       </div>
-      <!-- Content for Important Info section -->
     </div>
 
     <div class="content-section hidden" id="connections-section">
@@ -364,7 +343,6 @@
         <h1 class="page-title">Connections</h1>
         <p class="page-description">Manage your professional connections</p>
       </div>
-      <!-- Content for Connections section -->
     </div>
   </div>
   
@@ -400,6 +378,43 @@
         <div class="pj-actions">
           <button type="button" class="btn secondary" id="project-cancel-btn">Cancel</button>
           <button type="submit" class="btn primary" id="project-save-btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Portfolio Image Modal -->
+  <div id="portfolio-image-modal" class="pj-modal hidden">
+    <div class="pj-overlay" id="portfolioImageOverlay"></div>
+    <div class="pj-dialog" style="max-width: 500px;">
+      <h3 id="portfolioImageTitle" class="pj-title">Add Portfolio Image</h3>
+      <form id="portfolio-image-form" class="pj-form">
+        <div class="pj-row">
+          <label for="portfolioImageInput">Image</label>
+          <div class="image-upload-container">
+            <input type="file" id="portfolioImageInput" accept="image/*" class="hidden">
+            <div class="image-preview" id="portfolioImagePreview">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <span>Click to upload image</span>
+            </div>
+            <button type="button" class="btn secondary" id="portfolioUploadTrigger">Choose Image</button>
+          </div>
+        </div>
+        <div class="pj-row">
+          <label for="portfolioImageUrl">Image URL</label>
+          <input id="portfolioImageUrl" name="imageUrl" class="pj-input" type="url" placeholder="https://example.com" required>
+        </div>
+        <div class="pj-row">
+          <label for="portfolioImageSize">Image Size</label>
+          <input id="portfolioImageSize" name="imageSize" class="pj-input" type="text" placeholder="e.g., 1920x1080, 800x600" required>
+        </div>
+        <div class="pj-row">
+          <label for="portfolioImageTitleInput">Image Title</label>
+          <input id="portfolioImageTitleInput" name="imageTitle" class="pj-input" type="text" placeholder="Enter image title" required>
+        </div>
+        <div class="pj-actions">
+          <button type="button" class="btn secondary" id="portfolioImageCancel">Cancel</button>
+          <button type="submit" class="btn primary" id="portfolioImageSave">Save</button>
         </div>
       </form>
     </div>
