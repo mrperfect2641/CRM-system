@@ -551,3 +551,47 @@ const SUPABASE_URL = 'https://kqaqnhbdqnflbpjhrazq.supabase.co';
         day: '2-digit'
       });
     }
+
+    // Section switching functionality
+    function setupSectionSwitching() {
+      const navItems = document.querySelectorAll('.nav-item[data-section]');
+      
+      navItems.forEach(item => {
+        item.addEventListener('click', function() {
+          const targetSection = this.getAttribute('data-section');
+          switchSection(targetSection);
+        });
+      });
+    }
+
+    function switchSection(sectionName) {
+      // Hide all sections
+      document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+      });
+      
+      // Remove active class from all nav items
+      document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      // Show target section and activate nav item
+      const targetSection = document.getElementById(`${sectionName}-section`);
+      const targetNavItem = document.querySelector(`.nav-item[data-section="${sectionName}"]`);
+      
+      if (targetSection && targetNavItem) {
+        targetSection.classList.remove('hidden');
+        targetNavItem.classList.add('active');
+      }
+    }
+
+    // Update the initializeApp function to include section switching
+    async function initializeApp() {
+      showLoading();
+      await loadProjects();
+      updateStatusCounts();
+      initializeProjectsTableScroll();
+      setupEventListeners();
+      setupSectionSwitching(); // Add this line
+      hideLoading();
+    }

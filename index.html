@@ -17,28 +17,19 @@
   <!-- Sidebar Navigation -->
   <div class="sidebar">
     <div class="logo">
-      <i class="fas fa-cube"></i>
-      <span>CRM PRO</span>
+      <span>CRM System</span>
     </div>
     <div class="nav-menu">
-      <div class="nav-item">
-        <!-- <i class="fas fa-th-large"></i> -->
-        <span>Dashboard</span>
+      <div class="nav-item active" data-section="freelance">
+        <span>Freelance Projects</span>
       </div>
-      <div class="nav-item">
-        <!-- <i class="fas fa-users"></i> -->
+      <div class="nav-item" data-section="portfolio">
         <span>Portfolio Website</span>
       </div>
-      <div class="nav-item active">
-        <!-- <i class="fas fa-briefcase"></i> -->
-        <span>Graphic Projects</span>
+      <div class="nav-item" data-section="info">
+        <span>Important Info</span>
       </div>
-      <div class="nav-item">
-        <!-- <i class="fas fa-calendar-alt"></i> -->
-        <span>Website Projects</span>
-      </div>
-      <div class="nav-item">
-        <!-- <i class="fas fa-chart-bar"></i> -->
+      <div class="nav-item" data-section="connections">
         <span>Connections</span>
       </div>
     </div>
@@ -49,7 +40,7 @@
     <div class="top-bar">
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" placeholder="Search projects, clients, tasks...">
+        <input type="text" id="searchInput" placeholder="Search projects, clients, tasks...">
       </div>
       <div class="user-actions">
         <div class="notification">
@@ -62,6 +53,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Freelance Projects Section -->
+    <div class="content-section" id="freelance-section">
       <!-- Status Boxes -->
       <div class="status-boxes">
         <div class="status-box all-projects">
@@ -118,7 +112,7 @@
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="projectsTableBody">
                 <!-- Projects will be dynamically loaded from Supabase -->
               </tbody>
             </table>
@@ -140,17 +134,237 @@
           <div class="notes-header">
             <h3>Project Notes</h3>
           </div>
-          <div class="notes-content">
+          <div class="notes-content" id="notesContent">
             <div class="note-item">
               <p>Select a project to view notes</p>
             </div>
           </div>
           <div class="notes-input">
-            <textarea placeholder="Add a note..."></textarea>
-            <button><i class="fas fa-plus"></i></button>
+            <textarea id="noteTextarea" placeholder="Add a note..."></textarea>
+            <button id="addNoteBtn"><i class="fas fa-plus"></i></button>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Portfolio Website Section -->
+    <div class="content-section hidden" id="portfolio-section">
+      
+      <div class="portfolio-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-eye"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number">1,234</div>
+            <div class="stat-label">Total Views</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number">567</div>
+            <div class="stat-label">Unique Visitors</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-download"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number">89</div>
+            <div class="stat-label">Resume Downloads</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number">45</div>
+            <div class="stat-label">Contact Requests</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio Content -->
+      <div class="portfolio-content">
+        <div class="content-grid">
+          <!-- Projects Showcase -->
+          <div class="content-card">
+            <div class="card-header">
+              <h3>Featured Projects</h3>
+              <button class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Project
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="project-showcase">
+                <div class="showcase-item">
+                  <div class="showcase-image">
+                    <i class="fas fa-laptop-code"></i>
+                  </div>
+                  <div class="showcase-info">
+                    <h4>E-commerce Website</h4>
+                    <p>React, Node.js, MongoDB</p>
+                    <div class="showcase-actions">
+                      <button class="btn btn-sm btn-edit">Edit</button>
+                      <button class="btn btn-sm btn-remove">Remove</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="showcase-item">
+                  <div class="showcase-image">
+                    <i class="fas fa-mobile-alt"></i>
+                  </div>
+                  <div class="showcase-info">
+                    <h4>Mobile App UI</h4>
+                    <p>React Native, Figma</p>
+                    <div class="showcase-actions">
+                      <button class="btn btn-sm btn-edit">Edit</button>
+                      <button class="btn btn-sm btn-remove">Remove</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skills & Technologies -->
+          <div class="content-card">
+            <div class="card-header">
+              <h3>Skills & Technologies</h3>
+              <button class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Skill
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="skills-grid">
+                <div class="skill-item">
+                  <span class="skill-name">React</span>
+                  <div class="skill-level">
+                    <div class="skill-progress" style="width: 90%"></div>
+                  </div>
+                </div>
+                <div class="skill-item">
+                  <span class="skill-name">JavaScript</span>
+                  <div class="skill-level">
+                    <div class="skill-progress" style="width: 85%"></div>
+                  </div>
+                </div>
+                <div class="skill-item">
+                  <span class="skill-name">Node.js</span>
+                  <div class="skill-level">
+                    <div class="skill-progress" style="width: 80%"></div>
+                  </div>
+                </div>
+                <div class="skill-item">
+                  <span class="skill-name">CSS</span>
+                  <div class="skill-level">
+                    <div class="skill-progress" style="width: 95%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="content-card">
+            <div class="card-header">
+              <h3>Recent Activity</h3>
+            </div>
+            <div class="card-body">
+              <div class="activity-list">
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <i class="fas fa-eye"></i>
+                  </div>
+                  <div class="activity-content">
+                    <p>Someone viewed your portfolio from United States</p>
+                    <span class="activity-time">2 hours ago</span>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <i class="fas fa-download"></i>
+                  </div>
+                  <div class="activity-content">
+                    <p>Your resume was downloaded</p>
+                    <span class="activity-time">5 hours ago</span>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <div class="activity-content">
+                    <p>New contact form submission</p>
+                    <span class="activity-time">1 day ago</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Settings -->
+          <div class="content-card">
+            <div class="card-header">
+              <h3>Website Settings</h3>
+            </div>
+            <div class="card-body">
+              <div class="settings-list">
+                <div class="setting-item">
+                  <span>Website Status</span>
+                  <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <span>Contact Form</span>
+                  <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <span>Google Analytics</span>
+                  <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <span>Maintenance Mode</span>
+                  <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other sections can be added here -->
+    <div class="content-section hidden" id="info-section">
+      <div class="portfolio-header">
+        <h1 class="page-title">Important Info</h1>
+        <p class="page-description">Important information and resources</p>
+      </div>
+      <!-- Content for Important Info section -->
+    </div>
+
+    <div class="content-section hidden" id="connections-section">
+      <div class="portfolio-header">
+        <h1 class="page-title">Connections</h1>
+        <p class="page-description">Manage your professional connections</p>
+      </div>
+      <!-- Content for Connections section -->
     </div>
   </div>
   
