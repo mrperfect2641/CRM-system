@@ -1214,3 +1214,368 @@ async function initializeApp() {
   setupSectionSwitching();
   hideLoading();
 }
+
+// ===== UPDATES FUNCTIONALITY =====
+let updates = [];
+let editUpdateId = null;
+
+// Initialize updates
+async function initializeUpdates() {
+  await loadUpdates();
+  setupUpdatesEventListeners();
+}
+
+// Load updates from Supabase
+async function loadUpdates() {
+  try {
+    const { data, error } = await supabaseClient
+      .from('updates')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    updates = data || [];
+    renderUpdates();
+  } catch (error) {
+    console.error('Error loading updates:', error);
+    // Fallback to sample data if table doesn't exist
+    updates = getSampleUpdates();
+    renderUpdates();
+  }
+}
+
+// Get sample updates (fallback)
+function getSampleUpdates() {
+  return [
+    {
+      id: '1',
+      title: "Project Design Updated",
+      date: new Date().toISOString().split('T')[0],
+      time: "14:30",
+      icon: "fas fa-edit",
+      type: "update"
+    },
+    {
+      id: '2',
+      title: "Client Feedback Received",
+      date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+      time: "11:45",
+      icon: "fas fa-check-circle",
+      type: "feedback"
+    },
+    {
+      id: '3',
+      title: "Final Delivery Sent",
+      date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
+      time: "16:20",
+      icon: "fas fa-upload",
+      type: "delivery"
+    }
+  ];
+}
+
+// Render updates to the DOM
+function renderUpdates() {
+  const container = document.getElementById('updatesContainer');
+  if (!container) return;
+  
+  container.innerHTML = '';
+
+  if (updates.length === 0) {
+    container.innerHTML = `
+      <div class="no-updates">
+        <i class="fas fa-bell-slash"></i>
+        <p>No recent updates available. Click "Add Update" to get started.</p>
+      </div>
+    `;
+    return;
+  }
+
+  updates.forEach((update, index) => {
+    const updateElement = createUpdateElement(update, index);
+    container.appendChild(updateElement);
+  });
+
+  setupUpdatesScroll();
+}
+
+// Create update element
+function createUpdateElement(update, index) {
+  const div = document.createElement('div');
+  div.className = 'update-item';
+  div.setAttribute('data-update-id', update.id);
+  
+  // Format date for display (YYYY-MM-DD to MMM DD, YYYY)
+  const displayDate = formatDisplayDate(update.date);
+  // Format time for display (HH:MM to HH:MM AM/PM)
+  const displayTime = formatDisplayTime(update.time);
+  
+  div.innerHTML = `
+    <div class="update-icon">
+      <i class="${update.icon}"></i>
+    </div>
+    <div class="update-content">
+      <h4 class="update-title">${update.title}</h4>
+      <div class="update-details">
+        <span class="update-date">${displayDate}</span>
+        <span class="update-time">${displayTime}</span>
+      </div>
+    </div>
+    <div class="update-actions">
+      <button class="update-action-btn update-edit-btn" data-update-id="${update.id}">
+        <i class="fas fa-edit"></i>
+      </button>
+      <button class="update-action-btn update-delete-btn" data-update-id="${update.id}">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  `;
+  
+  return div;
+}
+
+// Setup updates event listeners
+function setupUpdatesEventListeners() {
+  // Add update button
+  const addUpdateBtn = document.getElementById('add-update-btn');
+  if (addUpdateBtn) {
+    addUpdateBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      openUpdateModal();
+    });
+  }
+  
+  // Modal event listeners
+  const overlay = document.getElementById('updateOverlay');
+  const cancelBtn = document.getElementById('update-cancel-btn');
+  const form = document.getElementById('update-form');
+  
+  if (overlay) {
+    overlay.addEventListener('click', closeUpdateModal);
+  }
+  
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', closeUpdateModal);
+  }
+  
+  if (form) {
+    form.addEventListener('submit', handleUpdateSubmit);
+  }
+  
+  // Edit and Delete buttons (delegated)
+  const container = document.getElementById('updatesContainer');
+  if (container) {
+    container.addEventListener('click', function(e) {
+      const updateId = e.target.closest('.update-action-btn')?.getAttribute('data-update-id');
+      if (!updateId) return;
+      
+      if (e.target.closest('.update-edit-btn')) {
+        e.stopPropagation();
+        editUpdate(updateId);
+      } else if (e.target.closest('.update-delete-btn')) {
+        e.stopPropagation();
+        removeUpdate(updateId);
+      }
+    });
+  }
+}
+
+// Open update modal
+function openUpdateModal(updateId = null) {
+  const modal = document.getElementById('update-modal');
+  const form = document.getElementById('update-form');
+  const title = document.getElementById('updateTitle');
+  
+  if (!modal) return;
+  
+  // Set today's date and current time as default
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date().toTimeString().slice(0, 5);
+  
+  if (updateId) {
+    // Edit mode
+    editUpdateId = updateId;
+    const update = updates.find(u => u.id == updateId);
+    title.textContent = 'Edit Update';
+    document.getElementById('update-title').value = update.title || '';
+    document.getElementById('update-date').value = update.date || today;
+    document.getElementById('update-time').value = update.time || now;
+    document.getElementById('update-icon').value = update.icon || 'fas fa-edit';
+    document.getElementById('update-type').value = update.type || 'update';
+  } else {
+    // Add mode
+    editUpdateId = null;
+    title.textContent = 'Add Update';
+    if (form) form.reset();
+    document.getElementById('update-date').value = today;
+    document.getElementById('update-time').value = now;
+  }
+  
+  modal.classList.remove('hidden');
+}
+
+// Close update modal
+function closeUpdateModal() {
+  const modal = document.getElementById('update-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+  editUpdateId = null;
+}
+
+// Handle update form submission
+async function handleUpdateSubmit(e) {
+  e.preventDefault();
+  
+  const title = document.getElementById('update-title').value.trim();
+  const date = document.getElementById('update-date').value;
+  const time = document.getElementById('update-time').value;
+  const icon = document.getElementById('update-icon').value;
+  const type = document.getElementById('update-type').value;
+  
+  if (!title || !date || !time) {
+    alert('Please fill all required fields');
+    return;
+  }
+  
+  showLoading();
+  
+  try {
+    if (editUpdateId) {
+      // Update existing update
+      const { error } = await supabaseClient
+        .from('updates')
+        .update({
+          title: title,
+          date: date,
+          time: time,
+          icon: icon,
+          type: type,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', editUpdateId);
+
+      if (error) throw error;
+    } else {
+      // Add new update
+      const { error } = await supabaseClient
+        .from('updates')
+        .insert([{
+          title: title,
+          date: date,
+          time: time,
+          icon: icon,
+          type: type
+        }]);
+
+      if (error) throw error;
+    }
+    
+    // Reload updates
+    await loadUpdates();
+    closeUpdateModal();
+  } catch (error) {
+    console.error('Error saving update:', error);
+    alert('Error saving update: ' + error.message);
+  } finally {
+    hideLoading();
+  }
+}
+
+// Edit update
+function editUpdate(updateId) {
+  openUpdateModal(updateId);
+}
+
+// Remove update
+async function removeUpdate(updateId) {
+  if (!confirm('Are you sure you want to delete this update?')) {
+    return;
+  }
+  
+  showLoading();
+  
+  try {
+    const { error } = await supabaseClient
+      .from('updates')
+      .delete()
+      .eq('id', updateId);
+
+    if (error) throw error;
+
+    // Reload updates
+    await loadUpdates();
+  } catch (error) {
+    console.error('Error deleting update:', error);
+    alert('Error deleting update: ' + error.message);
+  } finally {
+    hideLoading();
+  }
+}
+
+// Setup updates scroll functionality
+function setupUpdatesScroll() {
+  const container = document.getElementById('updatesContainer');
+  const showMoreIndicator = document.getElementById('updatesMoreIndicator');
+  
+  if (!container || !showMoreIndicator) return;
+  
+  const updateItems = container.querySelectorAll('.update-item');
+  
+  if (updateItems.length > 3) {
+    showMoreIndicator.style.display = 'block';
+    
+    container.addEventListener('scroll', function() {
+      const scrollTop = container.scrollTop;
+      const scrollHeight = container.scrollHeight;
+      const clientHeight = container.clientHeight;
+      
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
+        showMoreIndicator.style.display = 'none';
+      } else {
+        showMoreIndicator.style.display = 'block';
+      }
+    });
+    
+    showMoreIndicator.addEventListener('click', function() {
+      container.scrollBy({ top: 100, behavior: 'smooth' });
+    });
+  } else {
+    showMoreIndicator.style.display = 'none';
+  }
+}
+
+// Format date for display
+function formatDisplayDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+}
+
+// Format time for display
+function formatDisplayTime(timeString) {
+  const [hours, minutes] = timeString.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minutes} ${ampm}`;
+}
+
+// Update initializeApp function to include updates
+async function initializeApp() {
+  showLoading();
+  await loadProjects();
+  await initializePortfolioImages();
+  await initializeSkills();
+  await initializeUpdates(); // Add this line
+  updateStatusCounts();
+  initializeProjectsTableScroll();
+  setupEventListeners();
+  setupSectionSwitching();
+  hideLoading();
+}

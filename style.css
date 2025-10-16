@@ -19,7 +19,7 @@ body {
   overflow: hidden;
 }
 
-/* Loading Spinner */
+/* Loading Spinner - USED */
 .loading {
   display: none;
   position: fixed;
@@ -43,7 +43,7 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* Sidebar */
+/* Sidebar - USED */
 .sidebar {
   width: 225px;
   background: var(--primary-color);
@@ -64,9 +64,10 @@ body {
 }
 
 .logo i {
-  color: #3498db;
+  color: #3498db; /* TODO: Consider using CSS variable for consistency */
 }
 
+/* NOT USED - Profile section exists in HTML but not implemented in JS */
 .profile {
   padding: 20px;
   border-bottom: 1px solid #34495e;
@@ -129,7 +130,7 @@ body {
   text-align: center;
 }
 
-/* Main Content */
+/* Main Content - USED */
 .main-content {
   flex: 1;
   display: flex;
@@ -216,6 +217,7 @@ body {
   font-weight: 500;
 }
 
+/* NOT USED - Replaced by .content-section */
 .content-area {
   flex: 1;
   padding: 30px;
@@ -238,7 +240,7 @@ body {
   font-size: 15px;
 }
 
-/* Status Boxes */
+/* Status Boxes - USED */
 .status-boxes {
   display: flex;
   gap: 20px;
@@ -272,6 +274,7 @@ body {
   color: white;
 }
 
+/* TODO: Consider adding distinct colors for different status types */
 .all-projects .status-icon {
   background: #353A40;
 }
@@ -301,7 +304,7 @@ body {
   margin-top: 5px;
 }
 
-/* Projects Section with Notes */
+/* Projects Section with Notes - USED */
 .projects-section {
   display: flex;
   gap: 20px;
@@ -321,7 +324,7 @@ body {
   flex-direction: column;
 }
 
-/* Scrollable Projects Table */
+/* Scrollable Projects Table - USED */
 .projects-table-container {
   flex: 1;
   overflow-y: auto;
@@ -402,7 +405,7 @@ td {
   color: #fff;
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling - USED */
 .projects-table-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -421,7 +424,7 @@ td {
   background: #a8a8a8;
 }
 
-/* Show more indicator */
+/* Show more indicator - USED */
 .show-more-indicator {
   text-align: center;
   padding: 10px;
@@ -437,7 +440,7 @@ td {
   display: block;
 }
 
-/* Notes Box */
+/* Notes Box - USED */
 .notes-box {
   width: 350px;
   background-color: white;
@@ -448,7 +451,7 @@ td {
   flex-direction: column;
 }
 
-/* Style for the Add Project button inside notes box */
+/* Style for the Add Project button inside notes box - USED */
 .notes-box .add-project-btn {
   padding: 15px 20px 15px 20px;
   margin: 0;
@@ -548,7 +551,7 @@ td {
   transition: 0.2s;
 }
 
-/* Active row styling */
+/* Active row styling - USED */
 .projects-table-container tbody tr {
   cursor: pointer;
   transition: background-color 0.2s;
@@ -568,13 +571,13 @@ td {
   color: #2c3e50;
 }
 
-/* Animations */
+/* Animations - USED */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== Project Popup Styles ===== */
+/* ===== Project Popup Styles ===== - USED */
 .pj-modal {
   position: fixed;
   inset: 0;
@@ -641,12 +644,17 @@ td {
 }
 
 .btn.primary { 
-  background: #007bff; 
+  background: var(--primary-color); 
   color: #fff; 
   border: none; 
   border-radius: 6px; 
   padding: 8px 12px; 
   cursor: pointer; 
+}
+
+.btn-primary:hover {
+  background: var(--secondary-color);
+  color: #fff;
 }
 
 .btn.secondary { 
@@ -657,7 +665,7 @@ td {
   cursor: pointer; 
 }
 
-/* Portfolio Section Styles */
+/* Portfolio Section Styles - USED */
 .portfolio-header {
   margin-bottom: 30px;
 }
@@ -710,7 +718,7 @@ td {
   font-weight: 500;
 }
 
-/* Portfolio Content Grid */
+/* Portfolio Content Grid - USED */
 .portfolio-content {
   margin-top: 30px;
 }
@@ -748,7 +756,7 @@ td {
   padding: 25px;
 }
 
-/* Portfolio Images */
+/* Portfolio Images - USED */
 .portfolio-images-container {
   display: flex;
   flex-direction: column;
@@ -866,7 +874,7 @@ td {
   flex-shrink: 0;
 }
 
-/* Image Upload */
+/* Image Upload - USED */
 .image-upload-container {
   display: flex;
   flex-direction: column;
@@ -916,7 +924,7 @@ td {
   color: var(--secondary-color);
 }
 
-/* Buttons */
+/* Buttons - USED */
 .btn-primary {
   background: var(--primary-color);
   color: white;
@@ -941,7 +949,7 @@ td {
   font-size: 11px;
 }
 
-/* Content Sections */
+/* Content Sections - USED */
 .content-section {
   flex: 1;
   padding: 30px;
@@ -956,14 +964,15 @@ td {
   display: none !important;
 }
 
-/* Skills Grid Styles */
+/* Skills Grid Styles - USED */
 .skills-grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 15px;
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
   padding-right: 10px;
+  padding-top: 10px;
 }
 
 .skills-grid-container::-webkit-scrollbar {
@@ -1049,28 +1058,50 @@ td {
   display: block;
 }
 
-/* Activity List */
-.activity-list {
+/* Updates Container Styles */
+.updates-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
 }
 
-.activity-item {
+.updates-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.updates-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.updates-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+/* Update Item Styles */
+.update-item {
   display: flex;
   align-items: flex-start;
   gap: 15px;
-  padding: 15px;
+  padding: 16px;
   border: 1px solid #f0f0f0;
   border-radius: 8px;
   transition: all 0.3s ease;
+  background: #fafbfc;
+  position: relative;
 }
 
-.activity-item:hover {
+.update-item:hover {
   border-color: var(--secondary-color);
+  transform: translateX(5px);
+  background: white;
 }
 
-.activity-icon {
+.update-icon {
   width: 40px;
   height: 40px;
   border-radius: 8px;
@@ -1080,25 +1111,105 @@ td {
   justify-content: center;
   font-size: 16px;
   color: white;
+  flex-shrink: 0;
 }
 
-.activity-content {
+.update-content {
   flex: 1;
+  min-width: 0;
+  margin-right: 60px; /* Space for action buttons */
 }
 
-.activity-content p {
+.update-title {
   font-size: 14px;
   color: var(--primary-color);
-  margin-bottom: 5px;
+  font-weight: 600;
+  margin-bottom: 6px;
   line-height: 1.4;
 }
 
-.activity-time {
-  font-size: 12px;
-  color: var(--secondary-color);
+.update-details {
+  display: flex;
+  gap: 15px;
+  align-items: center;
 }
 
-/* Settings List */
+.update-date {
+  font-size: 12px;
+  color: var(--secondary-color);
+  font-weight: 500;
+}
+
+.update-time {
+  font-size: 12px;
+  color: #7f8c8d;
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Update Action Buttons */
+.update-actions {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.update-item:hover .update-actions {
+  opacity: 1;
+}
+
+.update-action-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.update-edit-btn {
+  background: var(--secondary-color);
+  color: white;
+}
+
+.update-edit-btn:hover {
+  background: #4a5c6b;
+}
+
+.update-delete-btn {
+  background: #e74c3c;
+  color: white;
+}
+
+.update-delete-btn:hover {
+  background: #c0392b;
+}
+
+.no-updates {
+  text-align: center;
+  padding: 40px 20px;
+  color: #7f8c8d;
+  grid-column: 1 / -1;
+}
+
+.no-updates i {
+  font-size: 48px;
+  color: #bdc3c7;
+  margin-bottom: 10px;
+  display: block;
+}
+/* Settings List - USED */
 .settings-list {
   display: flex;
   flex-direction: column;
@@ -1123,7 +1234,7 @@ td {
   font-weight: 500;
 }
 
-/* Toggle Switch */
+/* Toggle Switch - USED */
 .switch {
   position: relative;
   display: inline-block;
