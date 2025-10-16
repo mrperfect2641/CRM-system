@@ -956,40 +956,97 @@ td {
   display: none !important;
 }
 
-/* Skills Grid */
-.skills-grid {
+/* Skills Grid Styles */
+.skills-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.skills-grid-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.skills-grid-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.skills-grid-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.skill-grid-item {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 25px 15px;
+  text-align: center;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-}
-
-.skill-item {
-  display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
   gap: 15px;
-}
-
-.skill-name {
-  font-size: 14px;
-  color: var(--primary-color);
-  font-weight: 500;
-  min-width: 80px;
-}
-
-.skill-level {
-  flex: 1;
-  height: 8px;
-  background: #f0f0f0;
-  border-radius: 4px;
+  min-height: 120px;
+  position: relative;
   overflow: hidden;
 }
 
-.skill-progress {
-  height: 100%;
-  background: var(--primary-color);
-  border-radius: 4px;
-  transition: width 0.3s ease;
+.skill-grid-item:hover {
+  border-color: var(--secondary-color);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.skill-grid-name {
+  font-size: 15px;
+  color: var(--primary-color);
+  font-weight: 600;
+  line-height: 1.4;
+  word-break: break-word;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.skill-grid-item:hover .skill-grid-name {
+  transform: translateY(-10px);
+}
+
+.skill-grid-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  position: absolute;
+  bottom: 15px;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.skill-grid-item:hover .skill-grid-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.no-skills {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: #7f8c8d;
+}
+
+.no-skills i {
+  font-size: 48px;
+  color: #bdc3c7;
+  margin-bottom: 10px;
+  display: block;
 }
 
 /* Activity List */

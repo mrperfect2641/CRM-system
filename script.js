@@ -945,3 +945,272 @@ function formatDisplayDate(dateString) {
     day: '2-digit'
   });
 }
+
+// ===== SKILLS FUNCTIONALITY =====
+let skills = [];
+let editSkillId = null;
+
+// Initialize skills
+async function initializeSkills() {
+  await loadSkills();
+  setupSkillsEventListeners();
+}
+
+// Load skills from Supabase
+async function loadSkills() {
+  try {
+    const { data, error } = await supabaseClient
+      .from('skills')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    skills = data || [];
+    renderSkills();
+  } catch (error) {
+    console.error('Error loading skills:', error);
+  }
+}
+
+// Render skills to the DOM in grid layout
+function renderSkills() {
+  const container = document.getElementById('skillsListContainer');
+  if (!container) return;
+  
+  container.innerHTML = '';
+
+  if (skills.length === 0) {
+    container.innerHTML = `
+      <div class="no-skills">
+        <i class="fas fa-code"></i>
+        <p>No skills added yet. Click "Add Skill" to get started.</p>
+      </div>
+    `;
+    return;
+  }
+
+  skills.forEach((skill, index) => {
+    const skillElement = createSkillElement(skill, index);
+    container.appendChild(skillElement);
+  });
+
+  initializeSkillsScroll();
+}
+
+// Create skill element with grid layout
+function createSkillElement(skill, index) {
+  const div = document.createElement('div');
+  div.className = 'skill-grid-item';
+  div.setAttribute('data-skill-id', skill.id);
+  
+  div.innerHTML = `
+    <div class="skill-grid-name">${skill.name}</div>
+    <div class="skill-grid-actions">
+      <button class="btn btn-edit btn-sm" data-skill-id="${skill.id}">Edit</button>
+      <button class="btn btn-remove btn-sm" data-skill-id="${skill.id}">Remove</button>
+    </div>
+  `;
+  
+  return div;
+}
+
+// Setup skills event listeners
+function setupSkillsEventListeners() {
+  // Add skill button
+  const addSkillBtn = document.getElementById('add-skill-btn');
+  if (addSkillBtn) {
+    addSkillBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      openSkillModal();
+    });
+  }
+  
+  // Modal event listeners
+  const overlay = document.getElementById('skillOverlay');
+  const cancelBtn = document.getElementById('skill-cancel-btn');
+  const form = document.getElementById('skill-form');
+  
+  if (overlay) {
+    overlay.addEventListener('click', closeSkillModal);
+  }
+  
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', closeSkillModal);
+  }
+  
+  if (form) {
+    form.addEventListener('submit', handleSkillSubmit);
+  }
+  
+  // Edit and Remove buttons (delegated)
+  const container = document.getElementById('skillsListContainer');
+  if (container) {
+    container.addEventListener('click', function(e) {
+      if (e.target.classList.contains('btn-edit')) {
+        e.stopPropagation();
+        editSkill(e.target.getAttribute('data-skill-id'));
+      } else if (e.target.classList.contains('btn-remove')) {
+        e.stopPropagation();
+        removeSkill(e.target.getAttribute('data-skill-id'));
+      }
+    });
+  }
+}
+
+// Open skill modal
+function openSkillModal(skillId = null) {
+  const modal = document.getElementById('skill-modal');
+  const form = document.getElementById('skill-form');
+  const title = document.getElementById('skillTitle');
+  
+  if (!modal) return;
+  
+  if (skillId) {
+    // Edit mode
+    editSkillId = skillId;
+    const skill = skills.find(s => s.id == skillId);
+    title.textContent = 'Edit Skill';
+    document.getElementById('skill-name').value = skill.name || '';
+  } else {
+    // Add mode
+    editSkillId = null;
+    title.textContent = 'Add Skill';
+    if (form) form.reset();
+  }
+  
+  modal.classList.remove('hidden');
+}
+
+// Close skill modal
+function closeSkillModal() {
+  const modal = document.getElementById('skill-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+  editSkillId = null;
+}
+
+// Handle skill form submission
+async function handleSkillSubmit(e) {
+  e.preventDefault();
+  
+  const name = document.getElementById('skill-name').value.trim();
+  
+  if (!name) {
+    alert('Please enter a skill name');
+    return;
+  }
+  
+  showLoading();
+  
+  try {
+    if (editSkillId) {
+      // Update existing skill
+      const { error } = await supabaseClient
+        .from('skills')
+        .update({
+          name: name,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', editSkillId);
+
+      if (error) throw error;
+    } else {
+      // Add new skill
+      const { error } = await supabaseClient
+        .from('skills')
+        .insert([{
+          name: name
+        }]);
+
+      if (error) throw error;
+    }
+    
+    // Reload skills
+    await loadSkills();
+    closeSkillModal();
+  } catch (error) {
+    console.error('Error saving skill:', error);
+    alert('Error saving skill: ' + error.message);
+  } finally {
+    hideLoading();
+  }
+}
+
+// Edit skill
+function editSkill(skillId) {
+  openSkillModal(skillId);
+}
+
+// Remove skill
+async function removeSkill(skillId) {
+  if (!confirm('Are you sure you want to remove this skill?')) {
+    return;
+  }
+  
+  showLoading();
+  
+  try {
+    const { error } = await supabaseClient
+      .from('skills')
+      .delete()
+      .eq('id', skillId);
+
+    if (error) throw error;
+
+    // Reload skills
+    await loadSkills();
+  } catch (error) {
+    console.error('Error removing skill:', error);
+    alert('Error removing skill: ' + error.message);
+  } finally {
+    hideLoading();
+  }
+}
+
+// Initialize skills scroll functionality
+function initializeSkillsScroll() {
+  const container = document.getElementById('skillsListContainer');
+  const showMoreIndicator = document.getElementById('skillsMoreIndicator');
+  
+  if (!container || !showMoreIndicator) return;
+  
+  const skillItems = container.querySelectorAll('.skill-grid-item');
+  
+  if (skillItems.length > 6) {
+    showMoreIndicator.style.display = 'block';
+    
+    container.addEventListener('scroll', function() {
+      const scrollTop = container.scrollTop;
+      const scrollHeight = container.scrollHeight;
+      const clientHeight = container.clientHeight;
+      
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
+        showMoreIndicator.style.display = 'none';
+      } else {
+        showMoreIndicator.style.display = 'block';
+      }
+    });
+    
+    showMoreIndicator.addEventListener('click', function() {
+      container.scrollBy({ top: 100, behavior: 'smooth' });
+    });
+  } else {
+    showMoreIndicator.style.display = 'none';
+  }
+}
+
+// Update initializeApp function to include skills
+async function initializeApp() {
+  showLoading();
+  await loadProjects();
+  await initializePortfolioImages();
+  await initializeSkills(); // Add this line
+  updateStatusCounts();
+  initializeProjectsTableScroll();
+  setupEventListeners();
+  setupSectionSwitching();
+  hideLoading();
+}

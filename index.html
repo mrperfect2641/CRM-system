@@ -4,22 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CRM Dashboard</title>
+  <!-- External Dependencies -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Loading Spinner -->
+  <!-- ===== LOADING SPINNER ===== -->
+  <!-- Shows during API calls and data loading -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
   </div>
 
-  <!-- Sidebar Navigation -->
+  <!-- ===== SIDEBAR NAVIGATION ===== -->
+  <!-- Main navigation menu with section switching -->
   <div class="sidebar">
     <div class="logo">
       <span>CRM System</span>
     </div>
     <div class="nav-menu">
+      <!-- Navigation Items - Add new sections by adding more nav-items with data-section attribute -->
       <div class="nav-item active" data-section="freelance">
         <span>Freelance Projects</span>
       </div>
@@ -32,11 +36,15 @@
       <div class="nav-item" data-section="connections">
         <span>Connections</span>
       </div>
+      <!-- ADD NEW SECTION: Copy above div and change data-section and text -->
     </div>
   </div>
 
-  <!-- Main Content -->
+  <!-- ===== MAIN CONTENT AREA ===== -->
   <div class="main-content">
+    
+    <!-- ===== TOP BAR ===== -->
+    <!-- Contains search and user profile -->
     <div class="top-bar">
       <div class="search-box">
         <i class="fas fa-search"></i>
@@ -54,14 +62,12 @@
       </div>
     </div>
 
-    <!-- Freelance Projects Section -->
+    <!-- ===== FREELANCE PROJECTS SECTION ===== -->
+    <!-- Default active section - Manages freelance projects -->
     <div class="content-section" id="freelance-section">
-      <div class="page-header">
-        <h1 class="page-title">Freelance Projects</h1>
-        <p class="page-description">Manage and track all your freelance projects</p>
-      </div>
-
-      <!-- Status Boxes -->
+      
+      <!-- ===== STATUS BOXES ===== -->
+      <!-- Project statistics counters -->
       <div class="status-boxes">
         <div class="status-box all-projects">
           <div class="status-icon">
@@ -99,11 +105,14 @@
             <div class="label">Completed</div>
           </div>
         </div>
+        <!-- ADD NEW STATUS BOX: Copy above div and change icon, count class, and label -->
       </div>
 
-      <!-- Projects Section with Notes Box -->
+      <!-- ===== PROJECTS SECTION WITH NOTES ===== -->
       <div class="projects-section">
-        <!-- Projects Table -->
+        
+        <!-- ===== PROJECTS TABLE ===== -->
+        <!-- Displays all projects in a scrollable table -->
         <div class="table-container">
           <div class="projects-table-container" id="projectsTableContainer">
             <table>
@@ -118,16 +127,19 @@
                 </tr>
               </thead>
               <tbody id="projectsTableBody">
-                <!-- Projects will be dynamically loaded from Supabase -->
+                <!-- Projects dynamically loaded from Supabase -->
+                <!-- Data populated by JavaScript -->
               </tbody>
             </table>
           </div>
+          <!-- Scroll indicator for tables with many rows -->
           <div class="show-more-indicator" id="showMoreIndicator">
             <i class="fas fa-chevron-down"></i> Scroll to see more projects
           </div>
         </div>
 
-        <!-- Notes Box -->
+        <!-- ===== NOTES BOX ===== -->
+        <!-- Notes management for selected projects -->
         <div class="notes-box">
           <!-- Add Project Button -->
           <div class="add-project-btn">
@@ -152,14 +164,12 @@
       </div>
     </div>
 
-    <!-- Portfolio Website Section -->
+    <!-- ===== PORTFOLIO WEBSITE SECTION ===== -->
+    <!-- Portfolio management section -->
     <div class="content-section hidden" id="portfolio-section">
-      <div class="portfolio-header">
-        <h1 class="page-title">Portfolio Website</h1>
-        <p class="page-description">Manage your personal portfolio website content and analytics</p>
-      </div>
-
-      <!-- Portfolio Stats -->
+      
+      <!-- ===== PORTFOLIO STATS ===== -->
+      <!-- Portfolio analytics and metrics -->
       <div class="portfolio-stats">
         <div class="stat-card">
           <div class="stat-icon">
@@ -197,12 +207,16 @@
             <div class="stat-label">Contact Requests</div>
           </div>
         </div>
+        <!-- ADD NEW STAT CARD: Copy above div and change icon, number, and label -->
       </div>
 
-      <!-- Portfolio Content -->
+      <!-- ===== PORTFOLIO CONTENT GRID ===== -->
+      <!-- Main content area with multiple cards -->
       <div class="portfolio-content">
         <div class="content-grid">
-          <!-- Portfolio Images Section -->
+          
+          <!-- ===== PORTFOLIO IMAGES CARD ===== -->
+          <!-- Manages portfolio images with upload functionality -->
           <div class="content-card">
             <div class="card-header">
               <h3>Portfolio Images</h3>
@@ -212,7 +226,7 @@
             </div>
             <div class="card-body">
               <div class="portfolio-images-container" id="portfolioImagesContainer">
-                <!-- Portfolio images will be loaded here -->
+                <!-- Portfolio images dynamically loaded from Supabase -->
               </div>
               <div class="show-more-indicator" id="portfolioImagesMore">
                 <i class="fas fa-chevron-down"></i> Scroll to see more images
@@ -220,45 +234,28 @@
             </div>
           </div>
 
-          <!-- Skills & Technologies -->
+          <!-- ===== SKILLS & TECHNOLOGIES CARD ===== -->
+          <!-- Skills management with grid layout -->
           <div class="content-card">
             <div class="card-header">
               <h3>Skills & Technologies</h3>
-              <button class="btn btn-primary">
+              <button class="btn btn-primary" id="add-skill-btn">
                 <i class="fas fa-plus"></i> Add Skill
               </button>
             </div>
             <div class="card-body">
-              <div class="skills-grid">
-                <div class="skill-item">
-                  <span class="skill-name">React</span>
-                  <div class="skill-level">
-                    <div class="skill-progress" style="width: 90%"></div>
-                  </div>
-                </div>
-                <div class="skill-item">
-                  <span class="skill-name">JavaScript</span>
-                  <div class="skill-level">
-                    <div class="skill-progress" style="width: 85%"></div>
-                  </div>
-                </div>
-                <div class="skill-item">
-                  <span class="skill-name">Node.js</span>
-                  <div class="skill-level">
-                    <div class="skill-progress" style="width: 80%"></div>
-                  </div>
-                </div>
-                <div class="skill-item">
-                  <span class="skill-name">CSS</span>
-                  <div class="skill-level">
-                    <div class="skill-progress" style="width: 95%"></div>
-                  </div>
-                </div>
+              <div class="skills-grid-container" id="skillsListContainer">
+                <!-- Skills dynamically loaded from Supabase -->
+                <!-- Displayed in grid layout with hover effects -->
+              </div>
+              <div class="show-more-indicator" id="skillsMoreIndicator">
+                <i class="fas fa-chevron-down"></i> Scroll to see more skills
               </div>
             </div>
           </div>
 
-          <!-- Recent Activity -->
+          <!-- ===== RECENT ACTIVITY CARD ===== -->
+          <!-- Portfolio activity feed -->
           <div class="content-card">
             <div class="card-header">
               <h3>Recent Activity</h3>
@@ -292,11 +289,13 @@
                     <span class="activity-time">1 day ago</span>
                   </div>
                 </div>
+                <!-- ADD NEW ACTIVITY: Copy above activity-item div -->
               </div>
             </div>
           </div>
 
-          <!-- Quick Settings -->
+          <!-- ===== WEBSITE SETTINGS CARD ===== -->
+          <!-- Portfolio website configuration -->
           <div class="content-card">
             <div class="card-header">
               <h3>Website Settings</h3>
@@ -331,30 +330,41 @@
                     <span class="slider"></span>
                   </label>
                 </div>
+                <!-- ADD NEW SETTING: Copy above setting-item div -->
               </div>
             </div>
           </div>
+          
+          <!-- ADD NEW CARD: Copy any content-card div above and modify content -->
         </div>
       </div>
     </div>
 
-    <!-- Other sections -->
+    <!-- ===== IMPORTANT INFO SECTION ===== -->
+    <!-- Placeholder for important information section -->
     <div class="content-section hidden" id="info-section">
       <div class="portfolio-header">
         <h1 class="page-title">Important Info</h1>
         <p class="page-description">Important information and resources</p>
       </div>
+      <!-- Add content here for Important Info section -->
     </div>
 
+    <!-- ===== CONNECTIONS SECTION ===== -->
+    <!-- Placeholder for connections management -->
     <div class="content-section hidden" id="connections-section">
       <div class="portfolio-header">
         <h1 class="page-title">Connections</h1>
         <p class="page-description">Manage your professional connections</p>
       </div>
+      <!-- Add content here for Connections section -->
     </div>
+    
+    <!-- ADD NEW SECTION: Copy above content-section div and change id and content -->
   </div>
   
-  <!-- Project Modal -->
+  <!-- ===== PROJECT MODAL ===== -->
+  <!-- Modal for adding/editing projects -->
   <div id="project-modal" class="pj-modal hidden">
     <div class="pj-overlay" id="pjOverlay"></div>
     <div class="pj-dialog">
@@ -380,6 +390,7 @@
               <option value="in-process">In Process</option>
               <option value="waiting">Pending</option>
               <option value="completed">Completed</option>
+              <!-- ADD NEW STATUS: Add option here -->
             </select>
           </div>
         </div>
@@ -391,7 +402,8 @@
     </div>
   </div>
 
-  <!-- Portfolio Image Modal -->
+  <!-- ===== PORTFOLIO IMAGE MODAL ===== -->
+  <!-- Modal for adding/editing portfolio images -->
   <div id="portfolio-image-modal" class="pj-modal hidden">
     <div class="pj-overlay" id="portfolioImageOverlay"></div>
     <div class="pj-dialog" style="max-width: 500px;">
@@ -428,6 +440,27 @@
     </div>
   </div>
 
+  <!-- ===== SKILL MODAL ===== -->
+  <!-- Modal for adding/editing skills -->
+  <div id="skill-modal" class="pj-modal hidden">
+    <div class="pj-overlay" id="skillOverlay"></div>
+    <div class="pj-dialog" style="max-width: 400px;">
+      <h3 id="skillTitle" class="pj-title">Add Skill</h3>
+      <form id="skill-form" class="pj-form">
+        <div class="pj-row">
+          <label for="skill-name">Skill Name</label>
+          <input id="skill-name" name="skillName" class="pj-input" type="text" placeholder="e.g., React, JavaScript, Figma" required>
+        </div>
+        <div class="pj-actions">
+          <button type="button" class="btn secondary" id="skill-cancel-btn">Cancel</button>
+          <button type="submit" class="btn primary" id="skill-save-btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== JAVASCRIPT ===== -->
+  <!-- Main application logic -->
   <script src="script.js"></script>
 </body>
 </html>
