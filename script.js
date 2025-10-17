@@ -1,15 +1,6 @@
 // =============================================
 // CRM DASHBOARD - MAIN JAVASCRIPT FILE
 // =============================================
-// This file contains all the JavaScript functionality
-// for the CRM Dashboard including:
-// - Supabase integration
-// - Project management
-// - Portfolio images
-// - Skills management
-// - Updates functionality
-// - To-Do List functionality
-// =============================================
 
 // ===== SUPABASE CONFIGURATION =====
 const SUPABASE_URL = 'https://kqaqnhbdqnflbpjhrazq.supabase.co';
@@ -23,22 +14,24 @@ let projects = [];
 let portfolioImages = [];
 let skills = [];
 let updates = [];
-let todos = []; // Added for to-do list
+let todos = [];
 let selectedProjectId = null;
 let editProjectId = null;
 let editPortfolioImageId = null;
 let editSkillId = null;
 let editUpdateId = null;
-let editTodoId = null; // Added for to-do list
+let editTodoId = null;
 let currentPortfolioImageFile = null;
 
 // ===== INITIALIZATION =====
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing CRM Dashboard...');
     initializeApp();
 });
 
+/**
+ * Initialize the entire application
+ */
 async function initializeApp() {
     showLoading();
     
@@ -47,7 +40,8 @@ async function initializeApp() {
         initializePortfolioImages(),
         initializeSkills(),
         initializeUpdates(),
-        initializeTodoList() // Added to-do list initialization
+        initializeTodoList(),
+        initializePortfolioAnalytics()
     ]);
     
     updateStatusCounts();
@@ -56,11 +50,9 @@ async function initializeApp() {
     setupSectionSwitching();
     
     hideLoading();
-    console.log('CRM Dashboard initialized successfully');
 }
 
 // ===== LOADING FUNCTIONS =====
-
 function showLoading() {
     document.getElementById('loading').style.display = 'block';
 }
@@ -71,6 +63,9 @@ function hideLoading() {
 
 // ===== FREELANCE PROJECTS FUNCTIONS =====
 
+/**
+ * Load projects from Supabase database
+ */
 async function loadProjects() {
     try {
         console.log('Loading projects from Supabase...');
@@ -94,6 +89,9 @@ async function loadProjects() {
     }
 }
 
+/**
+ * Initialize projects table with loaded data
+ */
 function initializeProjectsTable() {
     const tableBody = document.getElementById('projectsTableBody');
     tableBody.innerHTML = '';
@@ -129,6 +127,9 @@ function initializeProjectsTable() {
     setupProjectRowClickEvents();
 }
 
+/**
+ * Setup click events for project table rows
+ */
 function setupProjectRowClickEvents() {
     document.querySelectorAll('.projects-table-container tbody tr').forEach(row => {
         row.addEventListener('click', function() {
@@ -139,11 +140,17 @@ function setupProjectRowClickEvents() {
 
 // ===== PORTFOLIO IMAGES FUNCTIONS =====
 
+/**
+ * Initialize portfolio images functionality
+ */
 async function initializePortfolioImages() {
     await loadPortfolioImages();
     setupPortfolioImagesEventListeners();
 }
 
+/**
+ * Load portfolio images from Supabase
+ */
 async function loadPortfolioImages() {
     try {
         const { data, error } = await supabaseClient
@@ -161,6 +168,9 @@ async function loadPortfolioImages() {
     }
 }
 
+/**
+ * Render portfolio images to the container
+ */
 function renderPortfolioImages() {
     const container = document.getElementById('portfolioImagesContainer');
     if (!container) return;
@@ -185,6 +195,9 @@ function renderPortfolioImages() {
     initializePortfolioImagesScroll();
 }
 
+/**
+ * Create HTML element for portfolio image
+ */
 function createPortfolioImageElement(image) {
     const div = document.createElement('div');
     div.className = 'portfolio-image-item';
@@ -223,6 +236,9 @@ function createPortfolioImageElement(image) {
 
 // ===== EVENT LISTENERS SETUP =====
 
+/**
+ * Setup all event listeners for the application
+ */
 function setupEventListeners() {
     console.log('Setting up event listeners...');
     
@@ -231,15 +247,20 @@ function setupEventListeners() {
     setupProjectModalEvents();
     setupSkillsEventListeners();
     setupUpdatesEventListeners();
-    // Note: To-do list event listeners are set up in initializeTodoList()
 }
 
+/**
+ * Setup search functionality
+ */
 function setupSearchFunctionality() {
     document.getElementById('searchInput').addEventListener('input', function(e) {
         filterProjects(e.target.value);
     });
 }
 
+/**
+ * Setup notes functionality
+ */
 function setupNotesFunctionality() {
     document.getElementById('addNoteBtn').addEventListener('click', addNote);
     
@@ -261,6 +282,9 @@ function setupNotesFunctionality() {
     });
 }
 
+/**
+ * Setup project modal events
+ */
 function setupProjectModalEvents() {
     const openBtn = document.getElementById('open-project-btn');
     const overlay = document.getElementById('pjOverlay');
@@ -300,6 +324,9 @@ function setupProjectModalEvents() {
     }
 }
 
+/**
+ * Setup portfolio images event listeners
+ */
 function setupPortfolioImagesEventListeners() {
     console.log('Setting up portfolio images event listeners...');
     
@@ -356,6 +383,9 @@ function setupPortfolioImagesEventListeners() {
     }
 }
 
+/**
+ * Setup image upload events
+ */
 function setupImageUploadEvents() {
     const uploadTrigger = document.getElementById('portfolioUploadTrigger');
     const imageInput = document.getElementById('portfolioImageInput');
@@ -380,6 +410,9 @@ function setupImageUploadEvents() {
 
 // ===== SECTION SWITCHING =====
 
+/**
+ * Setup section switching functionality
+ */
 function setupSectionSwitching() {
     const navItems = document.querySelectorAll('.nav-item[data-section]');
     
@@ -391,6 +424,9 @@ function setupSectionSwitching() {
     });
 }
 
+/**
+ * Switch between main sections
+ */
 function switchSection(sectionName) {
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.add('hidden');
@@ -411,6 +447,9 @@ function switchSection(sectionName) {
 
 // ===== PROJECT MODAL FUNCTIONS =====
 
+/**
+ * Open project modal for adding/editing
+ */
 function openProjectModal(projectId = null) {
     const modal = document.getElementById('project-modal');
     const form = document.getElementById('project-form');
@@ -440,6 +479,9 @@ function openProjectModal(projectId = null) {
     modal.classList.remove('hidden');
 }
 
+/**
+ * Close project modal
+ */
 function closeProjectModal() {
     const modal = document.getElementById('project-modal');
     if (modal) {
@@ -448,6 +490,9 @@ function closeProjectModal() {
     editProjectId = null;
 }
 
+/**
+ * Handle project form submission
+ */
 async function handleProjectSubmit(e) {
     e.preventDefault();
     
@@ -504,6 +549,9 @@ async function handleProjectSubmit(e) {
 
 // ===== PORTFOLIO IMAGE MODAL FUNCTIONS =====
 
+/**
+ * Handle portfolio image upload
+ */
 function handlePortfolioImageUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -521,6 +569,9 @@ function handlePortfolioImageUpload(e) {
     }
 }
 
+/**
+ * Open portfolio image modal
+ */
 function openPortfolioImageModal(imageId = null) {
     const modal = document.getElementById('portfolio-image-modal');
     const form = document.getElementById('portfolio-image-form');
@@ -562,6 +613,9 @@ function openPortfolioImageModal(imageId = null) {
     modal.classList.remove('hidden');
 }
 
+/**
+ * Close portfolio image modal
+ */
 function closePortfolioImageModal() {
     const modal = document.getElementById('portfolio-image-modal');
     if (modal) {
@@ -571,6 +625,9 @@ function closePortfolioImageModal() {
     currentPortfolioImageFile = null;
 }
 
+/**
+ * Handle portfolio image form submission
+ */
 async function handlePortfolioImageSubmit(e) {
     e.preventDefault();
     
@@ -647,10 +704,16 @@ async function handlePortfolioImageSubmit(e) {
 
 // ===== CRUD OPERATIONS =====
 
+/**
+ * Edit project
+ */
 function editProject(projectId) {
     openProjectModal(projectId);
 }
 
+/**
+ * Remove project
+ */
 async function removeProject(projectId) {
     if (!confirm('Are you sure you want to remove this project?')) {
         return;
@@ -689,10 +752,16 @@ async function removeProject(projectId) {
     }
 }
 
+/**
+ * Edit portfolio image
+ */
 function editPortfolioImage(imageId) {
     openPortfolioImageModal(imageId);
 }
 
+/**
+ * Remove portfolio image
+ */
 async function removePortfolioImage(imageId) {
     if (!confirm('Are you sure you want to remove this portfolio image?')) {
         return;
@@ -720,6 +789,9 @@ async function removePortfolioImage(imageId) {
 
 // ===== NOTES FUNCTIONALITY =====
 
+/**
+ * Select project and display notes
+ */
 async function selectProject(projectId) {
     document.querySelectorAll('.projects-table-container tbody tr').forEach(r => {
         r.classList.remove('active');
@@ -734,6 +806,9 @@ async function selectProject(projectId) {
     await displayNotes(projectId);
 }
 
+/**
+ * Load notes for a project
+ */
 async function loadNotes(projectId) {
     try {
         const { data, error } = await supabaseClient
@@ -751,6 +826,9 @@ async function loadNotes(projectId) {
     }
 }
 
+/**
+ * Display notes for selected project
+ */
 async function displayNotes(projectId) {
     const notesContent = document.getElementById('notesContent');
     notesContent.innerHTML = '<div class="note-item"><p>Loading notes...</p></div>';
@@ -775,6 +853,9 @@ async function displayNotes(projectId) {
     });
 }
 
+/**
+ * Add note to selected project
+ */
 async function addNote() {
     const noteTextarea = document.getElementById('noteTextarea');
     const noteText = noteTextarea.value.trim();
@@ -808,6 +889,9 @@ async function addNote() {
 
 // ===== DATE FORMATTING UTILITIES =====
 
+/**
+ * Format date for display
+ */
 function formatDisplayDate(dateString) {
     if (!dateString) return 'N/A';
     
@@ -824,6 +908,9 @@ function formatDisplayDate(dateString) {
     }
 }
 
+/**
+ * Format updates date for display
+ */
 function formatUpdatesDisplayDate(dateString) {
     if (!dateString) return 'N/A';
     
@@ -840,6 +927,9 @@ function formatUpdatesDisplayDate(dateString) {
     }
 }
 
+/**
+ * Format time for display
+ */
 function formatDisplayTime(timeString) {
     if (!timeString) return '';
     
@@ -852,6 +942,9 @@ function formatDisplayTime(timeString) {
 
 // ===== UTILITY FUNCTIONS =====
 
+/**
+ * Filter projects based on search term
+ */
 function filterProjects(searchTerm) {
     const term = searchTerm.toLowerCase();
     const rows = document.querySelectorAll('.projects-table-container tbody tr');
@@ -868,6 +961,9 @@ function filterProjects(searchTerm) {
     updateStatusCounts();
 }
 
+/**
+ * Update status counts in status boxes
+ */
 function updateStatusCounts() {
     const rows = document.querySelectorAll('.projects-table-container tbody tr');
     let allCount = 0;
@@ -898,6 +994,9 @@ function updateStatusCounts() {
     document.querySelector('.completed .count').textContent = completedCount;
 }
 
+/**
+ * Initialize projects table scroll functionality
+ */
 function initializeProjectsTableScroll() {
     const tableContainer = document.getElementById('projectsTableContainer');
     const showMoreIndicator = document.getElementById('showMoreIndicator');
@@ -927,6 +1026,9 @@ function initializeProjectsTableScroll() {
     }
 }
 
+/**
+ * Initialize portfolio images scroll functionality
+ */
 function initializePortfolioImagesScroll() {
     const container = document.getElementById('portfolioImagesContainer');
     const showMoreIndicator = document.getElementById('portfolioImagesMore');
@@ -958,6 +1060,9 @@ function initializePortfolioImagesScroll() {
     }
 }
 
+/**
+ * Get status text from status code
+ */
 function getStatusText(status) {
     const statusMap = {
         'completed': 'Completed',
@@ -968,6 +1073,9 @@ function getStatusText(status) {
     return statusMap[status] || status;
 }
 
+/**
+ * Escape HTML to prevent XSS
+ */
 function escapeHtml(unsafe) {
     if (!unsafe) return '';
     return unsafe
@@ -980,11 +1088,17 @@ function escapeHtml(unsafe) {
 
 // ===== SKILLS FUNCTIONALITY =====
 
+/**
+ * Initialize skills functionality
+ */
 async function initializeSkills() {
     await loadSkills();
     setupSkillsEventListeners();
 }
 
+/**
+ * Load skills from Supabase
+ */
 async function loadSkills() {
     try {
         const { data, error } = await supabaseClient
@@ -1001,6 +1115,9 @@ async function loadSkills() {
     }
 }
 
+/**
+ * Render skills to the container
+ */
 function renderSkills() {
     const container = document.getElementById('skillsListContainer');
     if (!container) return;
@@ -1025,6 +1142,9 @@ function renderSkills() {
     initializeSkillsScroll();
 }
 
+/**
+ * Create HTML element for skill
+ */
 function createSkillElement(skill) {
     const div = document.createElement('div');
     div.className = 'skill-grid-item';
@@ -1041,6 +1161,9 @@ function createSkillElement(skill) {
     return div;
 }
 
+/**
+ * Setup skills event listeners
+ */
 function setupSkillsEventListeners() {
     const addSkillBtn = document.getElementById('add-skill-btn');
     if (addSkillBtn) {
@@ -1081,6 +1204,9 @@ function setupSkillsEventListeners() {
     }
 }
 
+/**
+ * Open skill modal
+ */
 function openSkillModal(skillId = null) {
     const modal = document.getElementById('skill-modal');
     const form = document.getElementById('skill-form');
@@ -1102,6 +1228,9 @@ function openSkillModal(skillId = null) {
     modal.classList.remove('hidden');
 }
 
+/**
+ * Close skill modal
+ */
 function closeSkillModal() {
     const modal = document.getElementById('skill-modal');
     if (modal) {
@@ -1110,6 +1239,9 @@ function closeSkillModal() {
     editSkillId = null;
 }
 
+/**
+ * Handle skill form submission
+ */
 async function handleSkillSubmit(e) {
     e.preventDefault();
     
@@ -1154,10 +1286,16 @@ async function handleSkillSubmit(e) {
     }
 }
 
+/**
+ * Edit skill
+ */
 function editSkill(skillId) {
     openSkillModal(skillId);
 }
 
+/**
+ * Remove skill
+ */
 async function removeSkill(skillId) {
     if (!confirm('Are you sure you want to remove this skill?')) {
         return;
@@ -1183,6 +1321,9 @@ async function removeSkill(skillId) {
     }
 }
 
+/**
+ * Initialize skills scroll functionality
+ */
 function initializeSkillsScroll() {
     const container = document.getElementById('skillsListContainer');
     const showMoreIndicator = document.getElementById('skillsMoreIndicator');
@@ -1216,11 +1357,17 @@ function initializeSkillsScroll() {
 
 // ===== UPDATES FUNCTIONALITY =====
 
+/**
+ * Initialize updates functionality
+ */
 async function initializeUpdates() {
     await loadUpdates();
     setupUpdatesEventListeners();
 }
 
+/**
+ * Load updates from Supabase
+ */
 async function loadUpdates() {
     try {
         const { data, error } = await supabaseClient
@@ -1244,6 +1391,9 @@ async function loadUpdates() {
     }
 }
 
+/**
+ * Get sample updates for fallback
+ */
 function getSampleUpdates() {
     return [
         {
@@ -1273,6 +1423,9 @@ function getSampleUpdates() {
     ];
 }
 
+/**
+ * Render updates to the container
+ */
 function renderUpdates() {
     const container = document.getElementById('updatesContainer');
     if (!container) return;
@@ -1297,6 +1450,9 @@ function renderUpdates() {
     setupUpdatesScroll();
 }
 
+/**
+ * Create HTML element for update
+ */
 function createUpdateElement(update) {
     const div = document.createElement('div');
     div.className = 'update-item';
@@ -1329,6 +1485,9 @@ function createUpdateElement(update) {
     return div;
 }
 
+/**
+ * Setup updates event listeners
+ */
 function setupUpdatesEventListeners() {
     const addUpdateBtn = document.getElementById('add-update-btn');
     if (addUpdateBtn) {
@@ -1372,6 +1531,9 @@ function setupUpdatesEventListeners() {
     }
 }
 
+/**
+ * Open update modal
+ */
 function openUpdateModal(updateId = null) {
     const modal = document.getElementById('update-modal');
     const form = document.getElementById('update-form');
@@ -1413,6 +1575,9 @@ function openUpdateModal(updateId = null) {
     modal.classList.remove('hidden');
 }
 
+/**
+ * Close update modal
+ */
 function closeUpdateModal() {
     const modal = document.getElementById('update-modal');
     if (modal) {
@@ -1421,6 +1586,9 @@ function closeUpdateModal() {
     editUpdateId = null;
 }
 
+/**
+ * Handle update form submission
+ */
 async function handleUpdateSubmit(e) {
     e.preventDefault();
     console.log('Handling update form submission...');
@@ -1508,11 +1676,17 @@ async function handleUpdateSubmit(e) {
     }
 }
 
+/**
+ * Edit update
+ */
 function editUpdate(updateId) {
     console.log('Edit update called with ID:', updateId);
     openUpdateModal(updateId);
 }
 
+/**
+ * Remove update
+ */
 async function removeUpdate(updateId) {
     if (!confirm('Are you sure you want to delete this update?')) {
         return;
@@ -1550,6 +1724,9 @@ async function removeUpdate(updateId) {
     }
 }
 
+/**
+ * Setup updates scroll functionality
+ */
 function setupUpdatesScroll() {
     const container = document.getElementById('updatesContainer');
     const showMoreIndicator = document.getElementById('updatesMoreIndicator');
@@ -1585,7 +1762,6 @@ function setupUpdatesScroll() {
 
 /**
  * Initialize To-Do List
- * Sets up event listeners and loads saved tasks
  */
 async function initializeTodoList() {
     await loadTodos();
@@ -1594,7 +1770,6 @@ async function initializeTodoList() {
 
 /**
  * Load To-Dos from Supabase
- * Retrieves saved tasks from database
  */
 async function loadTodos() {
     try {
@@ -1605,7 +1780,6 @@ async function loadTodos() {
 
         if (error) {
             console.error('Error loading todos from Supabase:', error);
-            // Fallback to local storage if Supabase table doesn't exist
             loadTodosFromLocalStorage();
             return;
         }
@@ -1620,7 +1794,6 @@ async function loadTodos() {
 
 /**
  * Load To-Dos from Local Storage (Fallback)
- * Used when Supabase table is not available
  */
 function loadTodosFromLocalStorage() {
     try {
@@ -1637,50 +1810,39 @@ function loadTodosFromLocalStorage() {
 
 /**
  * Save To-Dos to Supabase
- * Stores tasks in database for persistence
  */
 async function saveTodos() {
     try {
-        // Try to save to Supabase first
         if (todos.length > 0) {
-            // This is a simplified approach - in a real app you'd need to handle
-            // individual create/update/delete operations
             console.log('Saving todos to Supabase...');
         }
         
-        // Always save to local storage as fallback
         localStorage.setItem('crm_todos', JSON.stringify(todos));
     } catch (error) {
         console.error('Error saving todos:', error);
-        // Fallback to local storage only
         localStorage.setItem('crm_todos', JSON.stringify(todos));
     }
 }
 
 /**
  * Setup To-Do Event Listeners
- * Configures all interactive elements for to-do functionality
  */
 function setupTodoEventListeners() {
-    // Add todo button
     const addTodoBtn = document.getElementById('add-todo-btn');
     if (addTodoBtn) {
         addTodoBtn.addEventListener('click', showTodoInput);
     }
 
-    // Save todo button
     const saveTodoBtn = document.getElementById('save-todo-btn');
     if (saveTodoBtn) {
         saveTodoBtn.addEventListener('click', addTodo);
     }
 
-    // Cancel todo button
     const cancelTodoBtn = document.getElementById('cancel-todo-btn');
     if (cancelTodoBtn) {
         cancelTodoBtn.addEventListener('click', hideTodoInput);
     }
 
-    // Enter key support for todo input
     const todoInput = document.getElementById('todoInput');
     if (todoInput) {
         todoInput.addEventListener('keypress', function(e) {
@@ -1690,7 +1852,6 @@ function setupTodoEventListeners() {
         });
     }
 
-    // Delegate events for dynamic todo items
     const todoListContainer = document.getElementById('todoListContainer');
     if (todoListContainer) {
         todoListContainer.addEventListener('click', handleTodoActions);
@@ -1699,7 +1860,6 @@ function setupTodoEventListeners() {
 
 /**
  * Show To-Do Input
- * Displays the input field for adding new tasks
  */
 function showTodoInput() {
     const inputContainer = document.getElementById('todoInputContainer');
@@ -1715,7 +1875,6 @@ function showTodoInput() {
 
 /**
  * Hide To-Do Input
- * Hides the input field and clears it
  */
 function hideTodoInput() {
     const inputContainer = document.getElementById('todoInputContainer');
@@ -1730,7 +1889,6 @@ function hideTodoInput() {
 
 /**
  * Add New To-Do
- * Creates a new task and adds it to the list
  */
 async function addTodo() {
     const todoInput = document.getElementById('todoInput');
@@ -1743,13 +1901,11 @@ async function addTodo() {
 
     try {
         if (editTodoId) {
-            // Update existing todo
             const todoIndex = todos.findIndex(todo => todo.id === editTodoId);
             if (todoIndex !== -1) {
                 todos[todoIndex].text = text;
                 todos[todoIndex].updated_at = new Date().toISOString();
                 
-                // Try to update in Supabase
                 try {
                     const { error } = await supabaseClient
                         .from('todos')
@@ -1765,7 +1921,6 @@ async function addTodo() {
                 }
             }
         } else {
-            // Add new todo
             const newTodo = {
                 id: generateTodoId(),
                 text: text,
@@ -1774,7 +1929,6 @@ async function addTodo() {
                 updated_at: new Date().toISOString()
             };
             
-            // Try to save to Supabase
             try {
                 const { data, error } = await supabaseClient
                     .from('todos')
@@ -1786,7 +1940,6 @@ async function addTodo() {
 
                 if (error) throw error;
                 
-                // Use the ID from Supabase if successful
                 if (data && data[0]) {
                     newTodo.id = data[0].id;
                 }
@@ -1809,7 +1962,6 @@ async function addTodo() {
 
 /**
  * Generate Unique To-Do ID
- * Creates a unique identifier for each task
  */
 function generateTodoId() {
     return 'local_' + Date.now().toString() + Math.random().toString(36).substr(2, 9);
@@ -1817,7 +1969,6 @@ function generateTodoId() {
 
 /**
  * Render To-Dos
- * Displays all tasks in the UI
  */
 function renderTodos() {
     const container = document.getElementById('todoListContainer');
@@ -1836,12 +1987,10 @@ function renderTodos() {
         return;
     }
 
-    // Hide no todos message if tasks exist
     if (noTodosMessage) {
         noTodosMessage.style.display = 'none';
     }
 
-    // Clear and rebuild todo list
     container.innerHTML = '';
     
     todos.forEach(todo => {
@@ -1849,13 +1998,11 @@ function renderTodos() {
         container.appendChild(todoElement);
     });
     
-    // Update statistics
     updateTodoStats();
 }
 
 /**
  * Create To-Do Element
- * Generates HTML for an individual task item
  */
 function createTodoElement(todo) {
     const div = document.createElement('div');
@@ -1880,7 +2027,6 @@ function createTodoElement(todo) {
 
 /**
  * Handle To-Do Actions
- * Delegated event handler for all task interactions
  */
 function handleTodoActions(e) {
     const todoItem = e.target.closest('.todo-item');
@@ -1906,7 +2052,6 @@ function handleTodoActions(e) {
 
 /**
  * Toggle To-Do Completion
- * Marks a task as complete or incomplete
  */
 async function toggleTodoCompletion(todoId) {
     const todoIndex = todos.findIndex(todo => todo.id === todoId);
@@ -1914,7 +2059,6 @@ async function toggleTodoCompletion(todoId) {
         todos[todoIndex].completed = !todos[todoIndex].completed;
         todos[todoIndex].updated_at = new Date().toISOString();
         
-        // Try to update in Supabase
         try {
             const { error } = await supabaseClient
                 .from('todos')
@@ -1936,13 +2080,11 @@ async function toggleTodoCompletion(todoId) {
 
 /**
  * Edit To-Do
- * Enables editing mode for a task
  */
 function editTodo(todoId) {
     const todo = todos.find(todo => todo.id === todoId);
     if (!todo) return;
 
-    // Show input with current text
     const inputContainer = document.getElementById('todoInputContainer');
     const todoInput = document.getElementById('todoInput');
     
@@ -1956,14 +2098,12 @@ function editTodo(todoId) {
 
 /**
  * Delete To-Do
- * Removes a task from the list
  */
 async function deleteTodo(todoId) {
     if (!confirm('Are you sure you want to delete this task?')) {
         return;
     }
 
-    // Try to delete from Supabase
     try {
         const { error } = await supabaseClient
             .from('todos')
@@ -1982,7 +2122,6 @@ async function deleteTodo(todoId) {
 
 /**
  * Get Todo Statistics
- * Utility function to get completion statistics
  */
 function getTodoStats() {
     const total = todos.length;
@@ -1998,7 +2137,6 @@ function getTodoStats() {
 
 /**
  * Update To-Do Statistics
- * Shows completion progress at the bottom
  */
 function updateTodoStats() {
     const stats = getTodoStats();
@@ -2017,6 +2155,59 @@ function updateTodoStats() {
             statsContainer.style.display = 'none';
         }
     }
+}
+
+// ===== PORTFOLIO ANALYTICS FUNCTIONS =====
+
+/**
+ * Load portfolio analytics data
+ */
+async function loadPortfolioAnalytics() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('portfolio_visits')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) return [];
+        return data || [];
+    } catch (error) {
+        return [];
+    }
+}
+
+/**
+ * Update portfolio statistics
+ */
+function updatePortfolioStats(visits) {
+    const totalVisits = visits.length;
+    const uniqueVisitors = new Set(visits.map(v => v.ip_address)).size;
+    const today = new Date().toDateString();
+    const todayVisits = visits.filter(v => new Date(v.created_at).toDateString() === today).length;
+    const liveVisits = visits.filter(v => !v.environment || v.environment === 'live').length;
+
+    const statCards = document.querySelectorAll('.portfolio-stats .stat-card');
+    if (statCards.length >= 4) {
+        statCards[0].querySelector('.stat-number').textContent = totalVisits.toLocaleString();
+        statCards[0].querySelector('.stat-label').textContent = 'Total Views';
+        
+        statCards[1].querySelector('.stat-number').textContent = uniqueVisitors.toLocaleString();
+        statCards[1].querySelector('.stat-label').textContent = 'Unique Visitors';
+        
+        statCards[2].querySelector('.stat-number').textContent = todayVisits.toLocaleString();
+        statCards[2].querySelector('.stat-label').textContent = "Today's Views";
+        
+        statCards[3].querySelector('.stat-number').textContent = liveVisits.toLocaleString();
+        statCards[3].querySelector('.stat-label').textContent = 'Live Visits';
+    }
+}
+
+/**
+ * Initialize portfolio analytics
+ */
+async function initializePortfolioAnalytics() {
+    const visits = await loadPortfolioAnalytics();
+    updatePortfolioStats(visits);
 }
 
 // =============================================

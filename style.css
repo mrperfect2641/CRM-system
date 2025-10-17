@@ -1,18 +1,8 @@
 /* ============================================= */
 /* CRM DASHBOARD - MAIN STYLESHEET */
 /* ============================================= */
-/* This file contains all the CSS styling for the */
-/* CRM Dashboard including layout, components, */
-/* and responsive design elements. */
-/* ============================================= */
 
 /* ===== CSS RESET & BASE STYLES ===== */
-
-/**
- * Global Reset
- * Removes default margins, padding, and sets box-sizing to border-box
- * for consistent sizing across all elements
- */
 * {
   margin: 0;
   padding: 0;
@@ -20,245 +10,158 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/**
- * CSS Custom Properties (Variables)
- * Centralized color scheme and design tokens for maintainability
- */
 :root {
-  --primary-color: #353A40;    /* Main dark color for headers, buttons */
-  --secondary-color: #5E707C;  /* Secondary color for accents, hover states */
-  --white: #ffffff;            /* Pure white for backgrounds, text */
+  --primary-color: #353A40;
+  --secondary-color: #5E707C;
+  --white: #ffffff;
 }
 
-/**
- * Base Body Styles
- * Sets up the main layout structure and background
- */
 body {
   display: flex;
-  background: #f5f7fb;         /* Light gray background for the entire app */
-  color: var(--primary-color); /* Default text color */
-  height: 100vh;               /* Full viewport height */
-  overflow: hidden;            /* Prevent body scrolling */
+  background: #f5f7fb;
+  color: var(--primary-color);
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* ===== LOADING SPINNER COMPONENT ===== */
-
-/**
- * Loading Overlay
- * Full-screen overlay that appears during data loading operations
- */
+/* ===== LOADING SPINNER ===== */
 .loading {
-  display: none;               /* Hidden by default */
+  display: none;
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* Perfect center positioning */
-  z-index: 9999;              /* Ensure it appears above all other content */
+  transform: translate(-50%, -50%);
+  z-index: 9999;
 }
 
-/**
- * Spinner Animation
- * Rotating circle animation to indicate loading state
- */
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;   /* Light gray border */
-  border-top: 4px solid var(--primary-color); /* Colored top border for animation */
-  border-radius: 50%;          /* Circular shape */
-  animation: spin 1s linear infinite; /* Continuous rotation */
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-/**
- * Spinner Rotation Animation
- * Creates the spinning effect for the loading indicator
- */
 @keyframes spin {
-  0% { transform: rotate(0deg); }   /* Start position */
-  100% { transform: rotate(360deg); } /* Full rotation */
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* ===== SIDEBAR NAVIGATION ===== */
-
-/**
- * Main Sidebar Container
- * Fixed navigation panel on the left side of the application
- */
 .sidebar {
-  width: 225px;                /* Fixed width for sidebar */
-  background: var(--primary-color); /* Dark background */
-  color: #fff;                 /* White text color */
+  width: 225px;
+  background: var(--primary-color);
+  color: #fff;
   display: flex;
-  flex-direction: column;      /* Vertical layout */
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  flex-direction: column;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
-/**
- * Logo/Brand Area
- * Top section of sidebar containing application name
- */
 .logo {
   padding: 25px 20px;
-  border-bottom: 1px solid #34495e; /* Subtle separator */
+  border-bottom: 1px solid #34495e;
   font-size: 22px;
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 10px;                   /* Space between icon and text */
+  gap: 10px;
 }
 
-/**
- * Navigation Menu Container
- * Wrapper for all navigation items
- */
 .nav-menu {
   padding: 20px 0;
-  flex-grow: 1;                /* Takes remaining vertical space */
+  flex-grow: 1;
 }
 
-/**
- * Individual Navigation Items
- * Clickable menu items for section navigation
- */
 .nav-item {
   padding: 14px 25px;
-  cursor: pointer;             /* Indicates clickable element */
-  transition: all 0.3s;        /* Smooth hover and active transitions */
+  cursor: pointer;
+  transition: all 0.3s;
   display: flex;
   align-items: center;
-  gap: 12px;                   /* Space between icon and text */
+  gap: 12px;
   font-size: 15px;
   font-weight: 400;
 }
 
-/**
- * Navigation Item Hover State
- * Visual feedback when user hovers over menu items
- */
 .nav-item:hover {
-  background: #454f59;         /* Slightly lighter dark background */
+  background: #454f59;
 }
 
-/**
- * Active Navigation Item
- * Highlights the currently selected section
- */
 .nav-item.active {
-  color: #3498db;              /* Blue accent color for active state */
+  color: #3498db;
   font-weight: 500;
-  border-left: 4px solid #fff; /* White left border indicator */
+  border-left: 4px solid #fff;
 }
 
 /* ===== MAIN CONTENT AREA ===== */
-
-/**
- * Main Content Container
- * Right side area containing all dynamic content sections
- */
 .main-content {
-  flex: 1;                     /* Takes remaining horizontal space */
+  flex: 1;
   display: flex;
-  flex-direction: column;      /* Vertical layout for top-bar and content */
-  overflow: hidden;            /* Prevent main content overflow */
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/**
- * Top Navigation Bar
- * Contains search functionality and user profile area
- */
 .top-bar {
-  background: #F5F6FA;         /* Light gray background */
+  background: #F5F6FA;
   padding: 15px 30px;
   display: flex;
-  justify-content: space-between; /* Space between search and user area */
+  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Subtle bottom shadow */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-/**
- * Search Box Container
- * Wrapper for search input and icon
- */
 .search-box {
-  position: relative;          /* For absolute positioning of search icon */
-  width: 400px;                /* Fixed width for search */
+  position: relative;
+  width: 400px;
 }
 
-/**
- * Search Input Field
- * Text input for filtering and searching content
- */
 .search-box input {
   width: 100%;
-  padding: 12px 15px 12px 45px; /* Extra left padding for icon space */
-  border: 1px solid #e1e5e9;   /* Light border */
+  padding: 12px 15px 12px 45px;
+  border: 1px solid #e1e5e9;
   border-radius: 6px;
   font-size: 14px;
-  outline: none;               /* Remove default browser outline */
-  transition: all 0.3s;        /* Smooth focus transitions */
+  outline: none;
+  transition: all 0.3s;
 }
 
-/**
- * Search Input Focus State
- * Enhanced visibility when user focuses on search
- */
 .search-box input:focus {
-  border-color: #3498db;       /* Blue border on focus */
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2); /* Blue glow effect */
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-/**
- * Search Icon
- * Magnifying glass icon inside search input
- */
 .search-box i {
   position: absolute;
   left: 15px;
   top: 50%;
-  transform: translateY(-50%); /* Perfect vertical center */
-  color: #7f8c8d;              /* Medium gray color */
+  transform: translateY(-50%);
+  color: #7f8c8d;
 }
 
-/**
- * User Actions Container
- * Groups notification and profile elements
- */
 .user-actions {
   display: flex;
   align-items: center;
-  gap: 20px;                   /* Space between notification and profile */
+  gap: 20px;
 }
 
-/**
- * Notification Bell
- * Icon with badge for showing notification count
- */
 .notification {
-  position: relative;          /* For absolute positioning of badge */
-  cursor: pointer;             /* Indicates clickable element */
+  position: relative;
+  cursor: pointer;
 }
 
-/**
- * Notification Icon
- * Bell icon styling
- */
 .notification i {
   font-size: 20px;
-  color: #7f8c8d;              /* Medium gray color */
+  color: #7f8c8d;
 }
 
-/**
- * Notification Badge
- * Red counter for unread notifications
- */
 .notification .badge {
   position: absolute;
   top: -5px;
   right: -5px;
-  background: #e74c3c;         /* Red background for urgency */
+  background: #e74c3c;
   color: white;
-  border-radius: 50%;          /* Circular shape */
+  border-radius: 50%;
   width: 18px;
   height: 18px;
   display: flex;
@@ -267,34 +170,22 @@ body {
   font-size: 10px;
 }
 
-/**
- * User Profile Area
- * Container for user avatar and name
- */
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 10px;                   /* Space between avatar and name */
-  cursor: pointer;             /* Indicates clickable element */
+  gap: 10px;
+  cursor: pointer;
 }
 
-/**
- * User Name Text
- * Styling for the displayed username
- */
 .user-profile span {
   font-weight: 500;
 }
 
-/**
- * User Profile Image/Avatar
- * Circular container for user initials or image
- */
 .profile-img {
   width: 40px;
   height: 40px;
-  border-radius: 50%;          /* Circular shape */
-  background: linear-gradient(135deg, #3498db, #2c3e50); /* Blue gradient */
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3498db, #2c3e50);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -304,101 +195,59 @@ body {
 }
 
 /* ===== CONTENT SECTIONS ===== */
-
-/**
- * Main Content Sections
- * Container for all dynamic content areas
- */
 .content-section {
-  flex: 1;                     /* Takes remaining vertical space */
+  flex: 1;
   padding: 30px;
-  overflow-y: auto;            /* Enable scrolling for long content */
+  overflow-y: auto;
 }
 
-/**
- * Hidden Content Sections
- * Utility class for hiding inactive sections
- */
 .content-section.hidden {
   display: none;
 }
 
-/**
- * Global Hidden Utility Class
- * Can be applied to any element to hide it
- */
 .hidden {
   display: none !important;
 }
 
-/**
- * Portfolio Header Section
- * Title and description area for portfolio section
- */
 .portfolio-header {
   margin-bottom: 30px;
 }
 
-/**
- * Page Title Styling
- * Main heading for each section
- */
 .page-title {
   font-size: 24px;
-  color: #2c3e50;              /* Dark blue-gray color */
+  color: #2c3e50;
   margin-bottom: 8px;
   font-weight: 600;
 }
 
-/**
- * Page Description Styling
- * Subtitle text below main page title
- */
 .page-description {
-  color: #7f8c8d;              /* Medium gray color */
+  color: #7f8c8d;
   font-size: 15px;
 }
 
-/* ===== STATUS BOXES COMPONENT ===== */
-
-/**
- * Status Boxes Container
- * Grid layout for project statistics cards
- */
+/* ===== STATUS BOXES ===== */
 .status-boxes {
   display: flex;
-  gap: 20px;                   /* Space between boxes */
+  gap: 20px;
   margin: 25px;
 }
 
-/**
- * Individual Status Box
- * Card displaying project count and status
- */
 .status-box {
-  flex: 1;                     /* Equal width distribution */
+  flex: 1;
   background: white;
   border-radius: 8px;
   padding: 20px;
   display: flex;
   align-items: center;
-  gap: 15px;                   /* Space between icon and text */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-  transition: transform 0.3s ease; /* Smooth hover animation */
+  gap: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
 }
 
-/**
- * Status Box Hover Effect
- * Lift animation on hover for interactivity
- */
 .status-box:hover {
-  transform: translateY(-5px); /* Subtle lift effect */
+  transform: translateY(-5px);
 }
 
-/**
- * Status Icon Container
- * Circular background for status icons
- */
 .status-icon {
   width: 50px;
   height: 50px;
@@ -410,176 +259,95 @@ body {
   color: white;
 }
 
-/**
- * All Projects Status Icon
- * Specific styling for total projects counter
- */
-.all-projects .status-icon {
-  background: #353A40;
-}
+.all-projects .status-icon { background: #353A40; }
+.pending .status-icon { background: #353A40; }
+.waiting .status-icon { background: #353A40; }
+.completed .status-icon { background: #353A40; }
 
-/**
- * Pending Projects Status Icon
- * Specific styling for in-process projects
- */
-.pending .status-icon {
-  background: #353A40;
-}
-
-/**
- * Waiting Projects Status Icon
- * Specific styling for pending projects
- */
-.waiting .status-icon {
-  background: #353A40;
-}
-
-/**
- * Completed Projects Status Icon
- * Specific styling for finished projects
- */
-.completed .status-icon {
-  background: #353A40;
-}
-
-/**
- * Status Count Number
- * Large number display for project counts
- */
 .status-info .count {
   font-size: 28px;
   font-weight: 700;
-  color: #2c3e50;              /* Dark text for numbers */
+  color: #2c3e50;
   line-height: 1;
 }
 
-/**
- * Status Label Text
- * Description text below count numbers
- */
 .status-info .label {
   font-size: 14px;
-  color: #353A40;              /* Primary color for labels */
+  color: #353A40;
   margin-top: 5px;
 }
 
-/* ===== PROJECTS SECTION WITH NOTES ===== */
-
-/**
- * Projects Section Layout
- * Container for projects table and notes panel
- */
+/* ===== PROJECTS SECTION ===== */
 .projects-section {
   display: flex;
-  gap: 20px;                   /* Space between table and notes */
+  gap: 20px;
   margin-bottom: 30px;
   padding: 20px;
-  height: calc(100vh - 400px); /* Dynamic height based on viewport */
-  min-height: 500px;           /* Minimum height guarantee */
+  height: calc(100vh - 400px);
+  min-height: 500px;
 }
 
-/**
- * Table Container
- * Wrapper for projects table with styling
- */
 .table-container {
-  flex: 1;                     /* Takes majority of horizontal space */
+  flex: 1;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  overflow: hidden;            /* Contain table borders */
+  overflow: hidden;
   display: flex;
-  flex-direction: column;      /* For table and scroll indicator */
+  flex-direction: column;
 }
 
-/* ===== PROJECTS TABLE STYLES ===== */
-
-/**
- * Projects Table Container
- * Scrollable area for projects data
- */
+/* ===== PROJECTS TABLE ===== */
 .projects-table-container {
-  flex: 1;                     /* Takes available vertical space */
-  overflow-y: auto;            /* Enable vertical scrolling */
+  flex: 1;
+  overflow-y: auto;
 }
 
-/**
- * Projects Table
- * Main table styling for projects data
- */
 .projects-table-container table {
   width: 100%;
-  border-collapse: collapse;   /* Remove default cell spacing */
-  margin-bottom: 0;            /* Remove default margin */
+  border-collapse: collapse;
+  margin-bottom: 0;
 }
 
-/**
- * Table Header Sticky Positioning
- * Keeps table headers visible during scrolling
- */
 .projects-table-container thead th {
   position: sticky;
   top: 0;
-  background-color: #f8f9fa;   /* Light background for headers */
-  z-index: 10;                 /* Ensure headers stay above content */
-  box-shadow: 0 1px 0 #e1e5e9; /* Bottom border effect */
+  background-color: #f8f9fa;
+  z-index: 10;
+  box-shadow: 0 1px 0 #e1e5e9;
 }
 
-/**
- * Table Header and Cell Base Styles
- * Consistent padding and alignment
- */
 th, td {
   padding: 15px;
   text-align: left;
-  border-bottom: 1px solid #f0f0f0; /* Subtle row separators */
+  border-bottom: 1px solid #f0f0f0;
 }
 
-/**
- * Table Header Specific Styles
- * Enhanced styling for column headers
- */
 th {
   background-color: #f8f9fa;
   font-weight: 600;
-  color: #2c3e50;              /* Dark text for headers */
+  color: #2c3e50;
   font-size: 14px;
 }
 
-/**
- * Table Cell Specific Styles
- * Content cell styling
- */
 td {
   font-size: 14px;
-  color: #4a5568;              /* Medium dark text for content */
+  color: #4a5568;
 }
 
-/**
- * Status Badge Styling
- * Pill-shaped status indicators in table
- */
 .status {
   padding: 6px 12px;
-  border-radius: 20px;         /* Pill shape */
+  border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
   color: var(--primary-color);
 }
 
-/**
- * Action Buttons Container
- * Wrapper for edit/remove buttons in table
- */
 .actions {
   display: flex;
-  gap: 10px;                   /* Space between action buttons */
+  gap: 10px;
 }
 
-/**
- * Base Button Styles
- * Common styling for all action buttons
- */
 .btn {
   padding: 6px 12px;
   border-radius: 4px;
@@ -587,138 +355,80 @@ td {
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
-  transition: all 0.2s;        /* Smooth hover transitions */
+  transition: all 0.2s;
 }
 
-/**
- * Edit Button Styling
- * Secondary action button for editing
- */
 .btn-edit {
   background-color: var(--secondary-color);
   color: #fff;
 }
 
-/**
- * Edit Button Hover State
- * Visual feedback on hover
- */
 .btn-edit:hover {
-  background-color: #a5b2bb;   /* Lighter shade on hover */
+  background-color: #a5b2bb;
   color: var(--primary-color);
 }
 
-/**
- * Remove Button Styling
- * Destructive action button for deletion
- */
 .btn-remove {
   background-color: #353A40;
   color: #fff;
 }
 
-/**
- * Remove Button Hover State
- * Visual feedback on hover
- */
 .btn-remove:hover {
   background-color: var(--secondary-color);
   color: #fff;
 }
 
 /* ===== SCROLLBAR STYLING ===== */
-
-/**
- * Custom Scrollbar for Webkit Browsers
- * Styling for scrollable containers (Chrome, Safari, Edge)
- */
 .projects-table-container::-webkit-scrollbar {
-  width: 6px;                  /* Thin scrollbar */
+  width: 6px;
 }
 
-/**
- * Scrollbar Track
- * Background of the scrollbar
- */
 .projects-table-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
 
-/**
- * Scrollbar Thumb
- * Draggable scrolling element
- */
 .projects-table-container::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 3px;
 }
 
-/**
- * Scrollbar Thumb Hover State
- * Visual feedback when hovering scrollbar
- */
 .projects-table-container::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
 
-/* ===== SHOW MORE INDICATOR ===== */
-
-/**
- * Scroll Indicator
- * Prompt to scroll for more content
- */
 .show-more-indicator {
   text-align: center;
   padding: 10px;
-  background: #cad2d7;         /* Light gray background */
+  background: #cad2d7;
   color: #353A40;
   font-size: 14px;
-  cursor: pointer;             /* Indicates clickable element */
+  cursor: pointer;
   border-top: 1px solid #e1e5e9;
-  display: none;               /* Hidden by default */
+  display: none;
 }
 
-/**
- * Show More Indicator Visibility
- * Only displayed when there's more content to scroll
- */
 .projects-table-container.has-more-rows + .show-more-indicator {
   display: block;
 }
 
-/* ===== NOTES BOX COMPONENT ===== */
-
-/**
- * Notes Side Panel
- * Fixed-width panel for project notes
- */
+/* ===== NOTES BOX ===== */
 .notes-box {
-  width: 350px;                /* Fixed width */
+  width: 350px;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   display: flex;
-  flex-direction: column;      /* Vertical layout for sections */
+  flex-direction: column;
 }
 
-/* ===== ADD PROJECT BUTTON ===== */
-
-/**
- * Add Project Button Container
- * Special styling for the add button in notes panel
- */
 .notes-box .add-project-btn {
   padding: 15px 20px 15px 20px;
   margin: 0;
-  border-bottom: 1px solid #f0f0f0; /* Separator line */
+  border-bottom: 1px solid #f0f0f0;
 }
 
-/**
- * Add Project Button
- * Primary action button for creating new projects
- */
 .notes-box .add-project-btn button {
   width: 100%;
   background: #353A40;
@@ -731,117 +441,73 @@ td {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;                   /* Space between icon and text */
+  gap: 8px;
   transition: background 0.3s;
 }
 
-/**
- * Add Project Button Hover State
- * Visual feedback on hover
- */
 .notes-box .add-project-btn button:hover {
-  background: #5e707c;         /* Lighter shade on hover */
+  background: #5e707c;
 }
 
-/**
- * Notes Header
- * Section title for notes area
- */
 .notes-header {
   padding: 15px 20px;
   border-bottom: 1px solid #f0f0f0;
-  background-color: #f8f9fa;   /* Light background */
+  background-color: #f8f9fa;
 }
 
-/**
- * Notes Header Title
- * Styling for "Project Notes" heading
- */
 .notes-header h3 {
   font-size: 16px;
   color: #2c3e50;
   font-weight: 600;
 }
 
-/**
- * Notes Content Area
- * Scrollable container for note items
- */
 .notes-content {
-  flex: 1;                     /* Takes available vertical space */
+  flex: 1;
   padding: 20px;
-  overflow-y: auto;            /* Enable scrolling for many notes */
-  max-height: 300px;           /* Limit height with scrolling */
+  overflow-y: auto;
+  max-height: 300px;
 }
 
-/**
- * Individual Note Item
- * Container for a single note with text and timestamp
- */
 .note-item {
   padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0; /* Separator between notes */
-  animation: fadeIn 0.3s ease-in; /* Smooth entry animation */
+  border-bottom: 1px solid #f0f0f0;
+  animation: fadeIn 0.3s ease-in;
 }
 
-/**
- * Last Note Item
- * Remove border from the final note
- */
 .note-item:last-child {
   border-bottom: none;
 }
 
-/**
- * Note Text Content
- * Styling for the actual note text
- */
 .note-item p {
   font-size: 14px;
-  color: #4a5568;              /* Medium dark text */
-  line-height: 1.5;            /* Improved readability */
+  color: #4a5568;
+  line-height: 1.5;
 }
 
-/**
- * Note Timestamp
- * Date and time display for notes
- */
 .note-date {
   font-size: 12px;
-  color: #7f8c8d;              /* Light gray for metadata */
+  color: #7f8c8d;
   margin-top: 5px;
 }
 
-/**
- * Notes Input Area
- * Container for adding new notes
- */
 .notes-input {
   padding: 15px 20px;
-  border-top: 1px solid #f0f0f0; /* Top separator */
+  border-top: 1px solid #f0f0f0;
   display: flex;
-  gap: 10px;                   /* Space between textarea and button */
+  gap: 10px;
 }
 
-/**
- * Notes Textarea
- * Input field for writing new notes
- */
 .notes-input textarea {
-  flex: 1;                     /* Takes available horizontal space */
+  flex: 1;
   padding: 12px;
   border: 1px solid #e1e5e9;
   border-radius: 6px;
   font-size: 14px;
-  outline: none;               /* Remove default browser outline */
-  resize: none;                /* Disable manual resizing */
-  height: 45px;                /* Fixed initial height */
+  outline: none;
+  resize: none;
+  height: 45px;
 }
 
-/**
- * Add Note Button
- * Button to submit new notes
- */
 .notes-input button {
   background-color: #353A40;
   color: white;
@@ -852,180 +518,108 @@ td {
   font-weight: 500;
 }
 
-/**
- * Add Note Button Hover State
- * Visual feedback on hover
- */
 .notes-input button:hover {
   background-color: #5e707c;
-  transition: 0.2s;            /* Quick transition */
+  transition: 0.2s;
 }
 
 /* ===== ACTIVE ROW STYLING ===== */
-
-/**
- * Table Row Base Styles
- * Interactive styling for project rows
- */
 .projects-table-container tbody tr {
-  cursor: pointer;             /* Indicates clickable rows */
-  transition: background-color 0.2s; /* Smooth hover transition */
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-/**
- * Table Row Hover State
- * Visual feedback when hovering over rows
- */
 .projects-table-container tbody tr:hover {
-  background-color: #f8f9fa;   /* Light gray background */
+  background-color: #f8f9fa;
 }
 
-/**
- * Active Table Row
- * Highlights the currently selected project
- */
 .projects-table-container tbody tr.active {
   background-color: #f8f9fa;
-  border-left: 3px solid #454f59; /* Left border indicator */
+  border-left: 3px solid #454f59;
 }
 
-/**
- * Active Row Cell Styling
- * Enhanced text styling for selected row
- */
 .projects-table-container tbody tr.active td {
-  font-weight: 600;            /* Bold text for emphasis */
-  color: #2c3e50;              /* Darker text color */
+  font-weight: 600;
+  color: #2c3e50;
 }
 
-/* ===== ANIMATIONS ===== */
-
-/**
- * Fade In Animation
- * Smooth entry animation for new content
- */
 @keyframes fadeIn {
   from { 
     opacity: 0; 
-    transform: translateY(10px); /* Start slightly lower */
+    transform: translateY(10px);
   }
   to { 
     opacity: 1; 
-    transform: translateY(0);   /* End at normal position */
+    transform: translateY(0);
   }
 }
 
 /* ===== MODAL STYLES ===== */
-
-/**
- * Modal Overlay Container
- * Full-screen backdrop for modal dialogs
- */
 .pj-modal {
   position: fixed;
-  inset: 0;                    /* Cover entire viewport (top, right, bottom, left) */
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;               /* High z-index to appear above all content */
-  font-family: inherit;        /* Inherit main font family */
+  z-index: 2000;
+  font-family: inherit;
 }
 
-/**
- * Hidden Modal State
- * Utility class for hiding modal dialogs
- */
 .pj-modal.hidden { 
   display: none; 
 }
 
-/**
- * Modal Backdrop Overlay
- * Semi-transparent layer behind modal content
- */
 .pj-overlay {
   position: absolute;
-  inset: 0;                    /* Cover entire parent */
-  background: rgba(0,0,0,0.5); /* Semi-transparent black */
-  backdrop-filter: blur(2px);  /* Subtle background blur */
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(2px);
 }
 
-/**
- * Modal Dialog Container
- * Actual modal content box
- */
 .pj-dialog {
   background: #fff;
   border-radius: 10px;
   padding: 20px;
-  width: min(600px, 94%);      /* Responsive max width */
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25); /* Strong shadow for depth */
-  z-index: 2;                  /* Above overlay */
+  width: min(600px, 94%);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  z-index: 2;
 }
 
-/**
- * Modal Title
- * Heading for modal dialogs
- */
 .pj-title { 
   font-size: 18px; 
   margin-bottom: 12px; 
 }
 
-/**
- * Modal Form Layout
- * Container for form elements in modals
- */
 .pj-form { 
   display: grid; 
-  gap: 10px;                   /* Space between form rows */
-}
-
-/**
- * Form Row Layout
- * Container for label and input pairs
- */
-.pj-row { 
-  display: flex; 
-  flex-direction: column;      /* Stack label above input */
-  gap: 5px;                    /* Small space between label and input */
-}
-
-/**
- * Small Grid Layout for Form Rows
- * Two-column layout for compact forms
- */
-.pj-row.small-grid { 
-  display: grid; 
-  grid-template-columns: 1fr 1fr; /* Equal two-column layout */
   gap: 10px; 
 }
 
-/**
- * Form Input Fields
- * Styling for text inputs, selects, and other form elements
- */
+.pj-row { 
+  display: flex; 
+  flex-direction: column;
+  gap: 5px; 
+}
+
+.pj-row.small-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 10px; 
+}
+
 .pj-input { 
   padding: 8px; 
   border: 1px solid #ccc; 
   border-radius: 6px; 
 }
 
-/**
- * Modal Action Buttons
- * Container for cancel/submit buttons
- */
 .pj-actions { 
   display: flex; 
-  justify-content: flex-end;   /* Right-align buttons */
-  gap: 8px;                    /* Space between buttons */
+  justify-content: flex-end;
+  gap: 8px; 
   margin-top: 10px; 
 }
 
-/**
- * Primary Action Button
- * Main submit/save action in modals
- */
 .btn.primary { 
   background: var(--primary-color); 
   color: #fff; 
@@ -1035,19 +629,11 @@ td {
   cursor: pointer; 
 }
 
-/**
- * Primary Button Hover State
- * Visual feedback for primary actions
- */
 .btn-primary:hover {
   background: var(--secondary-color);
   color: #fff;
 }
 
-/**
- * Secondary Action Button
- * Cancel/close actions in modals
- */
 .btn.secondary { 
   background: #f2f2f2; 
   border: 1px solid #ddd; 
@@ -1057,22 +643,13 @@ td {
 }
 
 /* ===== PORTFOLIO SECTION STYLES ===== */
-
-/**
- * Portfolio Statistics Grid
- * Responsive grid for portfolio metric cards
- */
 .portfolio-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive columns */
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
   margin-bottom: 30px;
 }
 
-/**
- * Stat Card Component
- * Individual metric display card
- */
 .stat-card {
   background: white;
   border-radius: 12px;
@@ -1084,18 +661,10 @@ td {
   transition: transform 0.3s ease;
 }
 
-/**
- * Stat Card Hover Effect
- * Interactive lift animation
- */
 .stat-card:hover {
   transform: translateY(-5px);
 }
 
-/**
- * Stat Icon Container
- * Circular background for metric icons
- */
 .stat-icon {
   width: 60px;
   height: 60px;
@@ -1108,10 +677,6 @@ td {
   color: white;
 }
 
-/**
- * Stat Number Display
- * Large number for metric value
- */
 .stat-info .stat-number {
   font-size: 32px;
   font-weight: 700;
@@ -1120,98 +685,59 @@ td {
   margin-bottom: 5px;
 }
 
-/**
- * Stat Label Text
- * Description for the metric
- */
 .stat-info .stat-label {
   font-size: 14px;
   color: var(--secondary-color);
   font-weight: 500;
 }
 
-/* ===== PORTFOLIO CONTENT GRID ===== */
-
-/**
- * Portfolio Content Area
- * Main container for portfolio management sections
- */
 .portfolio-content {
   margin-top: 30px;
 }
 
-/**
- * Content Grid Layout
- * Responsive grid for portfolio cards
- */
 .content-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* Responsive columns */
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 25px;
 }
 
-/**
- * Content Card Component
- * Individual card container for portfolio features
- */
 .content-card {
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  overflow: hidden;            /* Contain child elements */
+  overflow: hidden;
 }
 
-/**
- * Card Header
- * Top section of content cards with title and actions
- */
 .card-header {
   padding: 20px 25px;
   border-bottom: 1px solid #f0f0f0;
   display: flex;
-  justify-content: space-between; /* Space between title and button */
+  justify-content: space-between;
   align-items: center;
-  background-color: #f8f9fa;   /* Light background */
+  background-color: #f8f9fa;
 }
 
-/**
- * Card Title
- * Heading for content cards
- */
 .card-header h3 {
   font-size: 18px;
   color: var(--primary-color);
   font-weight: 600;
-  margin: 0;                   /* Remove default margin */
+  margin: 0;
 }
 
-/**
- * Card Body
- * Main content area of cards
- */
 .card-body {
   padding: 25px;
 }
 
 /* ===== PORTFOLIO IMAGES STYLES ===== */
-
-/**
- * Portfolio Images Container
- * Scrollable list of portfolio image items
- */
 .portfolio-images-container {
   display: flex;
-  flex-direction: column;      /* Vertical layout */
-  gap: 15px;                   /* Space between image items */
-  max-height: 400px;           /* Limit height with scrolling */
-  overflow-y: auto;            /* Enable vertical scrolling */
-  padding-right: 10px;         /* Space for scrollbar */
+  flex-direction: column;
+  gap: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
 }
 
-/**
- * Portfolio Images Scrollbar
- * Custom scrollbar for images container
- */
 .portfolio-images-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -1226,10 +752,6 @@ td {
   border-radius: 3px;
 }
 
-/**
- * Portfolio Image Item
- * Individual portfolio image entry
- */
 .portfolio-image-item {
   display: flex;
   align-items: center;
@@ -1241,117 +763,73 @@ td {
   background: white;
 }
 
-/**
- * Portfolio Image Item Hover Effect
- * Interactive highlight and slide animation
- */
 .portfolio-image-item:hover {
   border-color: var(--secondary-color);
-  transform: translateX(5px);  /* Slide right on hover */
+  transform: translateX(5px);
 }
 
-/**
- * Portfolio Image Preview
- * Container for image thumbnails
- */
 .portfolio-image-preview {
   width: 80px;
   height: 80px;
   border-radius: 8px;
-  overflow: hidden;            /* Contain image borders */
-  flex-shrink: 0;              /* Prevent shrinking */
-  background: #f8f9fa;         /* Light background for empty state */
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f8f9fa;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/**
- * Portfolio Image
- * Actual image styling
- */
 .portfolio-image-preview img {
   width: 100%;
   height: 100%;
-  object-fit: cover;           /* Maintain aspect ratio while filling container */
+  object-fit: cover;
 }
 
-/**
- * Image Placeholder
- * Displayed when no image is available
- */
 .portfolio-image-preview .placeholder {
   font-size: 24px;
   color: var(--secondary-color);
 }
 
-/**
- * Portfolio Image Info
- * Text content area for image details
- */
 .portfolio-image-info {
-  flex: 1;                     /* Take available horizontal space */
-  min-width: 0;                /* Allow text truncation */
+  flex: 1;
+  min-width: 0;
 }
 
-/**
- * Image Title
- * Heading for portfolio images
- */
 .portfolio-image-info h4 {
   font-size: 16px;
   color: var(--primary-color);
   margin-bottom: 8px;
   font-weight: 600;
-  white-space: nowrap;         /* Prevent title wrapping */
-  overflow: hidden;            /* Hide overflow */
-  text-overflow: ellipsis;     /* Show ellipsis for long titles */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/**
- * Image Details Container
- * Wrapper for URL and size information
- */
 .portfolio-image-details {
   display: flex;
-  flex-direction: column;      /* Stack URL and size vertically */
-  gap: 4px;                    /* Small space between details */
+  flex-direction: column;
+  gap: 4px;
 }
 
-/**
- * Portfolio Image URL
- * Styling for image link
- */
 .portfolio-image-url {
   font-size: 14px;
   color: var(--secondary-color);
-  white-space: nowrap;         /* Prevent URL wrapping */
-  overflow: hidden;            /* Hide overflow */
-  text-overflow: ellipsis;     /* Show ellipsis for long URLs */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/**
- * Portfolio Image URL Link
- * Styling for clickable URLs
- */
 .portfolio-image-url a {
   color: var(--secondary-color);
-  text-decoration: none;       /* Remove default underline */
+  text-decoration: none;
 }
 
-/**
- * Portfolio URL Link Hover State
- * Visual feedback for clickable URLs
- */
 .portfolio-image-url a:hover {
   color: var(--primary-color);
-  text-decoration: underline;  /* Show underline on hover */
+  text-decoration: underline;
 }
 
-/**
- * Image Size Badge
- * Display for image dimensions
- */
 .portfolio-image-size {
   font-size: 12px;
   color: #7f8c8d;
@@ -1359,104 +837,66 @@ td {
   padding: 2px 8px;
   border-radius: 4px;
   display: inline-block;
-  width: fit-content;          /* Size to content */
+  width: fit-content;
 }
 
-/**
- * Portfolio Image Actions
- * Container for edit/remove buttons
- */
 .portfolio-image-actions {
   display: flex;
   gap: 8px;
-  flex-shrink: 0;              /* Prevent button shrinking */
+  flex-shrink: 0;
 }
 
 /* ===== IMAGE UPLOAD COMPONENT ===== */
-
-/**
- * Image Upload Container
- * Wrapper for file upload elements
- */
 .image-upload-container {
   display: flex;
-  flex-direction: column;      /* Stack upload elements vertically */
-  gap: 10px;                   /* Space between preview and button */
+  flex-direction: column;
+  gap: 10px;
 }
 
-/**
- * Image Preview Area
- * Drop zone for image upload with preview
- */
 .image-preview {
   width: 100%;
   height: 150px;
-  border: 2px dashed #e1e5e9;  /* Dashed border for drop zone */
+  border: 2px dashed #e1e5e9;
   border-radius: 8px;
   display: flex;
-  flex-direction: column;      /* Stack icon and text */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;             /* Indicates clickable area */
+  cursor: pointer;
   transition: all 0.3s ease;
-  background: #f8f9fa;         /* Light background */
+  background: #f8f9fa;
   text-align: center;
   padding: 20px;
 }
 
-/**
- * Image Preview Hover State
- * Visual feedback when hovering drop zone
- */
 .image-preview:hover {
   border-color: var(--secondary-color);
-  background: #f0f7ff;         /* Light blue background */
+  background: #f0f7ff;
 }
 
-/**
- * Image Preview with Image
- * Styling when an image is present
- */
 .image-preview.has-image {
-  border-style: solid;         /* Change to solid border */
-  background: white;           /* White background */
+  border-style: solid;
+  background: white;
 }
 
-/**
- * Preview Image Styling
- * Actual image in preview area
- */
 .image-preview img {
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;         /* Maintain aspect ratio without cropping */
+  object-fit: contain;
 }
 
-/**
- * Upload Icon
- * Cloud upload icon in empty state
- */
 .image-preview i {
   font-size: 32px;
   color: var(--secondary-color);
   margin-bottom: 8px;
 }
 
-/**
- * Upload Prompt Text
- * Instruction text in empty state
- */
 .image-preview span {
   font-size: 14px;
   color: var(--secondary-color);
 }
 
 /* ===== BUTTON COMPONENTS ===== */
-
-/**
- * Primary Button Style
- * Main action buttons throughout the application
- */
 .btn-primary {
   background: var(--primary-color);
   color: white;
@@ -1469,46 +909,29 @@ td {
   transition: background 0.3s;
   display: flex;
   align-items: center;
-  gap: 5px;                   /* Space between icon and text */
+  gap: 5px;
 }
 
-/**
- * Primary Button Hover State
- * Visual feedback for primary actions
- */
 .btn-primary:hover {
   background: var(--secondary-color);
 }
 
-/**
- * Small Button Variant
- * Compact button style for tight spaces
- */
 .btn-sm {
   padding: 4px 8px;
   font-size: 11px;
 }
 
 /* ===== SKILLS GRID STYLES ===== */
-
-/**
- * Skills Grid Container
- * Responsive grid layout for skills display - 3 per row
- */
 .skills-grid-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Fixed 3 columns */
-  gap: 12px;                   /* Reduced gap between items */
-  max-height: 400px;           /* Limit height with scrolling */
-  overflow-y: auto;            /* Enable vertical scrolling */
-  padding-right: 10px;         /* Space for scrollbar */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
   padding-top: 10px;
 }
 
-/**
- * Skills Grid Scrollbar
- * Custom scrollbar for skills container
- */
 .skills-grid-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -1523,100 +946,68 @@ td {
   border-radius: 3px;
 }
 
-/**
- * Skill Grid Item
- * Smaller rectangular skill card with hover effects
- */
 .skill-grid-item {
   background: #f8f9fa;
   border: 1px solid #e9ecef;
-  border-radius: 6px;          /* Smaller border radius */
-  padding: 15px 10px;          /* Reduced padding */
+  border-radius: 6px;
+  padding: 15px 10px;
   text-align: center;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 10px;                   /* Reduced gap */
-  min-height: 80px;            /* Reduced minimum height */
+  gap: 10px;
+  min-height: 80px;
   position: relative;
-  overflow: hidden;            /* Contain hover effects */
+  overflow: hidden;
 }
 
-/**
- * Skill Grid Item Hover Effect
- * Interactive card lift and shadow animation
- */
 .skill-grid-item:hover {
   border-color: var(--secondary-color);
-  transform: translateY(-3px); /* Reduced lift animation */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Lighter shadow */
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/**
- * Skill Name Text
- * Smaller font size for skill names
- */
 .skill-grid-name {
-  font-size: 14px;             /* Reduced font size */
+  font-size: 14px;
   color: var(--primary-color);
   font-weight: 600;
-  line-height: 1.3;            /* Tighter line height */
-  word-break: break-word;      /* Handle long skill names */
+  line-height: 1.3;
+  word-break: break-word;
   text-align: center;
   transition: all 0.3s ease;
 }
 
-/**
- * Skill Name Hover Animation
- * Reduced text lift effect on card hover
- */
 .skill-grid-item:hover .skill-grid-name {
-  transform: translateY(-5px); /* Reduced text lift */
+  transform: translateY(-5px);
 }
 
-/**
- * Skill Action Buttons
- * Smaller edit/remove buttons that appear on hover
- */
 .skill-grid-actions {
   display: flex;
-  gap: 6px;                    /* Reduced gap between buttons */
+  gap: 6px;
   justify-content: center;
   position: absolute;
-  bottom: 10px;                /* Adjusted position */
+  bottom: 10px;
   left: 0;
   right: 0;
-  opacity: 0;                  /* Hidden by default */
-  transform: translateY(8px);  /* Reduced start position */
+  opacity: 0;
+  transform: translateY(8px);
   transition: all 0.3s ease;
 }
 
-/**
- * Skill Actions Hover State
- * Smooth fade-in animation for action buttons
- */
 .skill-grid-item:hover .skill-grid-actions {
-  opacity: 1;                  /* Fully visible */
-  transform: translateY(0);    /* End position */
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/**
- * No Skills Empty State
- * Displayed when no skills are available
- */
 .no-skills {
-  grid-column: 1 / -1;         /* Span entire grid width */
+  grid-column: 1 / -1;
   text-align: center;
   padding: 40px 20px;
   color: #7f8c8d;
 }
 
-/**
- * No Skills Icon
- * Large icon for empty state
- */
 .no-skills i {
   font-size: 48px;
   color: #bdc3c7;
@@ -1625,24 +1016,15 @@ td {
 }
 
 /* ===== UPDATES CONTAINER STYLES ===== */
-
-/**
- * Updates List Container
- * Scrollable list for recent updates
- */
 .updates-container {
   display: flex;
-  flex-direction: column;      /* Vertical layout */
-  gap: 12px;                   /* Space between update items */
-  max-height: 300px;           /* Limit height with scrolling */
-  overflow-y: auto;            /* Enable vertical scrolling */
-  padding-right: 10px;         /* Space for scrollbar */
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
 }
 
-/**
- * Updates Container Scrollbar
- * Custom scrollbar for updates list
- */
 .updates-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -1657,38 +1039,24 @@ td {
   border-radius: 3px;
 }
 
-/* ===== UPDATE ITEM STYLES ===== */
-
-/**
- * Individual Update Item
- * Container for update entries with icon and content
- */
 .update-item {
   display: flex;
-  align-items: flex-start;     /* Align to top for variable content height */
+  align-items: flex-start;
   gap: 15px;
   padding: 16px;
   border: 1px solid #f0f0f0;
   border-radius: 8px;
   transition: all 0.3s ease;
-  background: #fafbfc;         /* Very light background */
-  position: relative;          /* For absolute positioning of actions */
+  background: #fafbfc;
+  position: relative;
 }
 
-/**
- * Update Item Hover Effect
- * Interactive highlight and slide animation
- */
 .update-item:hover {
   border-color: var(--secondary-color);
-  transform: translateX(5px);  /* Slide right on hover */
-  background: white;           /* White background on hover */
+  transform: translateX(5px);
+  background: white;
 }
 
-/**
- * Update Icon Container
- * Circular background for update type icons
- */
 .update-icon {
   width: 40px;
   height: 40px;
@@ -1699,93 +1067,59 @@ td {
   justify-content: center;
   font-size: 16px;
   color: white;
-  flex-shrink: 0;              /* Prevent icon shrinking */
+  flex-shrink: 0;
 }
 
-/**
- * Update Content Area
- * Text content for update entries
- */
 .update-content {
-  flex: 1;                     /* Take available horizontal space */
-  min-width: 0;                /* Allow text truncation */
-  margin-right: 60px;          /* Space for action buttons */
+  flex: 1;
+  min-width: 0;
+  margin-right: 60px;
 }
 
-/**
- * Update Title
- * Main heading for update entries
- */
 .update-title {
   font-size: 14px;
   color: var(--primary-color);
   font-weight: 600;
   margin-bottom: 6px;
-  line-height: 1.4;            /* Improved readability */
+  line-height: 1.4;
 }
 
-/**
- * Update Details Container
- * Wrapper for date and time information
- */
 .update-details {
   display: flex;
   gap: 15px;
   align-items: center;
 }
 
-/**
- * Update Date Display
- * Styling for the update date
- */
 .update-date {
   font-size: 12px;
   color: var(--secondary-color);
   font-weight: 500;
 }
 
-/**
- * Update Time Display
- * Styling for the update time with background
- */
 .update-time {
   font-size: 12px;
   color: #7f8c8d;
-  background: #f0f0f0;         /* Light background */
+  background: #f0f0f0;
   padding: 2px 8px;
   border-radius: 4px;
   font-weight: 500;
 }
 
-/* ===== UPDATE ACTION BUTTONS ===== */
-
-/**
- * Update Action Buttons Container
- * Edit/delete buttons that appear on hover
- */
 .update-actions {
   position: absolute;
   right: 15px;
   top: 50%;
-  transform: translateY(-50%); /* Perfect vertical center */
+  transform: translateY(-50%);
   display: flex;
   gap: 6px;
-  opacity: 0;                  /* Hidden by default */
+  opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-/**
- * Update Actions Hover State
- * Smooth fade-in for action buttons
- */
 .update-item:hover .update-actions {
-  opacity: 1;                  /* Fully visible on hover */
+  opacity: 1;
 }
 
-/**
- * Update Action Button Base Styles
- * Small circular action buttons
- */
 .update-action-btn {
   width: 28px;
   height: 28px;
@@ -1799,55 +1133,31 @@ td {
   transition: all 0.2s ease;
 }
 
-/**
- * Update Edit Button
- * Secondary action for editing updates
- */
 .update-edit-btn {
   background: var(--secondary-color);
   color: white;
 }
 
-/**
- * Update Edit Button Hover State
- * Darker shade on hover
- */
 .update-edit-btn:hover {
   background: #4a5c6b;
 }
 
-/**
- * Update Delete Button
- * Destructive action for removing updates
- */
 .update-delete-btn {
-  background: #e74c3c;         /* Red color for destructive actions */
+  background: #e74c3c;
   color: white;
 }
 
-/**
- * Update Delete Button Hover State
- * Darker red on hover
- */
 .update-delete-btn:hover {
   background: #c0392b;
 }
 
-/**
- * No Updates Empty State
- * Displayed when no updates are available
- */
 .no-updates {
   text-align: center;
   padding: 40px 20px;
   color: #7f8c8d;
-  grid-column: 1 / -1;         /* Span entire grid width */
+  grid-column: 1 / -1;
 }
 
-/**
- * No Updates Icon
- * Large icon for empty state
- */
 .no-updates i {
   font-size: 48px;
   color: #bdc3c7;
@@ -1856,30 +1166,17 @@ td {
 }
 
 /* ===== TO-DO LIST STYLES ===== */
-
-/**
- * To-Do List Container
- * Main container for the to-do list functionality
- */
 .todo-input-container {
   margin-bottom: 20px;
   animation: slideDown 0.3s ease;
 }
 
-/**
- * To-Do Input Group
- * Layout for input and action buttons
- */
 .todo-input-group {
   display: flex;
   gap: 10px;
   align-items: center;
 }
 
-/**
- * To-Do Input Field
- * Styling for task input
- */
 .todo-input {
   flex: 1;
   padding: 12px 15px;
@@ -1895,10 +1192,6 @@ td {
   box-shadow: 0 0 0 2px rgba(94, 112, 124, 0.1);
 }
 
-/**
- * To-Do List Container
- * Scrollable area for task items
- */
 .todo-list-container {
   max-height: 350px;
   overflow-y: auto;
@@ -1907,10 +1200,6 @@ td {
   border: 1px solid #f0f0f0;
 }
 
-/**
- * No Todos Empty State
- * Displayed when no tasks exist
- */
 .no-todos {
   text-align: center;
   padding: 50px 20px;
@@ -1930,10 +1219,6 @@ td {
   color: #7f8c8d;
 }
 
-/**
- * To-Do Item
- * Individual task item with interactive elements
- */
 .todo-item {
   display: flex;
   align-items: center;
@@ -1954,10 +1239,6 @@ td {
   transform: translateX(5px);
 }
 
-/**
- * Completed To-Do Item
- * Visual styling for completed tasks
- */
 .todo-item.completed {
   background: #f8fff8;
 }
@@ -1967,10 +1248,6 @@ td {
   color: #7f8c8d;
 }
 
-/**
- * To-Do Checkbox
- * Custom checkbox for task completion
- */
 .todo-checkbox {
   width: 20px;
   height: 20px;
@@ -2001,10 +1278,6 @@ td {
   border-color: var(--secondary-color);
 }
 
-/**
- * To-Do Text
- * Styling for task description
- */
 .todo-text {
   flex: 1;
   font-size: 14px;
@@ -2016,10 +1289,6 @@ td {
   padding: 4px 0;
 }
 
-/**
- * To-Do Actions
- * Container for edit and delete buttons
- */
 .todo-actions {
   display: flex;
   gap: 8px;
@@ -2032,10 +1301,6 @@ td {
   opacity: 1;
 }
 
-/**
- * To-Do Action Buttons
- * Small buttons for task management
- */
 .todo-action-btn {
   width: 28px;
   height: 28px;
@@ -2067,10 +1332,6 @@ td {
   background: #c0392b;
 }
 
-/**
- * To-Do Statistics
- * Progress indicators at the bottom
- */
 .todo-stats {
   display: flex;
   justify-content: space-around;
@@ -2100,10 +1361,6 @@ td {
   letter-spacing: 0.5px;
 }
 
-/**
- * To-Do List Animations
- * Smooth animations for better user experience
- */
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -2126,10 +1383,6 @@ td {
   }
 }
 
-/**
- * To-Do List Scrollbar
- * Custom scrollbar for the task list
- */
 .todo-list-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -2149,11 +1402,6 @@ td {
 }
 
 /* ===== TOGGLE SWITCH COMPONENT ===== */
-
-/**
- * Toggle Switch Container
- * Custom-styled checkbox for on/off toggles
- */
 .switch {
   position: relative;
   display: inline-block;
@@ -2161,20 +1409,12 @@ td {
   height: 24px;
 }
 
-/**
- * Hidden Checkbox Input
- * Actual input element (hidden but functional)
- */
 .switch input {
-  opacity: 0;                  /* Hide default checkbox */
+  opacity: 0;
   width: 0;
   height: 0;
 }
 
-/**
- * Toggle Slider Track
- * Visual track for the toggle switch
- */
 .slider {
   position: absolute;
   cursor: pointer;
@@ -2182,15 +1422,11 @@ td {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;      /* Gray when off */
-  transition: .4s;             /* Smooth toggle animation */
-  border-radius: 24px;         /* Pill shape */
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 24px;
 }
 
-/**
- * Toggle Slider Knob
- * Moving part of the toggle switch
- */
 .slider:before {
   position: absolute;
   content: "";
@@ -2200,21 +1436,13 @@ td {
   bottom: 4px;
   background-color: white;
   transition: .4s;
-  border-radius: 50%;          /* Circular knob */
+  border-radius: 50%;
 }
 
-/**
- * Checked Toggle State
- * Styling when toggle is activated
- */
 input:checked + .slider {
-  background-color: var(--primary-color); /* Primary color when on */
+  background-color: var(--primary-color);
 }
 
-/**
- * Checked Toggle Knob Position
- * Move knob to the right when activated
- */
 input:checked + .slider:before {
   transform: translateX(26px);
 }
