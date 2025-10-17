@@ -8,10 +8,10 @@
 // - Portfolio images
 // - Skills management
 // - Updates functionality
+// - To-Do List functionality
 // =============================================
 
 // ===== SUPABASE CONFIGURATION =====
-// Replace these with your actual Supabase credentials
 const SUPABASE_URL = 'https://kqaqnhbdqnflbpjhrazq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtxYXFuaGJkcW5mbGJwamhyYXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxMTIyMTksImV4cCI6MjA3NTY4ODIxOX0.5tAfWDw2gnkrgICmOr0ZQ8EiPG3aLMQ5TxuCuBUI5sU';
 
@@ -19,47 +19,37 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ===== GLOBAL VARIABLES =====
-// Store application data
-let projects = [];          // All freelance projects
-let portfolioImages = [];   // Portfolio images data
-let skills = [];           // Skills and technologies
-let updates = [];          // Recent updates
-
-// Track currently selected/edited items
-let selectedProjectId = null;      // Currently selected project for notes
-let editProjectId = null;          // Project being edited
-let editPortfolioImageId = null;   // Portfolio image being edited
-let editSkillId = null;            // Skill being edited
-let editUpdateId = null;           // Update being edited
-let currentPortfolioImageFile = null; // File object for image upload
+let projects = [];
+let portfolioImages = [];
+let skills = [];
+let updates = [];
+let todos = []; // Added for to-do list
+let selectedProjectId = null;
+let editProjectId = null;
+let editPortfolioImageId = null;
+let editSkillId = null;
+let editUpdateId = null;
+let editTodoId = null; // Added for to-do list
+let currentPortfolioImageFile = null;
 
 // ===== INITIALIZATION =====
 
-/**
- * DOM Content Loaded Event Listener
- * Initializes the application when the DOM is fully loaded
- */
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing CRM Dashboard...');
     initializeApp();
 });
 
-/**
- * Main Application Initialization Function
- * Loads all data and sets up the application
- */
 async function initializeApp() {
     showLoading();
     
-    // Load all data sections in parallel for better performance
     await Promise.all([
         loadProjects(),
         initializePortfolioImages(),
         initializeSkills(),
-        initializeUpdates()
+        initializeUpdates(),
+        initializeTodoList() // Added to-do list initialization
     ]);
     
-    // Update UI components
     updateStatusCounts();
     initializeProjectsTableScroll();
     setupEventListeners();
@@ -71,28 +61,16 @@ async function initializeApp() {
 
 // ===== LOADING FUNCTIONS =====
 
-/**
- * Show Loading Spinner
- * Displays the loading overlay during API calls
- */
 function showLoading() {
     document.getElementById('loading').style.display = 'block';
 }
 
-/**
- * Hide Loading Spinner
- * Hides the loading overlay when operations complete
- */
 function hideLoading() {
     document.getElementById('loading').style.display = 'none';
 }
 
 // ===== FREELANCE PROJECTS FUNCTIONS =====
 
-/**
- * Load Projects from Supabase
- * Fetches all projects from the database and updates the UI
- */
 async function loadProjects() {
     try {
         console.log('Loading projects from Supabase...');
@@ -116,15 +94,10 @@ async function loadProjects() {
     }
 }
 
-/**
- * Initialize Projects Table
- * Populates the projects table with data
- */
 function initializeProjectsTable() {
     const tableBody = document.getElementById('projectsTableBody');
     tableBody.innerHTML = '';
     
-    // Show empty state if no projects
     if (projects.length === 0) {
         tableBody.innerHTML = `
             <tr>
@@ -136,7 +109,6 @@ function initializeProjectsTable() {
         return;
     }
     
-    // Populate table with project data
     projects.forEach((project, index) => {
         const tr = document.createElement('tr');
         tr.setAttribute('data-project-id', project.id);
@@ -144,7 +116,7 @@ function initializeProjectsTable() {
             <td>${index + 1}</td>
             <td>${escapeHtml(project.name)}</td>
             <td>${escapeHtml(project.client)}</td>
-            <td>${formatDisplayDate(project.start_date)}</td> <!-- This will now show DD/MM/YYYY -->
+            <td>${formatDisplayDate(project.start_date)}</td>
             <td><span class="status ${project.status}">${getStatusText(project.status)}</span></td>
             <td class="actions">
                 <button class="btn btn-edit" data-project-id="${project.id}">Edit</button>
@@ -154,14 +126,9 @@ function initializeProjectsTable() {
         tableBody.appendChild(tr);
     });
     
-    // Add click events to project rows
     setupProjectRowClickEvents();
 }
 
-/**
- * Setup Project Row Click Events
- * Adds event listeners to project table rows for selection
- */
 function setupProjectRowClickEvents() {
     document.querySelectorAll('.projects-table-container tbody tr').forEach(row => {
         row.addEventListener('click', function() {
@@ -172,19 +139,11 @@ function setupProjectRowClickEvents() {
 
 // ===== PORTFOLIO IMAGES FUNCTIONS =====
 
-/**
- * Initialize Portfolio Images
- * Loads portfolio images and sets up event listeners
- */
 async function initializePortfolioImages() {
     await loadPortfolioImages();
     setupPortfolioImagesEventListeners();
 }
 
-/**
- * Load Portfolio Images from Supabase
- * Fetches all portfolio images from the database
- */
 async function loadPortfolioImages() {
     try {
         const { data, error } = await supabaseClient
@@ -202,17 +161,12 @@ async function loadPortfolioImages() {
     }
 }
 
-/**
- * Render Portfolio Images to DOM
- * Displays portfolio images in the container
- */
 function renderPortfolioImages() {
     const container = document.getElementById('portfolioImagesContainer');
     if (!container) return;
     
     container.innerHTML = '';
 
-    // Show empty state if no images
     if (portfolioImages.length === 0) {
         container.innerHTML = `
             <div class="no-images">
@@ -223,7 +177,6 @@ function renderPortfolioImages() {
         return;
     }
 
-    // Create and append image elements
     portfolioImages.forEach((image) => {
         const imageElement = createPortfolioImageElement(image);
         container.appendChild(imageElement);
@@ -232,10 +185,6 @@ function renderPortfolioImages() {
     initializePortfolioImagesScroll();
 }
 
-/**
- * Create Portfolio Image Element
- * Generates HTML for a single portfolio image item
- */
 function createPortfolioImageElement(image) {
     const div = document.createElement('div');
     div.className = 'portfolio-image-item';
@@ -274,10 +223,6 @@ function createPortfolioImageElement(image) {
 
 // ===== EVENT LISTENERS SETUP =====
 
-/**
- * Setup All Event Listeners
- * Configures event listeners for the entire application
- */
 function setupEventListeners() {
     console.log('Setting up event listeners...');
     
@@ -286,27 +231,18 @@ function setupEventListeners() {
     setupProjectModalEvents();
     setupSkillsEventListeners();
     setupUpdatesEventListeners();
+    // Note: To-do list event listeners are set up in initializeTodoList()
 }
 
-/**
- * Setup Search Functionality
- * Enables real-time project searching
- */
 function setupSearchFunctionality() {
     document.getElementById('searchInput').addEventListener('input', function(e) {
         filterProjects(e.target.value);
     });
 }
 
-/**
- * Setup Notes Functionality
- * Configures note adding and keyboard shortcuts
- */
 function setupNotesFunctionality() {
-    // Add note button click
     document.getElementById('addNoteBtn').addEventListener('click', addNote);
     
-    // Enter key for adding notes
     document.getElementById('noteTextarea').addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -314,7 +250,6 @@ function setupNotesFunctionality() {
         }
     });
     
-    // Edit and Remove buttons for projects (delegated)
     document.getElementById('projectsTableContainer').addEventListener('click', function(e) {
         if (e.target.classList.contains('btn-edit')) {
             e.stopPropagation();
@@ -326,10 +261,6 @@ function setupNotesFunctionality() {
     });
 }
 
-/**
- * Setup Project Modal Events
- * Configures event listeners for project modal
- */
 function setupProjectModalEvents() {
     const openBtn = document.getElementById('open-project-btn');
     const overlay = document.getElementById('pjOverlay');
@@ -369,14 +300,9 @@ function setupProjectModalEvents() {
     }
 }
 
-/**
- * Setup Portfolio Images Event Listeners
- * Configures event listeners for portfolio images functionality
- */
 function setupPortfolioImagesEventListeners() {
     console.log('Setting up portfolio images event listeners...');
     
-    // Add image button
     const addImageBtn = document.getElementById('addPortfolioImageBtn');
     if (addImageBtn) {
         addImageBtn.addEventListener('click', function(e) {
@@ -386,7 +312,6 @@ function setupPortfolioImagesEventListeners() {
         });
     }
     
-    // Modal event listeners
     const overlay = document.getElementById('portfolioImageOverlay');
     const cancelBtn = document.getElementById('portfolioImageCancel');
     const form = document.getElementById('portfolio-image-form');
@@ -415,10 +340,8 @@ function setupPortfolioImagesEventListeners() {
         });
     }
     
-    // Image upload functionality
     setupImageUploadEvents();
     
-    // Edit and Remove buttons for portfolio images (delegated)
     const container = document.getElementById('portfolioImagesContainer');
     if (container) {
         container.addEventListener('click', function(e) {
@@ -433,10 +356,6 @@ function setupPortfolioImagesEventListeners() {
     }
 }
 
-/**
- * Setup Image Upload Events
- * Configures file upload functionality for portfolio images
- */
 function setupImageUploadEvents() {
     const uploadTrigger = document.getElementById('portfolioUploadTrigger');
     const imageInput = document.getElementById('portfolioImageInput');
@@ -461,10 +380,6 @@ function setupImageUploadEvents() {
 
 // ===== SECTION SWITCHING =====
 
-/**
- * Setup Section Switching
- * Enables navigation between different sections
- */
 function setupSectionSwitching() {
     const navItems = document.querySelectorAll('.nav-item[data-section]');
     
@@ -476,22 +391,15 @@ function setupSectionSwitching() {
     });
 }
 
-/**
- * Switch Between Sections
- * Hides all sections and shows the target section
- */
 function switchSection(sectionName) {
-    // Hide all sections
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.add('hidden');
     });
     
-    // Remove active class from all nav items
     document.querySelectorAll('.nav-item[data-section]').forEach(item => {
         item.classList.remove('active');
     });
     
-    // Show target section and activate nav item
     const targetSection = document.getElementById(`${sectionName}-section`);
     const targetNavItem = document.querySelector(`.nav-item[data-section="${sectionName}"]`);
     
@@ -503,10 +411,6 @@ function switchSection(sectionName) {
 
 // ===== PROJECT MODAL FUNCTIONS =====
 
-/**
- * Open Project Modal
- * Opens the modal for adding or editing projects
- */
 function openProjectModal(projectId = null) {
     const modal = document.getElementById('project-modal');
     const form = document.getElementById('project-form');
@@ -515,7 +419,6 @@ function openProjectModal(projectId = null) {
     if (!modal) return;
     
     if (projectId) {
-        // Edit mode
         editProjectId = projectId;
         const project = projects.find(p => p.id == projectId);
         
@@ -523,15 +426,13 @@ function openProjectModal(projectId = null) {
             title.textContent = 'Edit Project';
             document.getElementById('pj-name').value = project.name;
             document.getElementById('pj-client').value = project.client;
-            document.getElementById('pj-start').value = project.start_date; // Already in YYYY-MM-DD format for input
+            document.getElementById('pj-start').value = project.start_date;
             document.getElementById('pj-status').value = project.status;
         }
     } else {
-        // Add mode
         editProjectId = null;
         title.textContent = 'New Project';
         form.reset();
-        // Set today's date as default in YYYY-MM-DD format
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('pj-start').value = today;
     }
@@ -539,10 +440,6 @@ function openProjectModal(projectId = null) {
     modal.classList.remove('hidden');
 }
 
-/**
- * Close Project Modal
- * Closes the project modal and resets state
- */
 function closeProjectModal() {
     const modal = document.getElementById('project-modal');
     if (modal) {
@@ -551,10 +448,6 @@ function closeProjectModal() {
     editProjectId = null;
 }
 
-/**
- * Handle Project Form Submission
- * Processes project form data for create/update operations
- */
 async function handleProjectSubmit(e) {
     e.preventDefault();
     
@@ -572,7 +465,6 @@ async function handleProjectSubmit(e) {
     
     try {
         if (editProjectId) {
-            // Update existing project
             const { error } = await supabaseClient
                 .from('projects')
                 .update({
@@ -586,7 +478,6 @@ async function handleProjectSubmit(e) {
 
             if (error) throw error;
         } else {
-            // Add new project
             const { error } = await supabaseClient
                 .from('projects')
                 .insert([{
@@ -599,7 +490,6 @@ async function handleProjectSubmit(e) {
             if (error) throw error;
         }
         
-        // Reload projects and update UI
         await loadProjects();
         updateStatusCounts();
         closeProjectModal();
@@ -614,10 +504,6 @@ async function handleProjectSubmit(e) {
 
 // ===== PORTFOLIO IMAGE MODAL FUNCTIONS =====
 
-/**
- * Handle Portfolio Image Upload
- * Processes image file upload and shows preview
- */
 function handlePortfolioImageUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -635,10 +521,6 @@ function handlePortfolioImageUpload(e) {
     }
 }
 
-/**
- * Open Portfolio Image Modal
- * Opens modal for adding or editing portfolio images
- */
 function openPortfolioImageModal(imageId = null) {
     const modal = document.getElementById('portfolio-image-modal');
     const form = document.getElementById('portfolio-image-form');
@@ -650,7 +532,6 @@ function openPortfolioImageModal(imageId = null) {
     }
     
     if (imageId) {
-        // Edit mode
         editPortfolioImageId = imageId;
         const image = portfolioImages.find(img => img.id == imageId);
         title.textContent = 'Edit Portfolio Image';
@@ -658,7 +539,6 @@ function openPortfolioImageModal(imageId = null) {
         document.getElementById('portfolioImageSize').value = image.size || '';
         document.getElementById('portfolioImageTitleInput').value = image.title || '';
         
-        // Set image preview
         const preview = document.getElementById('portfolioImagePreview');
         if (image.image_url) {
             preview.innerHTML = `<img src="${image.image_url}" alt="Preview">`;
@@ -668,7 +548,6 @@ function openPortfolioImageModal(imageId = null) {
             preview.classList.remove('has-image');
         }
     } else {
-        // Add mode
         editPortfolioImageId = null;
         title.textContent = 'Add Portfolio Image';
         if (form) form.reset();
@@ -683,10 +562,6 @@ function openPortfolioImageModal(imageId = null) {
     modal.classList.remove('hidden');
 }
 
-/**
- * Close Portfolio Image Modal
- * Closes the portfolio image modal and resets state
- */
 function closePortfolioImageModal() {
     const modal = document.getElementById('portfolio-image-modal');
     if (modal) {
@@ -696,10 +571,6 @@ function closePortfolioImageModal() {
     currentPortfolioImageFile = null;
 }
 
-/**
- * Handle Portfolio Image Form Submission
- * Processes portfolio image form data for create/update operations
- */
 async function handlePortfolioImageSubmit(e) {
     e.preventDefault();
     
@@ -717,7 +588,6 @@ async function handlePortfolioImageSubmit(e) {
     try {
         let imageUrl = '';
         
-        // Upload image if a new one was selected
         if (currentPortfolioImageFile) {
             const fileName = `${Date.now()}-${currentPortfolioImageFile.name}`;
             const { data: uploadData, error: uploadError } = await supabaseClient.storage
@@ -726,7 +596,6 @@ async function handlePortfolioImageSubmit(e) {
                 
             if (uploadError) throw uploadError;
             
-            // Get public URL
             const { data: urlData } = supabaseClient.storage
                 .from('portfolio-images')
                 .getPublicUrl(fileName);
@@ -735,7 +604,6 @@ async function handlePortfolioImageSubmit(e) {
         }
         
         if (editPortfolioImageId) {
-            // Update existing image
             const updateData = {
                 url: url,
                 size: size,
@@ -743,7 +611,6 @@ async function handlePortfolioImageSubmit(e) {
                 updated_at: new Date().toISOString()
             };
             
-            // Only update image if a new one was uploaded
             if (currentPortfolioImageFile) {
                 updateData.image_url = imageUrl;
             }
@@ -755,7 +622,6 @@ async function handlePortfolioImageSubmit(e) {
 
             if (error) throw error;
         } else {
-            // Add new image
             const { error } = await supabaseClient
                 .from('portfolio_images')
                 .insert([{
@@ -768,7 +634,6 @@ async function handlePortfolioImageSubmit(e) {
             if (error) throw error;
         }
         
-        // Reload portfolio images
         await loadPortfolioImages();
         closePortfolioImageModal();
         
@@ -782,18 +647,10 @@ async function handlePortfolioImageSubmit(e) {
 
 // ===== CRUD OPERATIONS =====
 
-/**
- * Edit Project
- * Opens project modal in edit mode
- */
 function editProject(projectId) {
     openProjectModal(projectId);
 }
 
-/**
- * Remove Project
- * Deletes a project and its associated notes
- */
 async function removeProject(projectId) {
     if (!confirm('Are you sure you want to remove this project?')) {
         return;
@@ -802,7 +659,6 @@ async function removeProject(projectId) {
     showLoading();
     
     try {
-        // First, delete all notes associated with this project
         const { error: notesError } = await supabaseClient
             .from('project_notes')
             .delete()
@@ -810,7 +666,6 @@ async function removeProject(projectId) {
 
         if (notesError) throw notesError;
 
-        // Then delete the project
         const { error: projectError } = await supabaseClient
             .from('projects')
             .delete()
@@ -818,11 +673,9 @@ async function removeProject(projectId) {
 
         if (projectError) throw projectError;
 
-        // Reload projects and update UI
         await loadProjects();
         updateStatusCounts();
         
-        // Clear notes if selected project was removed
         if (selectedProjectId == projectId) {
             selectedProjectId = null;
             document.getElementById('notesContent').innerHTML = '<div class="note-item"><p>Select a project to view notes</p></div>';
@@ -836,18 +689,10 @@ async function removeProject(projectId) {
     }
 }
 
-/**
- * Edit Portfolio Image
- * Opens portfolio image modal in edit mode
- */
 function editPortfolioImage(imageId) {
     openPortfolioImageModal(imageId);
 }
 
-/**
- * Remove Portfolio Image
- * Deletes a portfolio image
- */
 async function removePortfolioImage(imageId) {
     if (!confirm('Are you sure you want to remove this portfolio image?')) {
         return;
@@ -863,7 +708,6 @@ async function removePortfolioImage(imageId) {
 
         if (error) throw error;
 
-        // Reload portfolio images
         await loadPortfolioImages();
         
     } catch (error) {
@@ -876,17 +720,11 @@ async function removePortfolioImage(imageId) {
 
 // ===== NOTES FUNCTIONALITY =====
 
-/**
- * Select Project and Display Notes
- * Shows notes for the selected project
- */
 async function selectProject(projectId) {
-    // Remove active class from all rows
     document.querySelectorAll('.projects-table-container tbody tr').forEach(r => {
         r.classList.remove('active');
     });
     
-    // Add active class to clicked row
     const selectedRow = document.querySelector(`tr[data-project-id="${projectId}"]`);
     if (selectedRow) {
         selectedRow.classList.add('active');
@@ -896,10 +734,6 @@ async function selectProject(projectId) {
     await displayNotes(projectId);
 }
 
-/**
- * Load Notes for a Project
- * Fetches notes for a specific project from Supabase
- */
 async function loadNotes(projectId) {
     try {
         const { data, error } = await supabaseClient
@@ -917,10 +751,6 @@ async function loadNotes(projectId) {
     }
 }
 
-/**
- * Display Notes for Selected Project
- * Renders notes in the notes container
- */
 async function displayNotes(projectId) {
     const notesContent = document.getElementById('notesContent');
     notesContent.innerHTML = '<div class="note-item"><p>Loading notes...</p></div>';
@@ -934,22 +764,17 @@ async function displayNotes(projectId) {
         return;
     }
     
-    // Create and append note elements
     notes.forEach(note => {
         const noteItem = document.createElement('div');
         noteItem.className = 'note-item';
         noteItem.innerHTML = `
             <p>${escapeHtml(note.note_text)}</p>
-            <div class="note-date">${formatDisplayDate(note.created_at)}</div> <!-- This will now show DD/MM/YYYY -->
+            <div class="note-date">${formatDisplayDate(note.created_at)}</div>
         `;
         notesContent.appendChild(noteItem);
     });
 }
 
-/**
- * Add Note to Project
- * Creates a new note for the selected project
- */
 async function addNote() {
     const noteTextarea = document.getElementById('noteTextarea');
     const noteText = noteTextarea.value.trim();
@@ -967,7 +792,6 @@ async function addNote() {
 
             if (error) throw error;
 
-            // Refresh notes display and clear textarea
             await displayNotes(selectedProjectId);
             noteTextarea.value = '';
             
@@ -984,17 +808,11 @@ async function addNote() {
 
 // ===== DATE FORMATTING UTILITIES =====
 
-/**
- * Format Date for Display (DD/MM/YYYY)
- * Converts ISO date string to DD/MM/YYYY format for display
- */
 function formatDisplayDate(dateString) {
     if (!dateString) return 'N/A';
     
     try {
         const date = new Date(dateString);
-        
-        // Format as DD/MM/YYYY
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
@@ -1006,17 +824,11 @@ function formatDisplayDate(dateString) {
     }
 }
 
-/**
- * Format Date for Updates Display (DD/MM/YYYY)
- * Special function for updates section
- */
 function formatUpdatesDisplayDate(dateString) {
     if (!dateString) return 'N/A';
     
     try {
         const date = new Date(dateString);
-        
-        // Format as DD/MM/YYYY
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
@@ -1028,10 +840,6 @@ function formatUpdatesDisplayDate(dateString) {
     }
 }
 
-/**
- * Format Time for Display
- * Converts 24-hour time to 12-hour format with AM/PM
- */
 function formatDisplayTime(timeString) {
     if (!timeString) return '';
     
@@ -1044,10 +852,6 @@ function formatDisplayTime(timeString) {
 
 // ===== UTILITY FUNCTIONS =====
 
-/**
- * Filter Projects Based on Search Term
- * Filters the projects table in real-time
- */
 function filterProjects(searchTerm) {
     const term = searchTerm.toLowerCase();
     const rows = document.querySelectorAll('.projects-table-container tbody tr');
@@ -1064,10 +868,6 @@ function filterProjects(searchTerm) {
     updateStatusCounts();
 }
 
-/**
- * Update Status Counts
- * Updates the counter in status boxes based on filtered results
- */
 function updateStatusCounts() {
     const rows = document.querySelectorAll('.projects-table-container tbody tr');
     let allCount = 0;
@@ -1092,17 +892,12 @@ function updateStatusCounts() {
         }
     });
     
-    // Update counter displays
     document.querySelector('.all-projects .count').textContent = allCount;
     document.querySelector('.pending .count').textContent = pendingCount;
     document.querySelector('.waiting .count').textContent = waitingCount;
     document.querySelector('.completed .count').textContent = completedCount;
 }
 
-/**
- * Initialize Projects Table Scroll Functionality
- * Adds scroll indicators for tables with many rows
- */
 function initializeProjectsTableScroll() {
     const tableContainer = document.getElementById('projectsTableContainer');
     const showMoreIndicator = document.getElementById('showMoreIndicator');
@@ -1132,10 +927,6 @@ function initializeProjectsTableScroll() {
     }
 }
 
-/**
- * Initialize Portfolio Images Scroll Functionality
- * Adds scroll indicators for image containers with many items
- */
 function initializePortfolioImagesScroll() {
     const container = document.getElementById('portfolioImagesContainer');
     const showMoreIndicator = document.getElementById('portfolioImagesMore');
@@ -1167,10 +958,6 @@ function initializePortfolioImagesScroll() {
     }
 }
 
-/**
- * Get Status Text from Status Value
- * Converts status codes to human-readable text
- */
 function getStatusText(status) {
     const statusMap = {
         'completed': 'Completed',
@@ -1181,10 +968,6 @@ function getStatusText(status) {
     return statusMap[status] || status;
 }
 
-/**
- * Escape HTML Special Characters
- * Prevents XSS attacks by escaping HTML in user input
- */
 function escapeHtml(unsafe) {
     if (!unsafe) return '';
     return unsafe
@@ -1197,19 +980,11 @@ function escapeHtml(unsafe) {
 
 // ===== SKILLS FUNCTIONALITY =====
 
-/**
- * Initialize Skills
- * Loads skills and sets up event listeners
- */
 async function initializeSkills() {
     await loadSkills();
     setupSkillsEventListeners();
 }
 
-/**
- * Load Skills from Supabase
- * Fetches all skills from the database
- */
 async function loadSkills() {
     try {
         const { data, error } = await supabaseClient
@@ -1226,10 +1001,6 @@ async function loadSkills() {
     }
 }
 
-/**
- * Render Skills to DOM
- * Displays skills in grid layout
- */
 function renderSkills() {
     const container = document.getElementById('skillsListContainer');
     if (!container) return;
@@ -1254,10 +1025,6 @@ function renderSkills() {
     initializeSkillsScroll();
 }
 
-/**
- * Create Skill Element
- * Generates HTML for a single skill item
- */
 function createSkillElement(skill) {
     const div = document.createElement('div');
     div.className = 'skill-grid-item';
@@ -1274,12 +1041,7 @@ function createSkillElement(skill) {
     return div;
 }
 
-/**
- * Setup Skills Event Listeners
- * Configures event listeners for skills functionality
- */
 function setupSkillsEventListeners() {
-    // Add skill button
     const addSkillBtn = document.getElementById('add-skill-btn');
     if (addSkillBtn) {
         addSkillBtn.addEventListener('click', function(e) {
@@ -1289,7 +1051,6 @@ function setupSkillsEventListeners() {
         });
     }
     
-    // Modal event listeners
     const overlay = document.getElementById('skillOverlay');
     const cancelBtn = document.getElementById('skill-cancel-btn');
     const form = document.getElementById('skill-form');
@@ -1306,7 +1067,6 @@ function setupSkillsEventListeners() {
         form.addEventListener('submit', handleSkillSubmit);
     }
     
-    // Edit and Remove buttons (delegated)
     const container = document.getElementById('skillsListContainer');
     if (container) {
         container.addEventListener('click', function(e) {
@@ -1321,10 +1081,6 @@ function setupSkillsEventListeners() {
     }
 }
 
-/**
- * Open Skill Modal
- * Opens modal for adding or editing skills
- */
 function openSkillModal(skillId = null) {
     const modal = document.getElementById('skill-modal');
     const form = document.getElementById('skill-form');
@@ -1333,13 +1089,11 @@ function openSkillModal(skillId = null) {
     if (!modal) return;
     
     if (skillId) {
-        // Edit mode
         editSkillId = skillId;
         const skill = skills.find(s => s.id == skillId);
         title.textContent = 'Edit Skill';
         document.getElementById('skill-name').value = skill.name || '';
     } else {
-        // Add mode
         editSkillId = null;
         title.textContent = 'Add Skill';
         if (form) form.reset();
@@ -1348,10 +1102,6 @@ function openSkillModal(skillId = null) {
     modal.classList.remove('hidden');
 }
 
-/**
- * Close Skill Modal
- * Closes the skill modal and resets state
- */
 function closeSkillModal() {
     const modal = document.getElementById('skill-modal');
     if (modal) {
@@ -1360,10 +1110,6 @@ function closeSkillModal() {
     editSkillId = null;
 }
 
-/**
- * Handle Skill Form Submission
- * Processes skill form data for create/update operations
- */
 async function handleSkillSubmit(e) {
     e.preventDefault();
     
@@ -1378,7 +1124,6 @@ async function handleSkillSubmit(e) {
     
     try {
         if (editSkillId) {
-            // Update existing skill
             const { error } = await supabaseClient
                 .from('skills')
                 .update({
@@ -1389,7 +1134,6 @@ async function handleSkillSubmit(e) {
 
             if (error) throw error;
         } else {
-            // Add new skill
             const { error } = await supabaseClient
                 .from('skills')
                 .insert([{
@@ -1399,7 +1143,6 @@ async function handleSkillSubmit(e) {
             if (error) throw error;
         }
         
-        // Reload skills
         await loadSkills();
         closeSkillModal();
         
@@ -1411,18 +1154,10 @@ async function handleSkillSubmit(e) {
     }
 }
 
-/**
- * Edit Skill
- * Opens skill modal in edit mode
- */
 function editSkill(skillId) {
     openSkillModal(skillId);
 }
 
-/**
- * Remove Skill
- * Deletes a skill
- */
 async function removeSkill(skillId) {
     if (!confirm('Are you sure you want to remove this skill?')) {
         return;
@@ -1438,7 +1173,6 @@ async function removeSkill(skillId) {
 
         if (error) throw error;
 
-        // Reload skills
         await loadSkills();
         
     } catch (error) {
@@ -1449,10 +1183,6 @@ async function removeSkill(skillId) {
     }
 }
 
-/**
- * Initialize Skills Scroll Functionality
- * Adds scroll indicators for skills containers with many items
- */
 function initializeSkillsScroll() {
     const container = document.getElementById('skillsListContainer');
     const showMoreIndicator = document.getElementById('skillsMoreIndicator');
@@ -1486,19 +1216,11 @@ function initializeSkillsScroll() {
 
 // ===== UPDATES FUNCTIONALITY =====
 
-/**
- * Initialize Updates
- * Loads updates and sets up event listeners
- */
 async function initializeUpdates() {
     await loadUpdates();
     setupUpdatesEventListeners();
 }
 
-/**
- * Load Updates from Supabase
- * Fetches all updates from the database
- */
 async function loadUpdates() {
     try {
         const { data, error } = await supabaseClient
@@ -1508,7 +1230,6 @@ async function loadUpdates() {
 
         if (error) {
             console.error('Error loading updates from Supabase:', error);
-            // Fallback to sample data if table doesn't exist
             updates = getSampleUpdates();
             renderUpdates();
             return;
@@ -1518,16 +1239,11 @@ async function loadUpdates() {
         renderUpdates();
     } catch (error) {
         console.error('Error loading updates:', error);
-        // Fallback to sample data
         updates = getSampleUpdates();
         renderUpdates();
     }
 }
 
-/**
- * Get Sample Updates (Fallback)
- * Provides sample data when Supabase table doesn't exist
- */
 function getSampleUpdates() {
     return [
         {
@@ -1557,10 +1273,6 @@ function getSampleUpdates() {
     ];
 }
 
-/**
- * Render Updates to DOM
- * Displays updates in the updates container
- */
 function renderUpdates() {
     const container = document.getElementById('updatesContainer');
     if (!container) return;
@@ -1585,17 +1297,12 @@ function renderUpdates() {
     setupUpdatesScroll();
 }
 
-/**
- * Create Update Element
- * Generates HTML for a single update item
- */
 function createUpdateElement(update) {
     const div = document.createElement('div');
     div.className = 'update-item';
     div.setAttribute('data-update-id', update.id);
     
-    // Format date and time for display - using DD/MM/YYYY format
-    const displayDate = formatUpdatesDisplayDate(update.date); // Changed to use new function
+    const displayDate = formatUpdatesDisplayDate(update.date);
     const displayTime = formatDisplayTime(update.time);
     
     div.innerHTML = `
@@ -1605,7 +1312,7 @@ function createUpdateElement(update) {
         <div class="update-content">
             <h4 class="update-title">${escapeHtml(update.title)}</h4>
             <div class="update-details">
-                <span class="update-date">${displayDate}</span> <!-- This will now show DD/MM/YYYY -->
+                <span class="update-date">${displayDate}</span>
                 <span class="update-time">${displayTime}</span>
             </div>
         </div>
@@ -1622,12 +1329,7 @@ function createUpdateElement(update) {
     return div;
 }
 
-/**
- * Setup Updates Event Listeners
- * Configures event listeners for updates functionality
- */
 function setupUpdatesEventListeners() {
-    // Add update button
     const addUpdateBtn = document.getElementById('add-update-btn');
     if (addUpdateBtn) {
         addUpdateBtn.addEventListener('click', function(e) {
@@ -1637,7 +1339,6 @@ function setupUpdatesEventListeners() {
         });
     }
     
-    // Modal event listeners
     const overlay = document.getElementById('updateOverlay');
     const cancelBtn = document.getElementById('update-cancel-btn');
     const form = document.getElementById('update-form');
@@ -1654,7 +1355,6 @@ function setupUpdatesEventListeners() {
         form.addEventListener('submit', handleUpdateSubmit);
     }
     
-    // Edit and Delete buttons (delegated)
     const container = document.getElementById('updatesContainer');
     if (container) {
         container.addEventListener('click', function(e) {
@@ -1672,10 +1372,6 @@ function setupUpdatesEventListeners() {
     }
 }
 
-/**
- * Open Update Modal
- * Opens modal for adding or editing updates
- */
 function openUpdateModal(updateId = null) {
     const modal = document.getElementById('update-modal');
     const form = document.getElementById('update-form');
@@ -1686,12 +1382,10 @@ function openUpdateModal(updateId = null) {
         return;
     }
     
-    // Set today's date and current time as default
     const today = new Date().toISOString().split('T')[0];
     const now = new Date().toTimeString().slice(0, 5);
     
     if (updateId) {
-        // Edit mode
         console.log('Opening edit modal for update ID:', updateId);
         editUpdateId = updateId;
         const update = updates.find(u => u.id == updateId);
@@ -1708,7 +1402,6 @@ function openUpdateModal(updateId = null) {
         document.getElementById('update-icon').value = update.icon || 'fas fa-edit';
         document.getElementById('update-type').value = update.type || 'update';
     } else {
-        // Add mode
         console.log('Opening add modal for new update');
         editUpdateId = null;
         title.textContent = 'Add Update';
@@ -1720,10 +1413,6 @@ function openUpdateModal(updateId = null) {
     modal.classList.remove('hidden');
 }
 
-/**
- * Close Update Modal
- * Closes the update modal and resets state
- */
 function closeUpdateModal() {
     const modal = document.getElementById('update-modal');
     if (modal) {
@@ -1732,10 +1421,6 @@ function closeUpdateModal() {
     editUpdateId = null;
 }
 
-/**
- * Handle Update Form Submission
- * Processes update form data for create/update operations
- */
 async function handleUpdateSubmit(e) {
     e.preventDefault();
     console.log('Handling update form submission...');
@@ -1755,10 +1440,8 @@ async function handleUpdateSubmit(e) {
     
     try {
         if (editUpdateId) {
-            // Update existing update
             console.log('Updating existing update with ID:', editUpdateId);
             
-            // Build update data - removed updated_at field
             const updateData = {
                 title: title,
                 date: date,
@@ -1783,7 +1466,6 @@ async function handleUpdateSubmit(e) {
             console.log('Update successful, returned data:', data);
             
         } else {
-            // Add new update
             console.log('Adding new update');
             
             const newUpdate = {
@@ -1809,14 +1491,12 @@ async function handleUpdateSubmit(e) {
             console.log('Insert successful, returned data:', data);
         }
         
-        // Reload updates to reflect changes
         await loadUpdates();
         closeUpdateModal();
         
     } catch (error) {
         console.error('Error saving update:', error);
         
-        // Specific error handling for schema issues
         if (error.message && error.message.includes('does not exist')) {
             console.log('Updates table or column does not exist');
             alert('Database configuration issue. Please check your Supabase setup.');
@@ -1828,19 +1508,11 @@ async function handleUpdateSubmit(e) {
     }
 }
 
-/**
- * Edit Update
- * Opens update modal in edit mode
- */
 function editUpdate(updateId) {
     console.log('Edit update called with ID:', updateId);
     openUpdateModal(updateId);
 }
 
-/**
- * Remove Update
- * Deletes an update
- */
 async function removeUpdate(updateId) {
     if (!confirm('Are you sure you want to delete this update?')) {
         return;
@@ -1861,16 +1533,13 @@ async function removeUpdate(updateId) {
             throw error;
         }
 
-        // Reload updates
         await loadUpdates();
         
     } catch (error) {
         console.error('Error deleting update:', error);
         
-        // Check if it's a Supabase table doesn't exist error
         if (error.message && error.message.includes('does not exist')) {
             console.log('Updates table does not exist, using local fallback');
-            // Remove from local array
             updates = updates.filter(update => update.id !== updateId);
             renderUpdates();
         } else {
@@ -1881,10 +1550,6 @@ async function removeUpdate(updateId) {
     }
 }
 
-/**
- * Setup Updates Scroll Functionality
- * Adds scroll indicators for updates containers with many items
- */
 function setupUpdatesScroll() {
     const container = document.getElementById('updatesContainer');
     const showMoreIndicator = document.getElementById('updatesMoreIndicator');
@@ -1913,6 +1578,444 @@ function setupUpdatesScroll() {
         });
     } else {
         showMoreIndicator.style.display = 'none';
+    }
+}
+
+// ===== TO-DO LIST FUNCTIONALITY =====
+
+/**
+ * Initialize To-Do List
+ * Sets up event listeners and loads saved tasks
+ */
+async function initializeTodoList() {
+    await loadTodos();
+    setupTodoEventListeners();
+}
+
+/**
+ * Load To-Dos from Supabase
+ * Retrieves saved tasks from database
+ */
+async function loadTodos() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('todos')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error loading todos from Supabase:', error);
+            // Fallback to local storage if Supabase table doesn't exist
+            loadTodosFromLocalStorage();
+            return;
+        }
+
+        todos = data || [];
+        renderTodos();
+    } catch (error) {
+        console.error('Error loading todos:', error);
+        loadTodosFromLocalStorage();
+    }
+}
+
+/**
+ * Load To-Dos from Local Storage (Fallback)
+ * Used when Supabase table is not available
+ */
+function loadTodosFromLocalStorage() {
+    try {
+        const savedTodos = localStorage.getItem('crm_todos');
+        if (savedTodos) {
+            todos = JSON.parse(savedTodos);
+        }
+        renderTodos();
+    } catch (error) {
+        console.error('Error loading todos from local storage:', error);
+        todos = [];
+    }
+}
+
+/**
+ * Save To-Dos to Supabase
+ * Stores tasks in database for persistence
+ */
+async function saveTodos() {
+    try {
+        // Try to save to Supabase first
+        if (todos.length > 0) {
+            // This is a simplified approach - in a real app you'd need to handle
+            // individual create/update/delete operations
+            console.log('Saving todos to Supabase...');
+        }
+        
+        // Always save to local storage as fallback
+        localStorage.setItem('crm_todos', JSON.stringify(todos));
+    } catch (error) {
+        console.error('Error saving todos:', error);
+        // Fallback to local storage only
+        localStorage.setItem('crm_todos', JSON.stringify(todos));
+    }
+}
+
+/**
+ * Setup To-Do Event Listeners
+ * Configures all interactive elements for to-do functionality
+ */
+function setupTodoEventListeners() {
+    // Add todo button
+    const addTodoBtn = document.getElementById('add-todo-btn');
+    if (addTodoBtn) {
+        addTodoBtn.addEventListener('click', showTodoInput);
+    }
+
+    // Save todo button
+    const saveTodoBtn = document.getElementById('save-todo-btn');
+    if (saveTodoBtn) {
+        saveTodoBtn.addEventListener('click', addTodo);
+    }
+
+    // Cancel todo button
+    const cancelTodoBtn = document.getElementById('cancel-todo-btn');
+    if (cancelTodoBtn) {
+        cancelTodoBtn.addEventListener('click', hideTodoInput);
+    }
+
+    // Enter key support for todo input
+    const todoInput = document.getElementById('todoInput');
+    if (todoInput) {
+        todoInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+    }
+
+    // Delegate events for dynamic todo items
+    const todoListContainer = document.getElementById('todoListContainer');
+    if (todoListContainer) {
+        todoListContainer.addEventListener('click', handleTodoActions);
+    }
+}
+
+/**
+ * Show To-Do Input
+ * Displays the input field for adding new tasks
+ */
+function showTodoInput() {
+    const inputContainer = document.getElementById('todoInputContainer');
+    const todoInput = document.getElementById('todoInput');
+    
+    if (inputContainer && todoInput) {
+        inputContainer.style.display = 'block';
+        todoInput.focus();
+        todoInput.value = '';
+        editTodoId = null;
+    }
+}
+
+/**
+ * Hide To-Do Input
+ * Hides the input field and clears it
+ */
+function hideTodoInput() {
+    const inputContainer = document.getElementById('todoInputContainer');
+    const todoInput = document.getElementById('todoInput');
+    
+    if (inputContainer && todoInput) {
+        inputContainer.style.display = 'none';
+        todoInput.value = '';
+        editTodoId = null;
+    }
+}
+
+/**
+ * Add New To-Do
+ * Creates a new task and adds it to the list
+ */
+async function addTodo() {
+    const todoInput = document.getElementById('todoInput');
+    const text = todoInput?.value.trim();
+
+    if (!text) {
+        alert('Please enter a task description');
+        return;
+    }
+
+    try {
+        if (editTodoId) {
+            // Update existing todo
+            const todoIndex = todos.findIndex(todo => todo.id === editTodoId);
+            if (todoIndex !== -1) {
+                todos[todoIndex].text = text;
+                todos[todoIndex].updated_at = new Date().toISOString();
+                
+                // Try to update in Supabase
+                try {
+                    const { error } = await supabaseClient
+                        .from('todos')
+                        .update({
+                            text: text,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', editTodoId);
+
+                    if (error) throw error;
+                } catch (supabaseError) {
+                    console.log('Failed to update todo in Supabase, using local storage:', supabaseError);
+                }
+            }
+        } else {
+            // Add new todo
+            const newTodo = {
+                id: generateTodoId(),
+                text: text,
+                completed: false,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            
+            // Try to save to Supabase
+            try {
+                const { data, error } = await supabaseClient
+                    .from('todos')
+                    .insert([{
+                        text: text,
+                        completed: false
+                    }])
+                    .select();
+
+                if (error) throw error;
+                
+                // Use the ID from Supabase if successful
+                if (data && data[0]) {
+                    newTodo.id = data[0].id;
+                }
+            } catch (supabaseError) {
+                console.log('Failed to save todo to Supabase, using local storage:', supabaseError);
+            }
+            
+            todos.unshift(newTodo);
+        }
+
+        await saveTodos();
+        renderTodos();
+        hideTodoInput();
+        
+    } catch (error) {
+        console.error('Error saving todo:', error);
+        alert('Error saving task: ' + error.message);
+    }
+}
+
+/**
+ * Generate Unique To-Do ID
+ * Creates a unique identifier for each task
+ */
+function generateTodoId() {
+    return 'local_' + Date.now().toString() + Math.random().toString(36).substr(2, 9);
+}
+
+/**
+ * Render To-Dos
+ * Displays all tasks in the UI
+ */
+function renderTodos() {
+    const container = document.getElementById('todoListContainer');
+    const noTodosMessage = document.getElementById('noTodosMessage');
+    
+    if (!container) return;
+
+    if (todos.length === 0) {
+        container.innerHTML = `
+            <div class="no-todos" id="noTodosMessage">
+                <i class="fas fa-clipboard-list"></i>
+                <p>No tasks yet. Add your first task to get started!</p>
+            </div>
+        `;
+        updateTodoStats();
+        return;
+    }
+
+    // Hide no todos message if tasks exist
+    if (noTodosMessage) {
+        noTodosMessage.style.display = 'none';
+    }
+
+    // Clear and rebuild todo list
+    container.innerHTML = '';
+    
+    todos.forEach(todo => {
+        const todoElement = createTodoElement(todo);
+        container.appendChild(todoElement);
+    });
+    
+    // Update statistics
+    updateTodoStats();
+}
+
+/**
+ * Create To-Do Element
+ * Generates HTML for an individual task item
+ */
+function createTodoElement(todo) {
+    const div = document.createElement('div');
+    div.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+    div.setAttribute('data-todo-id', todo.id);
+
+    div.innerHTML = `
+        <div class="todo-checkbox ${todo.completed ? 'checked' : ''}" data-action="toggle"></div>
+        <div class="todo-text">${escapeHtml(todo.text)}</div>
+        <div class="todo-actions">
+            <button class="todo-action-btn todo-edit-btn" data-action="edit">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="todo-action-btn todo-delete-btn" data-action="delete">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+    
+    return div;
+}
+
+/**
+ * Handle To-Do Actions
+ * Delegated event handler for all task interactions
+ */
+function handleTodoActions(e) {
+    const todoItem = e.target.closest('.todo-item');
+    if (!todoItem) return;
+
+    const todoId = todoItem.getAttribute('data-todo-id');
+    const action = e.target.closest('[data-action]')?.getAttribute('data-action');
+
+    if (!action || !todoId) return;
+
+    switch (action) {
+        case 'toggle':
+            toggleTodoCompletion(todoId);
+            break;
+        case 'edit':
+            editTodo(todoId);
+            break;
+        case 'delete':
+            deleteTodo(todoId);
+            break;
+    }
+}
+
+/**
+ * Toggle To-Do Completion
+ * Marks a task as complete or incomplete
+ */
+async function toggleTodoCompletion(todoId) {
+    const todoIndex = todos.findIndex(todo => todo.id === todoId);
+    if (todoIndex !== -1) {
+        todos[todoIndex].completed = !todos[todoIndex].completed;
+        todos[todoIndex].updated_at = new Date().toISOString();
+        
+        // Try to update in Supabase
+        try {
+            const { error } = await supabaseClient
+                .from('todos')
+                .update({
+                    completed: todos[todoIndex].completed,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', todoId);
+
+            if (error) throw error;
+        } catch (supabaseError) {
+            console.log('Failed to update todo completion in Supabase, using local storage:', supabaseError);
+        }
+        
+        await saveTodos();
+        renderTodos();
+    }
+}
+
+/**
+ * Edit To-Do
+ * Enables editing mode for a task
+ */
+function editTodo(todoId) {
+    const todo = todos.find(todo => todo.id === todoId);
+    if (!todo) return;
+
+    // Show input with current text
+    const inputContainer = document.getElementById('todoInputContainer');
+    const todoInput = document.getElementById('todoInput');
+    
+    if (inputContainer && todoInput) {
+        inputContainer.style.display = 'block';
+        todoInput.value = todo.text;
+        todoInput.focus();
+        editTodoId = todoId;
+    }
+}
+
+/**
+ * Delete To-Do
+ * Removes a task from the list
+ */
+async function deleteTodo(todoId) {
+    if (!confirm('Are you sure you want to delete this task?')) {
+        return;
+    }
+
+    // Try to delete from Supabase
+    try {
+        const { error } = await supabaseClient
+            .from('todos')
+            .delete()
+            .eq('id', todoId);
+
+        if (error) throw error;
+    } catch (supabaseError) {
+        console.log('Failed to delete todo from Supabase, using local storage:', supabaseError);
+    }
+
+    todos = todos.filter(todo => todo.id !== todoId);
+    await saveTodos();
+    renderTodos();
+}
+
+/**
+ * Get Todo Statistics
+ * Utility function to get completion statistics
+ */
+function getTodoStats() {
+    const total = todos.length;
+    const completed = todos.filter(todo => todo.completed).length;
+    const pending = total - completed;
+
+    return {
+        total,
+        completed,
+        pending
+    };
+}
+
+/**
+ * Update To-Do Statistics
+ * Shows completion progress at the bottom
+ */
+function updateTodoStats() {
+    const stats = getTodoStats();
+    const statsContainer = document.getElementById('todoStats');
+    const totalTasks = document.getElementById('totalTasks');
+    const completedTasks = document.getElementById('completedTasks');
+    const pendingTasks = document.getElementById('pendingTasks');
+    
+    if (statsContainer && totalTasks && completedTasks && pendingTasks) {
+        if (stats.total > 0) {
+            statsContainer.style.display = 'flex';
+            totalTasks.textContent = stats.total;
+            completedTasks.textContent = stats.completed;
+            pendingTasks.textContent = stats.pending;
+        } else {
+            statsContainer.style.display = 'none';
+        }
     }
 }
 

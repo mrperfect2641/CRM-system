@@ -1855,46 +1855,297 @@ td {
   display: block;
 }
 
-/* ===== SETTINGS LIST STYLES ===== */
+/* ===== TO-DO LIST STYLES ===== */
 
 /**
- * Settings List Container
- * Vertical list for configuration options
+ * To-Do List Container
+ * Main container for the to-do list functionality
  */
-.settings-list {
-  display: flex;
-  flex-direction: column;      /* Stack settings vertically */
-  gap: 15px;                   /* Space between setting items */
+.todo-input-container {
+  margin-bottom: 20px;
+  animation: slideDown 0.3s ease;
 }
 
 /**
- * Individual Setting Item
- * Container for setting label and control
+ * To-Do Input Group
+ * Layout for input and action buttons
  */
-.setting-item {
+.todo-input-group {
   display: flex;
-  justify-content: space-between; /* Label on left, control on right */
+  gap: 10px;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0; /* Separator between items */
 }
 
 /**
- * Last Setting Item
- * Remove border from final item
+ * To-Do Input Field
+ * Styling for task input
  */
-.setting-item:last-child {
+.todo-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.todo-input:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 2px rgba(94, 112, 124, 0.1);
+}
+
+/**
+ * To-Do List Container
+ * Scrollable area for task items
+ */
+.todo-list-container {
+  max-height: 350px;
+  overflow-y: auto;
+  border-radius: 8px;
+  background: #fafbfc;
+  border: 1px solid #f0f0f0;
+}
+
+/**
+ * No Todos Empty State
+ * Displayed when no tasks exist
+ */
+.no-todos {
+  text-align: center;
+  padding: 50px 20px;
+  color: #7f8c8d;
+}
+
+.no-todos i {
+  font-size: 48px;
+  color: #bdc3c7;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.no-todos p {
+  font-size: 14px;
+  margin: 0;
+  color: #7f8c8d;
+}
+
+/**
+ * To-Do Item
+ * Individual task item with interactive elements
+ */
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  background: white;
+  transition: all 0.3s ease;
+  animation: slideIn 0.3s ease;
+}
+
+.todo-item:last-child {
   border-bottom: none;
 }
 
+.todo-item:hover {
+  background: #f8f9fa;
+  transform: translateX(5px);
+}
+
 /**
- * Setting Label Text
- * Description for each setting
+ * Completed To-Do Item
+ * Visual styling for completed tasks
  */
-.setting-item span {
+.todo-item.completed {
+  background: #f8fff8;
+}
+
+.todo-item.completed .todo-text {
+  text-decoration: line-through;
+  color: #7f8c8d;
+}
+
+/**
+ * To-Do Checkbox
+ * Custom checkbox for task completion
+ */
+.todo-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e1e5e9;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  background: white;
+}
+
+.todo-checkbox.checked {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.todo-checkbox.checked::after {
+  content: '✓';
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.todo-checkbox:hover {
+  border-color: var(--secondary-color);
+}
+
+/**
+ * To-Do Text
+ * Styling for task description
+ */
+.todo-text {
+  flex: 1;
   font-size: 14px;
   color: var(--primary-color);
+  line-height: 1.5;
+  word-break: break-word;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 4px 0;
+}
+
+/**
+ * To-Do Actions
+ * Container for edit and delete buttons
+ */
+.todo-actions {
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  flex-shrink: 0;
+}
+
+.todo-item:hover .todo-actions {
+  opacity: 1;
+}
+
+/**
+ * To-Do Action Buttons
+ * Small buttons for task management
+ */
+.todo-action-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.todo-edit-btn {
+  background: var(--secondary-color);
+  color: white;
+}
+
+.todo-edit-btn:hover {
+  background: #4a5c6b;
+}
+
+.todo-delete-btn {
+  background: #e74c3c;
+  color: white;
+}
+
+.todo-delete-btn:hover {
+  background: #c0392b;
+}
+
+/**
+ * To-Do Statistics
+ * Progress indicators at the bottom
+ */
+.todo-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.todo-stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--secondary-color);
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/**
+ * To-Do List Animations
+ * Smooth animations for better user experience
+ */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/**
+ * To-Do List Scrollbar
+ * Custom scrollbar for the task list
+ */
+.todo-list-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.todo-list-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.todo-list-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.todo-list-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 /* ===== TOGGLE SWITCH COMPONENT ===== */
