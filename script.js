@@ -144,7 +144,7 @@ function initializeProjectsTable() {
             <td>${index + 1}</td>
             <td>${escapeHtml(project.name)}</td>
             <td>${escapeHtml(project.client)}</td>
-            <td>${formatDisplayDate(project.start_date)}</td>
+            <td>${formatDisplayDate(project.start_date)}</td> <!-- This will now show DD/MM/YYYY -->
             <td><span class="status ${project.status}">${getStatusText(project.status)}</span></td>
             <td class="actions">
                 <button class="btn btn-edit" data-project-id="${project.id}">Edit</button>
@@ -523,7 +523,7 @@ function openProjectModal(projectId = null) {
             title.textContent = 'Edit Project';
             document.getElementById('pj-name').value = project.name;
             document.getElementById('pj-client').value = project.client;
-            document.getElementById('pj-start').value = project.start_date;
+            document.getElementById('pj-start').value = project.start_date; // Already in YYYY-MM-DD format for input
             document.getElementById('pj-status').value = project.status;
         }
     } else {
@@ -531,7 +531,7 @@ function openProjectModal(projectId = null) {
         editProjectId = null;
         title.textContent = 'New Project';
         form.reset();
-        // Set today's date as default
+        // Set today's date as default in YYYY-MM-DD format
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('pj-start').value = today;
     }
@@ -940,7 +940,7 @@ async function displayNotes(projectId) {
         noteItem.className = 'note-item';
         noteItem.innerHTML = `
             <p>${escapeHtml(note.note_text)}</p>
-            <div class="note-date">${formatDisplayDate(note.created_at)}</div>
+            <div class="note-date">${formatDisplayDate(note.created_at)}</div> <!-- This will now show DD/MM/YYYY -->
         `;
         notesContent.appendChild(noteItem);
     });
@@ -980,6 +980,66 @@ async function addNote() {
     } else if (!selectedProjectId) {
         alert('Please select a project first');
     }
+}
+
+// ===== DATE FORMATTING UTILITIES =====
+
+/**
+ * Format Date for Display (DD/MM/YYYY)
+ * Converts ISO date string to DD/MM/YYYY format for display
+ */
+function formatDisplayDate(dateString) {
+    if (!dateString) return 'N/A';
+    
+    try {
+        const date = new Date(dateString);
+        
+        // Format as DD/MM/YYYY
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        
+        return `${day}/${month}/${year}`;
+    } catch (error) {
+        console.error('Error formatting date:', error, dateString);
+        return 'Invalid Date';
+    }
+}
+
+/**
+ * Format Date for Updates Display (DD/MM/YYYY)
+ * Special function for updates section
+ */
+function formatUpdatesDisplayDate(dateString) {
+    if (!dateString) return 'N/A';
+    
+    try {
+        const date = new Date(dateString);
+        
+        // Format as DD/MM/YYYY
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        
+        return `${day}/${month}/${year}`;
+    } catch (error) {
+        console.error('Error formatting updates date:', error, dateString);
+        return 'Invalid Date';
+    }
+}
+
+/**
+ * Format Time for Display
+ * Converts 24-hour time to 12-hour format with AM/PM
+ */
+function formatDisplayTime(timeString) {
+    if (!timeString) return '';
+    
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
 }
 
 // ===== UTILITY FUNCTIONS =====
@@ -1119,21 +1179,6 @@ function getStatusText(status) {
         'planned': 'To Start'
     };
     return statusMap[status] || status;
-}
-
-/**
- * Format Date for Display
- * Converts ISO date string to localized date format
- */
-function formatDisplayDate(dateString) {
-    if (!dateString) return 'N/A';
-    
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    });
 }
 
 /**
@@ -1549,8 +1594,8 @@ function createUpdateElement(update) {
     div.className = 'update-item';
     div.setAttribute('data-update-id', update.id);
     
-    // Format date and time for display
-    const displayDate = formatDisplayDate(update.date);
+    // Format date and time for display - using DD/MM/YYYY format
+    const displayDate = formatUpdatesDisplayDate(update.date); // Changed to use new function
     const displayTime = formatDisplayTime(update.time);
     
     div.innerHTML = `
@@ -1560,7 +1605,7 @@ function createUpdateElement(update) {
         <div class="update-content">
             <h4 class="update-title">${escapeHtml(update.title)}</h4>
             <div class="update-details">
-                <span class="update-date">${displayDate}</span>
+                <span class="update-date">${displayDate}</span> <!-- This will now show DD/MM/YYYY -->
                 <span class="update-time">${displayTime}</span>
             </div>
         </div>
@@ -1713,13 +1758,13 @@ async function handleUpdateSubmit(e) {
             // Update existing update
             console.log('Updating existing update with ID:', editUpdateId);
             
+            // Build update data - removed updated_at field
             const updateData = {
                 title: title,
                 date: date,
                 time: time,
                 icon: icon,
-                type: type,
-                updated_at: new Date().toISOString()
+                type: type
             };
             
             console.log('Update data:', updateData);
@@ -1771,11 +1816,10 @@ async function handleUpdateSubmit(e) {
     } catch (error) {
         console.error('Error saving update:', error);
         
-        // Check if it's a Supabase table doesn't exist error
+        // Specific error handling for schema issues
         if (error.message && error.message.includes('does not exist')) {
-            console.log('Updates table does not exist, using local storage fallback');
-            // For now, we'll just close the modal since we can't save to Supabase
-            alert('Updates feature is currently in development. Please try again later.');
+            console.log('Updates table or column does not exist');
+            alert('Database configuration issue. Please check your Supabase setup.');
         } else {
             alert('Error saving update: ' + error.message);
         }
@@ -1870,20 +1914,6 @@ function setupUpdatesScroll() {
     } else {
         showMoreIndicator.style.display = 'none';
     }
-}
-
-/**
- * Format Time for Display
- * Converts 24-hour time to 12-hour format with AM/PM
- */
-function formatDisplayTime(timeString) {
-    if (!timeString) return '';
-    
-    const [hours, minutes] = timeString.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${ampm}`;
 }
 
 // =============================================
