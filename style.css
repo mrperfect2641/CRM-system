@@ -19,7 +19,7 @@ body {
   overflow: hidden;
 }
 
-/* Loading Spinner - USED */
+/* ===== LOADING SPINNER ===== */
 .loading {
   display: none;
   position: fixed;
@@ -43,7 +43,7 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* Sidebar - USED */
+/* ===== SIDEBAR ===== */
 .sidebar {
   width: 225px;
   background: var(--primary-color);
@@ -61,42 +61,6 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.logo i {
-  color: #3498db; /* TODO: Consider using CSS variable for consistency */
-}
-
-/* NOT USED - Profile section exists in HTML but not implemented in JS */
-.profile {
-  padding: 20px;
-  border-bottom: 1px solid #34495e;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.profile-img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3498db, #2c3e50);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 18px;
-}
-
-.profile-info h3 {
-  font-size: 16px;
-  margin-bottom: 4px;
-}
-
-.profile-info p {
-  font-size: 13px;
-  color: #bdc3c7;
 }
 
 .nav-menu {
@@ -125,12 +89,7 @@ body {
   border-left: 4px solid #fff;
 }
 
-.nav-item i {
-  width: 20px;
-  text-align: center;
-}
-
-/* Main Content - USED */
+/* ===== MAIN CONTENT ===== */
 .main-content {
   flex: 1;
   display: flex;
@@ -217,15 +176,36 @@ body {
   font-weight: 500;
 }
 
-/* NOT USED - Replaced by .content-section */
-.content-area {
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3498db, #2c3e50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* ===== CONTENT SECTIONS ===== */
+.content-section {
   flex: 1;
   padding: 30px;
   overflow-y: auto;
 }
 
-.page-header {
-  margin-bottom: 25px;
+.content-section.hidden {
+  display: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.portfolio-header {
+  margin-bottom: 30px;
 }
 
 .page-title {
@@ -240,7 +220,7 @@ body {
   font-size: 15px;
 }
 
-/* Status Boxes - USED */
+/* ===== STATUS BOXES ===== */
 .status-boxes {
   display: flex;
   gap: 20px;
@@ -274,7 +254,6 @@ body {
   color: white;
 }
 
-/* TODO: Consider adding distinct colors for different status types */
 .all-projects .status-icon {
   background: #353A40;
 }
@@ -304,7 +283,7 @@ body {
   margin-top: 5px;
 }
 
-/* Projects Section with Notes - USED */
+/* ===== PROJECTS SECTION WITH NOTES ===== */
 .projects-section {
   display: flex;
   gap: 20px;
@@ -324,7 +303,7 @@ body {
   flex-direction: column;
 }
 
-/* Scrollable Projects Table - USED */
+/* ===== PROJECTS TABLE ===== */
 .projects-table-container {
   flex: 1;
   overflow-y: auto;
@@ -405,7 +384,7 @@ td {
   color: #fff;
 }
 
-/* Scrollbar styling - USED */
+/* ===== SCROLLBAR STYLING ===== */
 .projects-table-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -424,7 +403,7 @@ td {
   background: #a8a8a8;
 }
 
-/* Show more indicator - USED */
+/* ===== SHOW MORE INDICATOR ===== */
 .show-more-indicator {
   text-align: center;
   padding: 10px;
@@ -440,7 +419,7 @@ td {
   display: block;
 }
 
-/* Notes Box - USED */
+/* ===== NOTES BOX ===== */
 .notes-box {
   width: 350px;
   background-color: white;
@@ -451,7 +430,7 @@ td {
   flex-direction: column;
 }
 
-/* Style for the Add Project button inside notes box - USED */
+/* ===== ADD PROJECT BUTTON ===== */
 .notes-box .add-project-btn {
   padding: 15px 20px 15px 20px;
   margin: 0;
@@ -546,12 +525,13 @@ td {
   cursor: pointer;
   font-weight: 500;
 }
+
 .notes-input button:hover {
   background-color: #5e707c;
   transition: 0.2s;
 }
 
-/* Active row styling - USED */
+/* ===== ACTIVE ROW STYLING ===== */
 .projects-table-container tbody tr {
   cursor: pointer;
   transition: background-color 0.2s;
@@ -571,13 +551,13 @@ td {
   color: #2c3e50;
 }
 
-/* Animations - USED */
+/* ===== ANIMATIONS ===== */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== Project Popup Styles ===== - USED */
+/* ===== MODAL STYLES ===== */
 .pj-modal {
   position: fixed;
   inset: 0;
@@ -665,11 +645,7 @@ td {
   cursor: pointer; 
 }
 
-/* Portfolio Section Styles - USED */
-.portfolio-header {
-  margin-bottom: 30px;
-}
-
+/* ===== PORTFOLIO SECTION STYLES ===== */
 .portfolio-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -718,7 +694,7 @@ td {
   font-weight: 500;
 }
 
-/* Portfolio Content Grid - USED */
+/* ===== PORTFOLIO CONTENT GRID ===== */
 .portfolio-content {
   margin-top: 30px;
 }
@@ -756,7 +732,7 @@ td {
   padding: 25px;
 }
 
-/* Portfolio Images - USED */
+/* ===== PORTFOLIO IMAGES ===== */
 .portfolio-images-container {
   display: flex;
   flex-direction: column;
@@ -874,7 +850,7 @@ td {
   flex-shrink: 0;
 }
 
-/* Image Upload - USED */
+/* ===== IMAGE UPLOAD ===== */
 .image-upload-container {
   display: flex;
   flex-direction: column;
@@ -924,7 +900,7 @@ td {
   color: var(--secondary-color);
 }
 
-/* Buttons - USED */
+/* ===== BUTTONS ===== */
 .btn-primary {
   background: var(--primary-color);
   color: white;
@@ -949,22 +925,7 @@ td {
   font-size: 11px;
 }
 
-/* Content Sections - USED */
-.content-section {
-  flex: 1;
-  padding: 30px;
-  overflow-y: auto;
-}
-
-.content-section.hidden {
-  display: none;
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* Skills Grid Styles - USED */
+/* ===== SKILLS GRID STYLES ===== */
 .skills-grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -1058,7 +1019,7 @@ td {
   display: block;
 }
 
-/* Updates Container Styles */
+/* ===== UPDATES CONTAINER STYLES ===== */
 .updates-container {
   display: flex;
   flex-direction: column;
@@ -1082,7 +1043,7 @@ td {
   border-radius: 3px;
 }
 
-/* Update Item Styles */
+/* ===== UPDATE ITEM STYLES ===== */
 .update-item {
   display: flex;
   align-items: flex-start;
@@ -1149,7 +1110,7 @@ td {
   font-weight: 500;
 }
 
-/* Update Action Buttons */
+/* ===== UPDATE ACTION BUTTONS ===== */
 .update-actions {
   position: absolute;
   right: 15px;
@@ -1209,7 +1170,8 @@ td {
   margin-bottom: 10px;
   display: block;
 }
-/* Settings List - USED */
+
+/* ===== SETTINGS LIST ===== */
 .settings-list {
   display: flex;
   flex-direction: column;
@@ -1234,7 +1196,7 @@ td {
   font-weight: 500;
 }
 
-/* Toggle Switch - USED */
+/* ===== TOGGLE SWITCH ===== */
 .switch {
   position: relative;
   display: inline-block;

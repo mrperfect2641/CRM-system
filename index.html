@@ -254,117 +254,24 @@
             </div>
           </div>
 
-          <!-- ===== RECENT ACTIVITY CARD ===== -->
-          <!-- Portfolio activity feed -->
-          <!-- <div class="content-card">
+          <!-- ===== RECENT UPDATES CARD ===== -->
+          <!-- Recent activity updates -->
+          <div class="content-card">
             <div class="card-header">
-              <h3>Recent Activity</h3>
+              <h3>Recent Updates</h3>
+              <button class="btn btn-primary" id="add-update-btn">
+                <i class="fas fa-plus"></i> Add Update
+              </button>
             </div>
             <div class="card-body">
-              <div class="activity-list">
-                <div class="activity-item">
-                  <div class="activity-icon">
-                    <i class="fas fa-eye"></i>
-                  </div>
-                  <div class="activity-content">
-                    <p>Someone viewed your portfolio from United States</p>
-                    <span class="activity-time">2 hours ago</span>
-                  </div>
-                </div>
-                <div class="activity-item">
-                  <div class="activity-icon">
-                    <i class="fas fa-download"></i>
-                  </div>
-                  <div class="activity-content">
-                    <p>Your resume was downloaded</p>
-                    <span class="activity-time">5 hours ago</span>
-                  </div>
-                </div>
-                <div class="activity-item">
-                  <div class="activity-icon">
-                    <i class="fas fa-envelope"></i>
-                  </div>
-                  <div class="activity-content">
-                    <p>New contact form submission</p>
-                    <span class="activity-time">1 day ago</span>
-                  </div>
-                </div>
+              <div class="updates-container" id="updatesContainer">
+                <!-- Updates will be dynamically loaded here -->
+              </div>
+              <div class="show-more-indicator" id="updatesMoreIndicator">
+                <i class="fas fa-chevron-down"></i> Scroll to see more updates
               </div>
             </div>
-          </div> -->
-          <!-- Recent Activity -->
-<!-- Recent Updates -->
-<div class="content-card">
-  <div class="card-header">
-    <h3>Recent Updates</h3>
-    <button class="btn btn-primary" id="add-update-btn">
-      <i class="fas fa-plus"></i> Add Update
-    </button>
-  </div>
-  <div class="card-body">
-    <div class="updates-container" id="updatesContainer">
-      <!-- Updates will be dynamically loaded here -->
-    </div>
-    <div class="show-more-indicator" id="updatesMoreIndicator">
-      <i class="fas fa-chevron-down"></i> Scroll to see more updates
-    </div>
-  </div>
-</div>
-
-<!-- Update Modal -->
-<div id="update-modal" class="pj-modal hidden">
-  <div class="pj-overlay" id="updateOverlay"></div>
-  <div class="pj-dialog" style="max-width: 500px;">
-    <h3 id="updateTitle" class="pj-title">Add Update</h3>
-    <form id="update-form" class="pj-form">
-      <div class="pj-row">
-        <label for="update-title">Update Title</label>
-        <input id="update-title" name="updateTitle" class="pj-input" type="text" placeholder="e.g., Project Milestone Completed" required>
-      </div>
-      <div class="pj-row small-grid">
-        <div>
-          <label for="update-date">Date</label>
-          <input id="update-date" name="updateDate" class="pj-input" type="date" required>
-        </div>
-        <div>
-          <label for="update-time">Time</label>
-          <input id="update-time" name="updateTime" class="pj-input" type="time" required>
-        </div>
-      </div>
-      <div class="pj-row">
-        <label for="update-icon">Icon</label>
-        <select id="update-icon" name="updateIcon" class="pj-input" required>
-          <option value="fas fa-edit">Edit</option>
-          <option value="fas fa-check-circle">Check Circle</option>
-          <option value="fas fa-upload">Upload</option>
-          <option value="fas fa-plus">Plus</option>
-          <option value="fas fa-calendar">Calendar</option>
-          <option value="fas fa-dollar-sign">Dollar</option>
-          <option value="fas fa-comment">Comment</option>
-          <option value="fas fa-clock">Clock</option>
-          <option value="fas fa-bell">Bell</option>
-          <option value="fas fa-star">Star</option>
-        </select>
-      </div>
-      <div class="pj-row">
-        <label for="update-type">Update Type</label>
-        <select id="update-type" name="updateType" class="pj-input" required>
-          <option value="update">General Update</option>
-          <option value="feedback">Client Feedback</option>
-          <option value="delivery">Delivery</option>
-          <option value="create">Project Created</option>
-          <option value="meeting">Meeting</option>
-          <option value="payment">Payment</option>
-          <option value="milestone">Milestone</option>
-        </select>
-      </div>
-      <div class="pj-actions">
-        <button type="button" class="btn secondary" id="update-cancel-btn">Cancel</button>
-        <button type="submit" class="btn primary" id="update-save-btn">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
+          </div>
 
           <!-- ===== WEBSITE SETTINGS CARD ===== -->
           <!-- Portfolio website configuration -->
@@ -526,6 +433,62 @@
         <div class="pj-actions">
           <button type="button" class="btn secondary" id="skill-cancel-btn">Cancel</button>
           <button type="submit" class="btn primary" id="skill-save-btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== UPDATE MODAL ===== -->
+  <!-- Modal for adding/editing updates -->
+  <div id="update-modal" class="pj-modal hidden">
+    <div class="pj-overlay" id="updateOverlay"></div>
+    <div class="pj-dialog" style="max-width: 500px;">
+      <h3 id="updateTitle" class="pj-title">Add Update</h3>
+      <form id="update-form" class="pj-form">
+        <div class="pj-row">
+          <label for="update-title">Update Title</label>
+          <input id="update-title" name="updateTitle" class="pj-input" type="text" placeholder="e.g., Project Milestone Completed" required>
+        </div>
+        <div class="pj-row small-grid">
+          <div>
+            <label for="update-date">Date</label>
+            <input id="update-date" name="updateDate" class="pj-input" type="date" required>
+          </div>
+          <div>
+            <label for="update-time">Time</label>
+            <input id="update-time" name="updateTime" class="pj-input" type="time" required>
+          </div>
+        </div>
+        <div class="pj-row">
+          <label for="update-icon">Icon</label>
+          <select id="update-icon" name="updateIcon" class="pj-input" required>
+            <option value="fas fa-edit">Edit</option>
+            <option value="fas fa-check-circle">Check Circle</option>
+            <option value="fas fa-upload">Upload</option>
+            <option value="fas fa-plus">Plus</option>
+            <option value="fas fa-calendar">Calendar</option>
+            <option value="fas fa-dollar-sign">Dollar</option>
+            <option value="fas fa-comment">Comment</option>
+            <option value="fas fa-clock">Clock</option>
+            <option value="fas fa-bell">Bell</option>
+            <option value="fas fa-star">Star</option>
+          </select>
+        </div>
+        <div class="pj-row">
+          <label for="update-type">Update Type</label>
+          <select id="update-type" name="updateType" class="pj-input" required>
+            <option value="update">General Update</option>
+            <option value="feedback">Client Feedback</option>
+            <option value="delivery">Delivery</option>
+            <option value="create">Project Created</option>
+            <option value="meeting">Meeting</option>
+            <option value="payment">Payment</option>
+            <option value="milestone">Milestone</option>
+          </select>
+        </div>
+        <div class="pj-actions">
+          <button type="button" class="btn secondary" id="update-cancel-btn">Cancel</button>
+          <button type="submit" class="btn primary" id="update-save-btn">Save</button>
         </div>
       </form>
     </div>

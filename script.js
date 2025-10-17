@@ -8,9 +8,13 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ===== GLOBAL VARIABLES =====
 let projects = [];
 let portfolioImages = [];
+let skills = [];
+let updates = [];
 let selectedProjectId = null;
 let editProjectId = null;
 let editPortfolioImageId = null;
+let editSkillId = null;
+let editUpdateId = null;
 let currentPortfolioImageFile = null;
 
 // ===== INITIALIZATION =====
@@ -24,6 +28,8 @@ async function initializeApp() {
   showLoading();
   await loadProjects();
   await initializePortfolioImages();
+  await initializeSkills();
+  await initializeUpdates();
   updateStatusCounts();
   initializeProjectsTableScroll();
   setupEventListeners();
@@ -270,7 +276,7 @@ function setupEventListeners() {
 function setupPortfolioImagesEventListeners() {
   console.log('Setting up portfolio images event listeners...');
   
-  // Add image button - FIXED: Using correct ID
+  // Add image button
   const addImageBtn = document.getElementById('addPortfolioImageBtn');
   if (addImageBtn) {
     addImageBtn.addEventListener('click', function(e) {
@@ -947,8 +953,6 @@ function formatDisplayDate(dateString) {
 }
 
 // ===== SKILLS FUNCTIONALITY =====
-let skills = [];
-let editSkillId = null;
 
 // Initialize skills
 async function initializeSkills() {
@@ -1202,22 +1206,7 @@ function initializeSkillsScroll() {
   }
 }
 
-// Update initializeApp function to include skills
-async function initializeApp() {
-  showLoading();
-  await loadProjects();
-  await initializePortfolioImages();
-  await initializeSkills(); // Add this line
-  updateStatusCounts();
-  initializeProjectsTableScroll();
-  setupEventListeners();
-  setupSectionSwitching();
-  hideLoading();
-}
-
 // ===== UPDATES FUNCTIONALITY =====
-let updates = [];
-let editUpdateId = null;
 
 // Initialize updates
 async function initializeUpdates() {
@@ -1547,16 +1536,6 @@ function setupUpdatesScroll() {
   }
 }
 
-// Format date for display
-function formatDisplayDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-}
-
 // Format time for display
 function formatDisplayTime(timeString) {
   const [hours, minutes] = timeString.split(':');
@@ -1564,18 +1543,4 @@ function formatDisplayTime(timeString) {
   const ampm = hour >= 12 ? 'PM' : 'AM';
   const displayHour = hour % 12 || 12;
   return `${displayHour}:${minutes} ${ampm}`;
-}
-
-// Update initializeApp function to include updates
-async function initializeApp() {
-  showLoading();
-  await loadProjects();
-  await initializePortfolioImages();
-  await initializeSkills();
-  await initializeUpdates(); // Add this line
-  updateStatusCounts();
-  initializeProjectsTableScroll();
-  setupEventListeners();
-  setupSectionSwitching();
-  hideLoading();
 }
