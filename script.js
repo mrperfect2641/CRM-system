@@ -2210,6 +2210,1183 @@ async function initializePortfolioAnalytics() {
     updatePortfolioStats(visits);
 }
 
+// ===== IMPORTANT INFO SECTION - FULL FUNCTIONALITY =====
+
+// Global variables for Important Info section
+let urgentItems = [];
+let deadlines = [];
+let clients = [];
+let editUrgentId = null;
+let editDeadlineId = null;
+let editClientId = null;
+
+/**
+ * Initialize Important Info Section
+ */
+async function initializeImportantInfo() {
+    await Promise.all([
+        loadProjectOverview(),
+        loadUrgentItems(),
+        loadDeadlines(),
+        loadClients()
+    ]);
+    setupImportantInfoEventListeners();
+}
+
+/**
+ * Load Project Overview Data
+ */
+async function loadProjectOverview() {
+    try {
+        const { data: projectsData, error } = await supabaseClient
+            .from('projects')
+            .select('*');
+
+        if (error) {
+            console.error('Error loading projects for overview:', error);
+            return;
+        }
+
+        updateProjectOverview(projectsData || []);
+        updateRecentProjects(projectsData || []);
+        
+    } catch (error) {
+        console.error('Error loading project overview:', error);
+    }
+}
+
+/**
+ * Update Project Overview Statistics
+ */
+function updateProjectOverview(projects) {
+    const totalProjects = projects.length;
+    const inProgressProjects = projects.filter(p => p.status === 'in-process').length;
+    const completedProjects = projects.filter(p => p.status === 'completed').length;
+    const pendingProjects = projects.filter(p => p.status === 'waiting' || p.status === 'planned').length;
+
+    // Update the summary items
+    const totalEl = document.getElementById('totalProjects');
+    const inProgressEl = document.getElementById('inProgressProjects');
+    const completedEl = document.getElementById('completedProjects');
+    const pendingEl = document.getElementById('pendingProjects');
+
+    if (totalEl) totalEl.textContent = totalProjects;
+    if (inProgressEl) inProgressEl.textContent = inProgressProjects;
+    if (completedEl) completedEl.textContent = completedProjects;
+    if (pendingEl) pendingEl.textContent = pendingProjects;
+
+    // Update status boxes in Important Info section
+    updateImportantInfoStats(totalProjects, inProgressProjects, completedProjects, pendingProjects);
+}
+
+/**
+ * Update Important Info Status Boxes
+ */
+function updateImportantInfoStats(total, inProgress, completed, pending) {
+    const statusBoxes = document.querySelectorAll('#info-section .status-box');
+    if (statusBoxes.length >= 4) {
+        statusBoxes[0].querySelector('.count').textContent = total;
+        statusBoxes[1].querySelector('.count').textContent = inProgress;
+        statusBoxes[2].querySelector('.count').textContent = pending;
+        statusBoxes[3].querySelector('.count').textContent = completed;
+    }
+}
+
+/**
+ * Update Recent Projects List
+ */
+function updateRecentProjects(projects) {
+    const container = document.getElementById('recentProjectsList');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    // Sort projects by creation date (newest first) and take latest 5
+    const recentProjects = projects
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 5);
+
+    if (recentProjects.length === 0) {
+        container.innerHTML = '<div class="no-data"><p>No projects found</p></div>';
+        return;
+    }
+
+    recentProjects.forEach(project => {
+        const projectElement = createRecentProjectElement(project);
+        container.appendChild(projectElement);
+    });
+}
+
+/**
+ * Create Recent Project Element
+ */
+function createRecentProjectElement(project) {
+    const div = document.createElement('div');
+    div.className = 'project-item';
+    
+    const statusClass = getProjectStatusClass(project.status);
+    const statusText = getStatusText(project.status);
+    
+    div.innerHTML = `
+        <div class="project-name">${escapeHtml(project.name)}</div>
+        <div class="project-status ${statusClass}">${statusText}</div>
+    `;
+    
+    // Add click event to navigate to project
+    div.addEventListener('click', () => {
+        switchSection('freelance');
+        setTimeout(() => {
+            selectProject(project.id);
+        }, 100);
+    });
+    
+    return div;
+}
+
+/**
+ * Get Project Status Class for Styling
+ */
+function getProjectStatusClass(status) {
+    const statusMap = {
+        'completed': 'completed',
+        'in-process': 'in-progress',
+        'waiting': 'pending',
+        'planned': 'planned'
+    };
+    return statusMap[status] || 'pending';
+}
+
+/**
+ * Load Urgent Items from Supabase
+ */
+async function loadUrgentItems() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('urgent_items')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error loading urgent items:', error);
+            urgentItems = getSampleUrgentItems();
+        } else {
+            urgentItems = data || [];
+        }
+
+        updateUrgentItems();
+        
+    } catch (error) {
+        console.error('Error loading urgent items:', error);
+        urgentItems = getSampleUrgentItems();
+        updateUrgentItems();
+    }
+}
+
+/**
+ * Get Sample Urgent Items (Fallback)
+ */
+function getSampleUrgentItems() {
+    return [
+        {
+            id: '1',
+            title: "Client Feedback Required",
+            description: "Waiting for client feedback on design mockups",
+            priority: "high",
+            deadline: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+            related_to: "Project Alpha",
+            created_at: new Date().toISOString()
+        },
+        {
+            id: '2',
+            title: "Final Payment Due",
+            description: "Send invoice and follow up on final payment",
+            priority: "medium",
+            deadline: new Date(Date.now() + 172800000).toISOString().split('T')[0],
+            related_to: "Project Beta",
+            created_at: new Date().toISOString()
+        }
+    ];
+}
+
+/**
+ * Update Urgent Items Display
+ */
+function updateUrgentItems() {
+    const container = document.getElementById('urgentItemsContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (urgentItems.length === 0) {
+        container.innerHTML = `
+            <div class="no-data">
+                <i class="fas fa-check-circle"></i>
+                <p>No urgent items at the moment</p>
+            </div>
+        `;
+        return;
+    }
+
+    urgentItems.forEach(item => {
+        const itemElement = createUrgentItemElement(item);
+        container.appendChild(itemElement);
+    });
+
+    initializeUrgentItemsScroll();
+}
+
+/**
+ * Create Urgent Item Element
+ */
+function createUrgentItemElement(item) {
+    const div = document.createElement('div');
+    div.className = `urgent-item ${item.priority}`;
+    
+    const deadline = formatDisplayDate(item.deadline);
+    
+    div.innerHTML = `
+        <div class="urgent-priority ${item.priority}">${item.priority}</div>
+        <div class="urgent-content">
+            <div class="urgent-title">${escapeHtml(item.title)}</div>
+            <div class="urgent-description">${escapeHtml(item.description)}</div>
+            <div class="urgent-deadline">Due: ${deadline}</div>
+        </div>
+        <div class="urgent-actions">
+            <button class="btn btn-edit btn-sm" data-item-id="${item.id}">Edit</button>
+            <button class="btn btn-remove btn-sm" data-item-id="${item.id}">Remove</button>
+        </div>
+    `;
+    
+    return div;
+}
+
+/**
+ * Load Deadlines from Supabase
+ */
+async function loadDeadlines() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('deadlines')
+            .select('*')
+            .order('deadline_date', { ascending: true });
+
+        if (error) {
+            console.error('Error loading deadlines:', error);
+            deadlines = getSampleDeadlines();
+        } else {
+            deadlines = data || [];
+        }
+
+        updateDeadlines();
+        
+    } catch (error) {
+        console.error('Error loading deadlines:', error);
+        deadlines = getSampleDeadlines();
+        updateDeadlines();
+    }
+}
+
+/**
+ * Get Sample Deadlines (Fallback)
+ */
+function getSampleDeadlines() {
+    return [
+        {
+            id: '1',
+            title: "Project Alpha Delivery",
+            description: "Final delivery to client",
+            deadline_date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+            deadline_time: "15:00",
+            type: "delivery",
+            created_at: new Date().toISOString()
+        },
+        {
+            id: '2',
+            title: "Client Meeting",
+            description: "Weekly progress meeting",
+            deadline_date: new Date(Date.now() + 259200000).toISOString().split('T')[0],
+            deadline_time: "10:00",
+            type: "meeting",
+            created_at: new Date().toISOString()
+        }
+    ];
+}
+
+/**
+ * Update Deadlines Display
+ */
+function updateDeadlines() {
+    const container = document.getElementById('deadlinesContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (deadlines.length === 0) {
+        container.innerHTML = `
+            <div class="no-data">
+                <i class="fas fa-flag"></i>
+                <p>No upcoming deadlines</p>
+            </div>
+        `;
+        return;
+    }
+
+    deadlines.forEach(deadline => {
+        const deadlineElement = createDeadlineElement(deadline);
+        container.appendChild(deadlineElement);
+    });
+
+    initializeDeadlinesScroll();
+}
+
+/**
+ * Create Deadline Element
+ */
+function createDeadlineElement(deadline) {
+    const div = document.createElement('div');
+    div.className = 'deadline-item';
+    
+    const deadlineDate = formatDisplayDate(deadline.deadline_date);
+    const deadlineTime = formatDisplayTime(deadline.deadline_time);
+    
+    div.innerHTML = `
+        <div class="deadline-icon">
+            <i class="fas fa-flag"></i>
+        </div>
+        <div class="deadline-content">
+            <div class="deadline-title">${escapeHtml(deadline.title)}</div>
+            <div class="deadline-description">${escapeHtml(deadline.description)}</div>
+            <div class="deadline-time">${deadlineDate} at ${deadlineTime}</div>
+        </div>
+        <div class="deadline-type">${deadline.type}</div>
+    `;
+    
+    return div;
+}
+
+/**
+ * Load Clients from Supabase
+ */
+async function loadClients() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('clients')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error loading clients:', error);
+            clients = getSampleClients();
+        } else {
+            clients = data || [];
+        }
+
+        updateClients();
+        
+    } catch (error) {
+        console.error('Error loading clients:', error);
+        clients = getSampleClients();
+        updateClients();
+    }
+}
+
+/**
+ * Get Sample Clients (Fallback)
+ */
+function getSampleClients() {
+    return [
+        {
+            id: '1',
+            name: "John Smith",
+            email: "john@example.com",
+            phone: "+1 (555) 123-4567",
+            company: "Tech Corp Inc",
+            notes: "Regular client, prefers email communication",
+            created_at: new Date().toISOString()
+        },
+        {
+            id: '2',
+            name: "Sarah Johnson",
+            email: "sarah@designstudio.com",
+            phone: "+1 (555) 987-6543",
+            company: "Design Studio LLC",
+            notes: "New client, responsive to messages",
+            created_at: new Date().toISOString()
+        }
+    ];
+}
+
+/**
+ * Update Clients Display
+ */
+function updateClients() {
+    const container = document.getElementById('clientsContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (clients.length === 0) {
+        container.innerHTML = `
+            <div class="no-data">
+                <i class="fas fa-user-tie"></i>
+                <p>No client information added</p>
+            </div>
+        `;
+        return;
+    }
+
+    clients.forEach(client => {
+        const clientElement = createClientElement(client);
+        container.appendChild(clientElement);
+    });
+
+    initializeClientsScroll();
+}
+
+/**
+ * Create Client Element
+ */
+function createClientElement(client) {
+    const div = document.createElement('div');
+    div.className = 'client-item';
+    
+    const initials = client.name.split(' ').map(n => n[0]).join('').toUpperCase();
+    
+    div.innerHTML = `
+        <div class="client-avatar">${initials}</div>
+        <div class="client-info">
+            <div class="client-name">${escapeHtml(client.name)}</div>
+            <div class="client-company">${escapeHtml(client.company || 'No company')}</div>
+            <div class="client-contact">${escapeHtml(client.email)}</div>
+        </div>
+        <div class="client-actions">
+            <button class="btn btn-edit btn-sm" data-client-id="${client.id}">Edit</button>
+            <button class="btn btn-remove btn-sm" data-client-id="${client.id}">Remove</button>
+        </div>
+    `;
+    
+    return div;
+}
+
+/**
+ * Setup Important Info Event Listeners
+ */
+function setupImportantInfoEventListeners() {
+    // Refresh buttons
+    const refreshProjectsBtn = document.getElementById('refresh-projects-btn');
+    const refreshAnalyticsBtn = document.getElementById('refresh-analytics-btn');
+    const refreshFinanceBtn = document.getElementById('refresh-finance-btn');
+    
+    if (refreshProjectsBtn) {
+        refreshProjectsBtn.addEventListener('click', loadProjectOverview);
+    }
+    if (refreshAnalyticsBtn) {
+        refreshAnalyticsBtn.addEventListener('click', () => {
+            switchSection('portfolio');
+        });
+    }
+    if (refreshFinanceBtn) {
+        refreshFinanceBtn.addEventListener('click', loadProjectOverview);
+    }
+    
+    // Add buttons
+    const addUrgentBtn = document.getElementById('add-urgent-btn');
+    const addDeadlineBtn = document.getElementById('add-deadline-btn');
+    const addClientBtn = document.getElementById('add-client-btn');
+    
+    if (addUrgentBtn) {
+        addUrgentBtn.addEventListener('click', openUrgentModal);
+    }
+    if (addDeadlineBtn) {
+        addDeadlineBtn.addEventListener('click', openDeadlineModal);
+    }
+    if (addClientBtn) {
+        addClientBtn.addEventListener('click', openClientModal);
+    }
+    
+    // Modal event listeners
+    setupImportantInfoModals();
+    
+    // Action listeners for urgent items, deadlines, and clients
+    setupImportantInfoActionListeners();
+}
+
+/**
+ * Setup Important Info Modal Event Listeners
+ */
+function setupImportantInfoModals() {
+    // Urgent Modal
+    const urgentOverlay = document.getElementById('urgentOverlay');
+    const urgentCancelBtn = document.getElementById('urgent-cancel-btn');
+    const urgentForm = document.getElementById('urgent-form');
+    
+    if (urgentOverlay) urgentOverlay.addEventListener('click', closeUrgentModal);
+    if (urgentCancelBtn) urgentCancelBtn.addEventListener('click', closeUrgentModal);
+    if (urgentForm) urgentForm.addEventListener('submit', handleUrgentSubmit);
+    
+    // Deadline Modal
+    const deadlineOverlay = document.getElementById('deadlineOverlay');
+    const deadlineCancelBtn = document.getElementById('deadline-cancel-btn');
+    const deadlineForm = document.getElementById('deadline-form');
+    
+    if (deadlineOverlay) deadlineOverlay.addEventListener('click', closeDeadlineModal);
+    if (deadlineCancelBtn) deadlineCancelBtn.addEventListener('click', closeDeadlineModal);
+    if (deadlineForm) deadlineForm.addEventListener('submit', handleDeadlineSubmit);
+    
+    // Client Modal
+    const clientOverlay = document.getElementById('clientOverlay');
+    const clientCancelBtn = document.getElementById('client-cancel-btn');
+    const clientForm = document.getElementById('client-form');
+    
+    if (clientOverlay) clientOverlay.addEventListener('click', closeClientModal);
+    if (clientCancelBtn) clientCancelBtn.addEventListener('click', closeClientModal);
+    if (clientForm) clientForm.addEventListener('submit', handleClientSubmit);
+}
+
+/**
+ * Setup Action Listeners for Important Info Items
+ */
+function setupImportantInfoActionListeners() {
+    // Urgent items actions
+    const urgentContainer = document.getElementById('urgentItemsContainer');
+    if (urgentContainer) {
+        urgentContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-edit')) {
+                e.stopPropagation();
+                editUrgentItem(e.target.getAttribute('data-item-id'));
+            } else if (e.target.classList.contains('btn-remove')) {
+                e.stopPropagation();
+                if (confirm('Are you sure you want to remove this urgent item?')) {
+                    removeUrgentItem(e.target.getAttribute('data-item-id'));
+                }
+            }
+        });
+    }
+    
+    // Clients actions
+    const clientsContainer = document.getElementById('clientsContainer');
+    if (clientsContainer) {
+        clientsContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-edit')) {
+                e.stopPropagation();
+                editClient(e.target.getAttribute('data-client-id'));
+            } else if (e.target.classList.contains('btn-remove')) {
+                e.stopPropagation();
+                if (confirm('Are you sure you want to remove this client?')) {
+                    removeClient(e.target.getAttribute('data-client-id'));
+                }
+            }
+        });
+    }
+}
+
+// ===== URGENT ITEMS MODAL FUNCTIONS =====
+
+function openUrgentModal(itemId = null) {
+    const modal = document.getElementById('urgent-modal');
+    const form = document.getElementById('urgent-form');
+    const title = document.getElementById('urgentTitle');
+    
+    if (!modal) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (itemId) {
+        editUrgentId = itemId;
+        const item = urgentItems.find(i => i.id == itemId);
+        if (item) {
+            title.textContent = 'Edit Urgent Item';
+            document.getElementById('urgent-title').value = item.title || '';
+            document.getElementById('urgent-description').value = item.description || '';
+            document.getElementById('urgent-priority').value = item.priority || 'medium';
+            document.getElementById('urgent-deadline').value = item.deadline || today;
+            document.getElementById('urgent-related').value = item.related_to || '';
+        }
+    } else {
+        editUrgentId = null;
+        title.textContent = 'Add Urgent Item';
+        if (form) form.reset();
+        document.getElementById('urgent-deadline').value = today;
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+function closeUrgentModal() {
+    const modal = document.getElementById('urgent-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    editUrgentId = null;
+}
+
+async function handleUrgentSubmit(e) {
+    e.preventDefault();
+    
+    const title = document.getElementById('urgent-title').value.trim();
+    const description = document.getElementById('urgent-description').value.trim();
+    const priority = document.getElementById('urgent-priority').value;
+    const deadline = document.getElementById('urgent-deadline').value;
+    const related = document.getElementById('urgent-related').value.trim();
+    
+    if (!title || !description || !deadline) {
+        alert('Please fill all required fields');
+        return;
+    }
+    
+    showLoading();
+    
+    try {
+        if (editUrgentId) {
+            // Update existing urgent item
+            const updateData = {
+                title: title,
+                description: description,
+                priority: priority,
+                deadline: deadline,
+                related_to: related,
+                updated_at: new Date().toISOString()
+            };
+            
+            // Try to save to Supabase
+            try {
+                const { error } = await supabaseClient
+                    .from('urgent_items')
+                    .update(updateData)
+                    .eq('id', editUrgentId);
+
+                if (error) throw error;
+            } catch (supabaseError) {
+                console.log('Failed to update in Supabase, using local storage:', supabaseError);
+            }
+            
+            // Update local data
+            const index = urgentItems.findIndex(item => item.id == editUrgentId);
+            if (index !== -1) {
+                urgentItems[index] = { ...urgentItems[index], ...updateData };
+            }
+        } else {
+            // Create new urgent item
+            const newItem = {
+                id: 'urgent_' + Date.now(),
+                title: title,
+                description: description,
+                priority: priority,
+                deadline: deadline,
+                related_to: related,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            
+            // Try to save to Supabase
+            try {
+                const { data, error } = await supabaseClient
+                    .from('urgent_items')
+                    .insert([{
+                        title: title,
+                        description: description,
+                        priority: priority,
+                        deadline: deadline,
+                        related_to: related
+                    }])
+                    .select();
+
+                if (error) throw error;
+                
+                if (data && data[0]) {
+                    newItem.id = data[0].id;
+                }
+            } catch (supabaseError) {
+                console.log('Failed to save to Supabase, using local storage:', supabaseError);
+            }
+            
+            urgentItems.unshift(newItem);
+        }
+        
+        await saveImportantInfoData();
+        updateUrgentItems();
+        closeUrgentModal();
+        
+    } catch (error) {
+        console.error('Error saving urgent item:', error);
+        alert('Error saving urgent item: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+function editUrgentItem(itemId) {
+    openUrgentModal(itemId);
+}
+
+async function removeUrgentItem(itemId) {
+    showLoading();
+    
+    try {
+        // Try to delete from Supabase
+        try {
+            const { error } = await supabaseClient
+                .from('urgent_items')
+                .delete()
+                .eq('id', itemId);
+
+            if (error) throw error;
+        } catch (supabaseError) {
+            console.log('Failed to delete from Supabase, using local storage:', supabaseError);
+        }
+        
+        // Update local data
+        urgentItems = urgentItems.filter(item => item.id !== itemId);
+        
+        await saveImportantInfoData();
+        updateUrgentItems();
+        
+    } catch (error) {
+        console.error('Error removing urgent item:', error);
+        alert('Error removing urgent item: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+// ===== DEADLINES MODAL FUNCTIONS =====
+
+function openDeadlineModal(deadlineId = null) {
+    const modal = document.getElementById('deadline-modal');
+    const form = document.getElementById('deadline-form');
+    const title = document.getElementById('deadlineTitle');
+    
+    if (!modal) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const now = new Date().toTimeString().slice(0, 5);
+    
+    if (deadlineId) {
+        editDeadlineId = deadlineId;
+        const deadline = deadlines.find(d => d.id == deadlineId);
+        if (deadline) {
+            title.textContent = 'Edit Deadline';
+            document.getElementById('deadline-title').value = deadline.title || '';
+            document.getElementById('deadline-description').value = deadline.description || '';
+            document.getElementById('deadline-date').value = deadline.deadline_date || today;
+            document.getElementById('deadline-time').value = deadline.deadline_time || now;
+            document.getElementById('deadline-type').value = deadline.type || 'project';
+        }
+    } else {
+        editDeadlineId = null;
+        title.textContent = 'Add Deadline';
+        if (form) form.reset();
+        document.getElementById('deadline-date').value = today;
+        document.getElementById('deadline-time').value = now;
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+function closeDeadlineModal() {
+    const modal = document.getElementById('deadline-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    editDeadlineId = null;
+}
+
+async function handleDeadlineSubmit(e) {
+    e.preventDefault();
+    
+    const title = document.getElementById('deadline-title').value.trim();
+    const description = document.getElementById('deadline-description').value.trim();
+    const date = document.getElementById('deadline-date').value;
+    const time = document.getElementById('deadline-time').value;
+    const type = document.getElementById('deadline-type').value;
+    
+    if (!title || !date || !time) {
+        alert('Please fill all required fields');
+        return;
+    }
+    
+    showLoading();
+    
+    try {
+        if (editDeadlineId) {
+            // Update existing deadline
+            const updateData = {
+                title: title,
+                description: description,
+                deadline_date: date,
+                deadline_time: time,
+                type: type,
+                updated_at: new Date().toISOString()
+            };
+            
+            // Try to save to Supabase
+            try {
+                const { error } = await supabaseClient
+                    .from('deadlines')
+                    .update(updateData)
+                    .eq('id', editDeadlineId);
+
+                if (error) throw error;
+            } catch (supabaseError) {
+                console.log('Failed to update in Supabase, using local storage:', supabaseError);
+            }
+            
+            // Update local data
+            const index = deadlines.findIndex(deadline => deadline.id == editDeadlineId);
+            if (index !== -1) {
+                deadlines[index] = { ...deadlines[index], ...updateData };
+            }
+        } else {
+            // Create new deadline
+            const newDeadline = {
+                id: 'deadline_' + Date.now(),
+                title: title,
+                description: description,
+                deadline_date: date,
+                deadline_time: time,
+                type: type,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            
+            // Try to save to Supabase
+            try {
+                const { data, error } = await supabaseClient
+                    .from('deadlines')
+                    .insert([{
+                        title: title,
+                        description: description,
+                        deadline_date: date,
+                        deadline_time: time,
+                        type: type
+                    }])
+                    .select();
+
+                if (error) throw error;
+                
+                if (data && data[0]) {
+                    newDeadline.id = data[0].id;
+                }
+            } catch (supabaseError) {
+                console.log('Failed to save to Supabase, using local storage:', supabaseError);
+            }
+            
+            deadlines.unshift(newDeadline);
+        }
+        
+        await saveImportantInfoData();
+        updateDeadlines();
+        closeDeadlineModal();
+        
+    } catch (error) {
+        console.error('Error saving deadline:', error);
+        alert('Error saving deadline: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+// ===== CLIENTS MODAL FUNCTIONS =====
+
+function openClientModal(clientId = null) {
+    const modal = document.getElementById('client-modal');
+    const form = document.getElementById('client-form');
+    const title = document.getElementById('clientTitle');
+    
+    if (!modal) return;
+    
+    if (clientId) {
+        editClientId = clientId;
+        const client = clients.find(c => c.id == clientId);
+        if (client) {
+            title.textContent = 'Edit Client';
+            document.getElementById('client-name').value = client.name || '';
+            document.getElementById('client-email').value = client.email || '';
+            document.getElementById('client-phone').value = client.phone || '';
+            document.getElementById('client-company').value = client.company || '';
+            document.getElementById('client-notes').value = client.notes || '';
+        }
+    } else {
+        editClientId = null;
+        title.textContent = 'Add Client';
+        if (form) form.reset();
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+function closeClientModal() {
+    const modal = document.getElementById('client-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    editClientId = null;
+}
+
+async function handleClientSubmit(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('client-name').value.trim();
+    const email = document.getElementById('client-email').value.trim();
+    const phone = document.getElementById('client-phone').value.trim();
+    const company = document.getElementById('client-company').value.trim();
+    const notes = document.getElementById('client-notes').value.trim();
+    
+    if (!name || !email) {
+        alert('Please fill all required fields');
+        return;
+    }
+    
+    showLoading();
+    
+    try {
+        if (editClientId) {
+            // Update existing client
+            const updateData = {
+                name: name,
+                email: email,
+                phone: phone,
+                company: company,
+                notes: notes,
+                updated_at: new Date().toISOString()
+            };
+            
+            // Try to save to Supabase
+            try {
+                const { error } = await supabaseClient
+                    .from('clients')
+                    .update(updateData)
+                    .eq('id', editClientId);
+
+                if (error) throw error;
+            } catch (supabaseError) {
+                console.log('Failed to update in Supabase, using local storage:', supabaseError);
+            }
+            
+            // Update local data
+            const index = clients.findIndex(client => client.id == editClientId);
+            if (index !== -1) {
+                clients[index] = { ...clients[index], ...updateData };
+            }
+        } else {
+            // Create new client
+            const newClient = {
+                id: 'client_' + Date.now(),
+                name: name,
+                email: email,
+                phone: phone,
+                company: company,
+                notes: notes,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            
+            // Try to save to Supabase
+            try {
+                const { data, error } = await supabaseClient
+                    .from('clients')
+                    .insert([{
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        company: company,
+                        notes: notes
+                    }])
+                    .select();
+
+                if (error) throw error;
+                
+                if (data && data[0]) {
+                    newClient.id = data[0].id;
+                }
+            } catch (supabaseError) {
+                console.log('Failed to save to Supabase, using local storage:', supabaseError);
+            }
+            
+            clients.unshift(newClient);
+        }
+        
+        await saveImportantInfoData();
+        updateClients();
+        closeClientModal();
+        
+    } catch (error) {
+        console.error('Error saving client:', error);
+        alert('Error saving client: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+function editClient(clientId) {
+    openClientModal(clientId);
+}
+
+async function removeClient(clientId) {
+    showLoading();
+    
+    try {
+        // Try to delete from Supabase
+        try {
+            const { error } = await supabaseClient
+                .from('clients')
+                .delete()
+                .eq('id', clientId);
+
+            if (error) throw error;
+        } catch (supabaseError) {
+            console.log('Failed to delete from Supabase, using local storage:', supabaseError);
+        }
+        
+        // Update local data
+        clients = clients.filter(client => client.id !== clientId);
+        
+        await saveImportantInfoData();
+        updateClients();
+        
+    } catch (error) {
+        console.error('Error removing client:', error);
+        alert('Error removing client: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+// ===== DATA PERSISTENCE FUNCTIONS =====
+
+/**
+ * Save Important Info Data to Local Storage
+ */
+async function saveImportantInfoData() {
+    try {
+        const importantInfoData = {
+            urgentItems: urgentItems,
+            deadlines: deadlines,
+            clients: clients,
+            lastUpdated: new Date().toISOString()
+        };
+        
+        localStorage.setItem('crm_important_info', JSON.stringify(importantInfoData));
+    } catch (error) {
+        console.error('Error saving important info data:', error);
+    }
+}
+
+/**
+ * Load Important Info Data from Local Storage
+ */
+function loadImportantInfoFromLocalStorage() {
+    try {
+        const savedData = localStorage.getItem('crm_important_info');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            urgentItems = data.urgentItems || [];
+            deadlines = data.deadlines || [];
+            clients = data.clients || [];
+        }
+    } catch (error) {
+        console.error('Error loading important info from local storage:', error);
+    }
+}
+
+// ===== SCROLL FUNCTIONALITY =====
+
+function initializeUrgentItemsScroll() {
+    const container = document.getElementById('urgentItemsContainer');
+    const indicator = document.getElementById('urgentMoreIndicator');
+    initializeScrollContainer(container, indicator);
+}
+
+function initializeDeadlinesScroll() {
+    const container = document.getElementById('deadlinesContainer');
+    const indicator = document.getElementById('deadlinesMoreIndicator');
+    initializeScrollContainer(container, indicator);
+}
+
+function initializeClientsScroll() {
+    const container = document.getElementById('clientsContainer');
+    const indicator = document.getElementById('clientsMoreIndicator');
+    initializeScrollContainer(container, indicator);
+}
+
+function initializeScrollContainer(container, indicator) {
+    if (!container || !indicator) return;
+    
+    const items = container.children;
+    
+    if (items.length > 3) {
+        indicator.style.display = 'block';
+        
+        container.addEventListener('scroll', function() {
+            const scrollTop = container.scrollTop;
+            const scrollHeight = container.scrollHeight;
+            const clientHeight = container.clientHeight;
+            
+            if (scrollTop + clientHeight >= scrollHeight - 10) {
+                indicator.style.display = 'none';
+            } else {
+                indicator.style.display = 'block';
+            }
+        });
+        
+        indicator.addEventListener('click', function() {
+            container.scrollBy({ top: 100, behavior: 'smooth' });
+        });
+    } else {
+        indicator.style.display = 'none';
+    }
+}
+
+// ===== INITIALIZATION =====
+
+// Update the main initialization function to include Important Info
+async function initializeApp() {
+    showLoading();
+    
+    // Load local data first for fallback
+    loadImportantInfoFromLocalStorage();
+    
+    await Promise.all([
+        loadProjects(),
+        initializePortfolioImages(),
+        initializeSkills(),
+        initializeUpdates(),
+        initializeTodoList(),
+        initializePortfolioAnalytics(),
+        initializeImportantInfo() // Add this line
+    ]);
+    
+    updateStatusCounts();
+    initializeProjectsTableScroll();
+    setupEventListeners();
+    setupSectionSwitching();
+    
+    hideLoading();
+}
+
+// Call this when switching to Important Info section
+function switchSection(sectionName) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    
+    document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    const targetSection = document.getElementById(`${sectionName}-section`);
+    const targetNavItem = document.querySelector(`.nav-item[data-section="${sectionName}"]`);
+    
+    if (targetSection && targetNavItem) {
+        targetSection.classList.remove('hidden');
+        targetNavItem.classList.add('active');
+        
+        // Refresh data when switching to Important Info section
+        if (sectionName === 'info') {
+            loadProjectOverview();
+        }
+    }
+}
 // =============================================
 // END OF CRM DASHBOARD JAVASCRIPT
 // =============================================
