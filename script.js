@@ -155,7 +155,6 @@ function setupProjectRowClickEvents() {
  */
 async function initializePortfolioImages() {
     await loadPortfolioImages();
-    setupPortfolioImagesEventListeners();
 }
 
 /**
@@ -1111,7 +1110,6 @@ function escapeHtml(unsafe) {
  */
 async function initializeSkills() {
     await loadSkills();
-    setupSkillsEventListeners();
 }
 
 /**
