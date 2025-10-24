@@ -543,14 +543,15 @@ async function handleProjectSubmit(e) {
 
             if (error) throw error;
         } else {
-            const { error } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from('projects')
                 .insert([{
                     name: name,
                     client: client,
                     start_date: start,
                     status: status
-                }]);
+                }])
+                .select();
 
             if (error) throw error;
         }
@@ -699,14 +700,15 @@ async function handlePortfolioImageSubmit(e) {
 
             if (error) throw error;
         } else {
-            const { error } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from('portfolio_images')
                 .insert([{
                     url: url,
                     size: size,
                     title: title,
                     image_url: imageUrl
-                }]);
+                }])
+                .select();
 
             if (error) throw error;
         }
@@ -876,12 +878,13 @@ async function addNote() {
         showLoading();
         
         try {
-            const { error } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from('project_notes')
                 .insert([{
                     project_id: selectedProjectId,
                     note_text: noteText
-                }]);
+                }])
+                .select();
 
             if (error) throw error;
 
@@ -1012,6 +1015,9 @@ function updateStatusCounts() {
 function initializeProjectsTableScroll() {
     const tableContainer = document.getElementById('projectsTableContainer');
     const showMoreIndicator = document.getElementById('showMoreIndicator');
+    
+    if (!tableContainer || !showMoreIndicator) return;
+    
     const rows = tableContainer.querySelectorAll('tbody tr');
     
     if (rows.length > 5) {
@@ -1280,11 +1286,12 @@ async function handleSkillSubmit(e) {
 
             if (error) throw error;
         } else {
-            const { error } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from('skills')
                 .insert([{
                     name: name
-                }]);
+                }])
+                .select();
 
             if (error) throw error;
         }
@@ -2239,7 +2246,8 @@ async function loadProjectOverview() {
     try {
         const { data: projectsData, error } = await supabaseClient
             .from('projects')
-            .select('*');
+            .select('*')
+            .order('created_at', { ascending: false });
 
         if (error) {
             console.error('Error loading projects for overview:', error);
@@ -2300,10 +2308,8 @@ function updateRecentProjects(projects) {
 
     container.innerHTML = '';
 
-    // Sort projects by creation date (newest first) and take latest 5
-    const recentProjects = projects
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .slice(0, 5);
+    // Take latest 5 (already sorted by creation date in loadProjectOverview)
+    const recentProjects = projects.slice(0, 5);
 
     if (recentProjects.length === 0) {
         container.innerHTML = '<div class="no-data"><p>No projects found</p></div>';
@@ -2367,8 +2373,6 @@ async function loadUrgentItems() {
 
         if (error) {
             console.error('Error loading urgent items:', error);
-            // Create table if it doesn't exist
-            await createUrgentItemsTable();
             urgentItems = [];
         } else {
             urgentItems = data || [];
@@ -2380,30 +2384,6 @@ async function loadUrgentItems() {
         console.error('Error loading urgent items:', error);
         urgentItems = [];
         updateUrgentItems();
-    }
-}
-
-/**
- * Create Urgent Items Table if it doesn't exist
- */
-async function createUrgentItemsTable() {
-    try {
-        const { error } = await supabaseClient
-            .from('urgent_items')
-            .insert([{
-                title: 'Sample Urgent Item',
-                description: 'This is a sample urgent item',
-                priority: 'medium',
-                deadline: new Date().toISOString().split('T')[0],
-                related_to: 'Sample Project'
-            }])
-            .select();
-
-        if (error && error.message.includes('does not exist')) {
-            console.log('Urgent items table does not exist. Please create it in Supabase.');
-        }
-    } catch (error) {
-        console.log('Urgent items table may not exist. Please create it in Supabase.');
     }
 }
 
@@ -2471,8 +2451,6 @@ async function loadDeadlines() {
 
         if (error) {
             console.error('Error loading deadlines:', error);
-            // Create table if it doesn't exist
-            await createDeadlinesTable();
             deadlines = [];
         } else {
             deadlines = data || [];
@@ -2484,30 +2462,6 @@ async function loadDeadlines() {
         console.error('Error loading deadlines:', error);
         deadlines = [];
         updateDeadlines();
-    }
-}
-
-/**
- * Create Deadlines Table if it doesn't exist
- */
-async function createDeadlinesTable() {
-    try {
-        const { error } = await supabaseClient
-            .from('deadlines')
-            .insert([{
-                title: 'Sample Deadline',
-                description: 'This is a sample deadline',
-                deadline_date: new Date().toISOString().split('T')[0],
-                deadline_time: '12:00',
-                type: 'project'
-            }])
-            .select();
-
-        if (error && error.message.includes('does not exist')) {
-            console.log('Deadlines table does not exist. Please create it in Supabase.');
-        }
-    } catch (error) {
-        console.log('Deadlines table may not exist. Please create it in Supabase.');
     }
 }
 
@@ -2575,8 +2529,6 @@ async function loadClients() {
 
         if (error) {
             console.error('Error loading clients:', error);
-            // Create table if it doesn't exist
-            await createClientsTable();
             clients = [];
         } else {
             clients = data || [];
@@ -2588,30 +2540,6 @@ async function loadClients() {
         console.error('Error loading clients:', error);
         clients = [];
         updateClients();
-    }
-}
-
-/**
- * Create Clients Table if it doesn't exist
- */
-async function createClientsTable() {
-    try {
-        const { error } = await supabaseClient
-            .from('clients')
-            .insert([{
-                name: 'Sample Client',
-                email: 'client@example.com',
-                phone: '+1 (555) 123-4567',
-                company: 'Sample Company',
-                notes: 'This is a sample client'
-            }])
-            .select();
-
-        if (error && error.message.includes('does not exist')) {
-            console.log('Clients table does not exist. Please create it in Supabase.');
-        }
-    } catch (error) {
-        console.log('Clients table may not exist. Please create it in Supabase.');
     }
 }
 
@@ -2688,19 +2616,31 @@ function setupImportantInfoEventListeners() {
         refreshFinanceBtn.addEventListener('click', loadProjectOverview);
     }
     
-    // Add buttons
+    // Add buttons - FIXED: Added proper event listeners for add buttons
     const addUrgentBtn = document.getElementById('add-urgent-btn');
     const addDeadlineBtn = document.getElementById('add-deadline-btn');
     const addClientBtn = document.getElementById('add-client-btn');
     
     if (addUrgentBtn) {
-        addUrgentBtn.addEventListener('click', openUrgentModal);
+        addUrgentBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openUrgentModal();
+        });
     }
     if (addDeadlineBtn) {
-        addDeadlineBtn.addEventListener('click', openDeadlineModal);
+        addDeadlineBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openDeadlineModal();
+        });
     }
     if (addClientBtn) {
-        addClientBtn.addEventListener('click', openClientModal);
+        addClientBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openClientModal();
+        });
     }
     
     // Modal event listeners
