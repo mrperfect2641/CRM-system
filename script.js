@@ -1524,7 +1524,7 @@ function setupUpdatesEventListeners() {
                 e.stopPropagation();
                 editUpdate(updateId);
             } else if (e.target.closest('.update-delete-btn')) {
-                e.stopPropagation();
+                e.stopImmediatePropagation();
                 removeUpdate(updateId);
             }
         });

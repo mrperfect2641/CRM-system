@@ -294,12 +294,383 @@
         </div>
 
         <!-- ===== IMPORTANT INFO SECTION ===== -->
-        <div class="content-section hidden" id="info-section">
+        <!-- <div class="content-section hidden" id="info-section">
             <div class="portfolio-header">
                 <h1 class="page-title">Important Info</h1>
                 <p class="page-description">Important information and resources</p>
             </div>
+        </div> -->
+        <!-- ===== IMPORTANT INFO SECTION ===== -->
+<div class="content-section hidden" id="info-section">
+    <div class="portfolio-header">
+        <h1 class="page-title">Important Information</h1>
+        <p class="page-description">Central hub for all your critical project data, portfolio details, and essential information</p>
+    </div>
+
+    <!-- ===== INFO STATS CARDS ===== -->
+    <div class="status-boxes">
+        <div class="status-box all-projects">
+            <div class="status-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div class="status-info">
+                <div class="count">0</div>
+                <div class="label">Active Projects</div>
+            </div>
         </div>
+        <div class="status-box pending">
+            <div class="status-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="status-info">
+                <div class="count">0</div>
+                <div class="label">Portfolio Stats</div>
+            </div>
+        </div>
+        <div class="status-box waiting">
+            <div class="status-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="status-info">
+                <div class="count">0</div>
+                <div class="label">Urgent Items</div>
+            </div>
+        </div>
+        <div class="status-box completed">
+            <div class="status-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="status-info">
+                <div class="count">0</div>
+                <div class="label">Upcoming Deadlines</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== IMPORTANT INFO CONTENT GRID ===== -->
+    <div class="portfolio-content">
+        <div class="content-grid">
+            <!-- ===== PROJECT OVERVIEW CARD ===== -->
+<div class="content-card">
+    <div class="card-header">
+        <h3>Project Overview</h3>
+        <button class="btn btn-primary" id="refresh-projects-btn">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="projects-summary" id="projectsSummary">
+            <div class="summary-item">
+                <div class="summary-label">Total Projects</div>
+                <div class="summary-value" id="totalProjects">0</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">In Progress</div>
+                <div class="summary-value" id="inProgressProjects">0</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Completed</div>
+                <div class="summary-value" id="completedProjects">0</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Pending</div>
+                <div class="summary-value" id="pendingProjects">0</div>
+            </div>
+        </div>
+        <div class="recent-projects" id="recentProjectsContainer">
+            <h4>Recent Projects</h4>
+            <div class="projects-list" id="recentProjectsList">
+                <!-- Recent projects will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+            <!-- ===== PORTFOLIO ANALYTICS CARD ===== -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3>Portfolio Analytics</h3>
+                    <button class="btn btn-primary" id="refresh-analytics-btn">
+                        <i class="fas fa-chart-bar"></i> View Details
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="analytics-stats" id="portfolioAnalytics">
+                        <div class="analytics-item">
+                            <div class="analytics-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="analytics-info">
+                                <div class="analytics-value" id="totalViews">0</div>
+                                <div class="analytics-label">Total Views</div>
+                            </div>
+                        </div>
+                        <div class="analytics-item">
+                            <div class="analytics-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="analytics-info">
+                                <div class="analytics-value" id="uniqueVisitors">0</div>
+                                <div class="analytics-label">Unique Visitors</div>
+                            </div>
+                        </div>
+                        <div class="analytics-item">
+                            <div class="analytics-icon">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <div class="analytics-info">
+                                <div class="analytics-value" id="resumeDownloads">0</div>
+                                <div class="analytics-label">Resume Downloads</div>
+                            </div>
+                        </div>
+                        <div class="analytics-item">
+                            <div class="analytics-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="analytics-info">
+                                <div class="analytics-value" id="contactRequests">0</div>
+                                <div class="analytics-label">Contact Requests</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="portfolio-performance">
+                        <h4>Performance Metrics</h4>
+                        <div class="metric" id="conversionRate">
+                            <span class="metric-label">Conversion Rate:</span>
+                            <span class="metric-value">0%</span>
+                        </div>
+                        <div class="metric" id="bounceRate">
+                            <span class="metric-label">Bounce Rate:</span>
+                            <span class="metric-value">0%</span>
+                        </div>
+                        <div class="metric" id="avgSession">
+                            <span class="metric-label">Avg. Session:</span>
+                            <span class="metric-value">0m</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== URGENT TASKS CARD ===== -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3>Urgent & Important</h3>
+                    <button class="btn btn-primary" id="add-urgent-btn">
+                        <i class="fas fa-plus"></i> Add Urgent
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="urgent-items-container" id="urgentItemsContainer">
+                        <div class="no-data">
+                            <i class="fas fa-check-circle"></i>
+                            <p>No urgent items at the moment</p>
+                        </div>
+                    </div>
+                    <div class="show-more-indicator" id="urgentMoreIndicator">
+                        <i class="fas fa-chevron-down"></i> Scroll to see more items
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== DEADLINES & MILESTONES CARD ===== -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3>Deadlines & Milestones</h3>
+                    <button class="btn btn-primary" id="add-deadline-btn">
+                        <i class="fas fa-plus"></i> Add Deadline
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="deadlines-container" id="deadlinesContainer">
+                        <div class="no-data">
+                            <i class="fas fa-flag"></i>
+                            <p>No upcoming deadlines</p>
+                        </div>
+                    </div>
+                    <div class="show-more-indicator" id="deadlinesMoreIndicator">
+                        <i class="fas fa-chevron-down"></i> Scroll to see more deadlines
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== CLIENT INFORMATION CARD ===== -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3>Client Information</h3>
+                    <button class="btn btn-primary" id="add-client-btn">
+                        <i class="fas fa-plus"></i> Add Client
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="clients-container" id="clientsContainer">
+                        <div class="no-data">
+                            <i class="fas fa-user-tie"></i>
+                            <p>No client information added</p>
+                        </div>
+                    </div>
+                    <div class="show-more-indicator" id="clientsMoreIndicator">
+                        <i class="fas fa-chevron-down"></i> Scroll to see more clients
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== FINANCIAL OVERVIEW CARD ===== -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3>Financial Overview</h3>
+                    <button class="btn btn-primary" id="refresh-finance-btn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="financial-stats" id="financialStats">
+                        <div class="financial-item">
+                            <div class="financial-label">Total Revenue</div>
+                            <div class="financial-value" id="totalRevenue">$0</div>
+                        </div>
+                        <div class="financial-item">
+                            <div class="financial-label">Pending Payments</div>
+                            <div class="financial-value" id="pendingPayments">$0</div>
+                        </div>
+                        <div class="financial-item">
+                            <div class="financial-label">This Month</div>
+                            <div class="financial-value" id="monthlyRevenue">$0</div>
+                        </div>
+                        <div class="financial-item">
+                            <div class="financial-label">Avg. Project Value</div>
+                            <div class="financial-value" id="avgProjectValue">$0</div>
+                        </div>
+                    </div>
+                    <div class="recent-transactions" id="recentTransactions">
+                        <h4>Recent Transactions</h4>
+                        <div class="transactions-list" id="transactionsList">
+                            <!-- Transactions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== URGENT ITEM MODAL ===== -->
+<div id="urgent-modal" class="pj-modal hidden">
+    <div class="pj-overlay" id="urgentOverlay"></div>
+    <div class="pj-dialog" style="max-width: 500px">
+        <h3 id="urgentTitle" class="pj-title">Add Urgent Item</h3>
+        <form id="urgent-form" class="pj-form">
+            <div class="pj-row">
+                <label for="urgent-title">Item Title</label>
+                <input id="urgent-title" name="urgentTitle" class="pj-input" type="text" placeholder="e.g., Client Feedback Required" required />
+            </div>
+            <div class="pj-row">
+                <label for="urgent-description">Description</label>
+                <textarea id="urgent-description" name="urgentDescription" class="pj-input" placeholder="Detailed description of the urgent item" rows="3" required></textarea>
+            </div>
+            <div class="pj-row small-grid">
+                <div>
+                    <label for="urgent-priority">Priority</label>
+                    <select id="urgent-priority" name="urgentPriority" class="pj-input" required>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="urgent-deadline">Deadline</label>
+                    <input id="urgent-deadline" name="urgentDeadline" class="pj-input" type="date" required />
+                </div>
+            </div>
+            <div class="pj-row">
+                <label for="urgent-related">Related To</label>
+                <select id="urgent-related" name="urgentRelated" class="pj-input">
+                    <option value="">Select Project</option>
+                    <!-- Projects will be dynamically populated -->
+                </select>
+            </div>
+            <div class="pj-actions">
+                <button type="button" class="btn secondary" id="urgent-cancel-btn">Cancel</button>
+                <button type="submit" class="btn primary" id="urgent-save-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== DEADLINE MODAL ===== -->
+<div id="deadline-modal" class="pj-modal hidden">
+    <div class="pj-overlay" id="deadlineOverlay"></div>
+    <div class="pj-dialog" style="max-width: 500px">
+        <h3 id="deadlineTitle" class="pj-title">Add Deadline</h3>
+        <form id="deadline-form" class="pj-form">
+            <div class="pj-row">
+                <label for="deadline-title">Deadline Title</label>
+                <input id="deadline-title" name="deadlineTitle" class="pj-input" type="text" placeholder="e.g., Project Delivery, Client Meeting" required />
+            </div>
+            <div class="pj-row">
+                <label for="deadline-description">Description</label>
+                <textarea id="deadline-description" name="deadlineDescription" class="pj-input" placeholder="Details about this deadline" rows="3"></textarea>
+            </div>
+            <div class="pj-row small-grid">
+                <div>
+                    <label for="deadline-date">Due Date</label>
+                    <input id="deadline-date" name="deadlineDate" class="pj-input" type="date" required />
+                </div>
+                <div>
+                    <label for="deadline-time">Time</label>
+                    <input id="deadline-time" name="deadlineTime" class="pj-input" type="time" required />
+                </div>
+            </div>
+            <div class="pj-row">
+                <label for="deadline-type">Type</label>
+                <select id="deadline-type" name="deadlineType" class="pj-input" required>
+                    <option value="project">Project Deadline</option>
+                    <option value="meeting">Meeting</option>
+                    <option value="delivery">Delivery</option>
+                    <option value="payment">Payment</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="pj-actions">
+                <button type="button" class="btn secondary" id="deadline-cancel-btn">Cancel</button>
+                <button type="submit" class="btn primary" id="deadline-save-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== CLIENT MODAL ===== -->
+<div id="client-modal" class="pj-modal hidden">
+    <div class="pj-overlay" id="clientOverlay"></div>
+    <div class="pj-dialog" style="max-width: 500px">
+        <h3 id="clientTitle" class="pj-title">Add Client</h3>
+        <form id="client-form" class="pj-form">
+            <div class="pj-row">
+                <label for="client-name">Client Name</label>
+                <input id="client-name" name="clientName" class="pj-input" type="text" placeholder="e.g., Company Name" required />
+            </div>
+            <div class="pj-row">
+                <label for="client-email">Email</label>
+                <input id="client-email" name="clientEmail" class="pj-input" type="email" placeholder="client@company.com" required />
+            </div>
+            <div class="pj-row">
+                <label for="client-phone">Phone</label>
+                <input id="client-phone" name="clientPhone" class="pj-input" type="tel" placeholder="+1 (555) 123-4567" />
+            </div>
+            <div class="pj-row">
+                <label for="client-company">Company</label>
+                <input id="client-company" name="clientCompany" class="pj-input" type="text" placeholder="Company Name" />
+            </div>
+            <div class="pj-row">
+                <label for="client-notes">Notes</label>
+                <textarea id="client-notes" name="clientNotes" class="pj-input" placeholder="Additional client information" rows="3"></textarea>
+            </div>
+            <div class="pj-actions">
+                <button type="button" class="btn secondary" id="client-cancel-btn">Cancel</button>
+                <button type="submit" class="btn primary" id="client-save-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
 
         <!-- ===== CONNECTIONS SECTION ===== -->
         <div class="content-section hidden" id="connections-section">
@@ -461,3 +832,10 @@
     <script src="script.js"></script>
 </body>
 </html>
+
+
+<!-- 
+list of websites
+
+
+-->
