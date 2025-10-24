@@ -2245,26 +2245,62 @@ function updatePortfolioAnalyticsDisplay() {
 /**
  * Create HTML element for analytics item
  */
-function createAnalyticsElement(item) {
-    const div = document.createElement('div');
-    div.className = 'analytics-item';
-    div.setAttribute('data-analytics-id', item.id);
-    
-    div.innerHTML = `
-        <div class="analytics-content">
-            <div class="analytics-name">${escapeHtml(item.name)}</div>
-            <div class="analytics-value">${escapeHtml(item.value)}</div>
-        </div>
-        <div class="analytics-actions">
-            <button class="btn btn-edit btn-sm" data-analytics-id="${item.id}">Edit</button>
-            ${!isDefaultField(item.name) ? 
-                `<button class="btn btn-remove btn-sm" data-analytics-id="${item.id}">Remove</button>` : 
-                ''
-            }
-        </div>
-    `;
-    
-    return div;
+// ===== PORTFOLIO VISITS ANALYTICS (Real Data) =====
+
+/**
+ * Load portfolio visits analytics from Supabase
+ */
+async function loadPortfolioAnalytics() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('portfolio_visits')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error loading portfolio visits:', error);
+            return [];
+        }
+
+        return data || [];
+    } catch (error) {
+        console.error('Error loading portfolio visits:', error);
+        return [];
+    }
+}
+
+/**
+ * Update portfolio stats with real visits data
+ */
+function updatePortfolioStats(visits) {
+    const totalVisits = visits.length;
+    const uniqueVisitors = new Set(visits.map(v => v.ip_address)).size;
+    const today = new Date().toDateString();
+    const todayVisits = visits.filter(v => new Date(v.created_at).toDateString() === today).length;
+    const liveVisits = visits.filter(v => !v.environment || v.environment === 'live').length;
+
+    const statCards = document.querySelectorAll('.portfolio-stats .stat-card');
+    if (statCards.length >= 4) {
+        statCards[0].querySelector('.stat-number').textContent = totalVisits.toLocaleString();
+        statCards[0].querySelector('.stat-label').textContent = 'Total Views';
+        
+        statCards[1].querySelector('.stat-number').textContent = uniqueVisitors.toLocaleString();
+        statCards[1].querySelector('.stat-label').textContent = 'Unique Visitors';
+        
+        statCards[2].querySelector('.stat-number').textContent = todayVisits.toLocaleString();
+        statCards[2].querySelector('.stat-label').textContent = "Today's Views";
+        
+        statCards[3].querySelector('.stat-number').textContent = liveVisits.toLocaleString();
+        statCards[3].querySelector('.stat-label').textContent = 'Live Visits';
+    }
+}
+
+/**
+ * Initialize portfolio analytics
+ */
+async function initializePortfolioAnalytics() {
+    const visits = await loadPortfolioAnalytics();
+    updatePortfolioStats(visits);
 }
 
 /**

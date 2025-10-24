@@ -1794,10 +1794,10 @@ input:checked + .slider:before {
 }
 
 /* Specific colors for each summary item */
-.summary-item:nth-child(1) .summary-value { color: #3498db; }
-.summary-item:nth-child(2) .summary-value { color: #f39c12; }
-.summary-item:nth-child(3) .summary-value { color: #27ae60; }
-.summary-item:nth-child(4) .summary-value { color: #e74c3c; }
+.summary-item:nth-child(1) .summary-value,
+.summary-item:nth-child(2) .summary-value,
+.summary-item:nth-child(3) .summary-value,
+.summary-item:nth-child(4) .summary-value { color: var(--primary-color); }
 
 .recent-projects {
     grid-column: 1 / -1;
@@ -1854,10 +1854,7 @@ input:checked + .slider:before {
     font-weight: 500;
 }
 
-.project-status.completed { background: #27ae60; }
-.project-status.in-progress { background: #f39c12; }
-.project-status.pending { background: #e74c3c; }
-.project-status.planned { background: #3498db; }
+.project-status.completed, .project-status.in-progress, .project-status.pending, .project-status.planned { background: var(--secondary-color); }
 
 /* ===== RESPONSIVE ADJUSTMENTS ===== */
 @media (max-width: 1200px) {
@@ -2185,7 +2182,7 @@ input:checked + .slider:before {
 .analytics-actions .btn-remove {
     margin: 0;
     padding: 6px 12px;
-    background: #e74c3c;
+    background: var(--secondary-color);
     color: white;
     border: none;
     border-radius: 4px;
@@ -2194,7 +2191,7 @@ input:checked + .slider:before {
 }
 
 .analytics-actions .btn-remove:hover {
-    background: #c0392b;
+    background: var(--primary-color);
 }
 
 /* No analytics state */
