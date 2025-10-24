@@ -2169,57 +2169,354 @@ function updateTodoStats() {
     }
 }
 
+// Add these global variables at the top with other globals
+let portfolioAnalytics = [];
+let editAnalyticsId = null;
+
 // ===== PORTFOLIO ANALYTICS FUNCTIONS =====
-
-/**
- * Load portfolio analytics data
- */
-async function loadPortfolioAnalytics() {
-    try {
-        const { data, error } = await supabaseClient
-            .from('portfolio_visits')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (error) return [];
-        return data || [];
-    } catch (error) {
-        return [];
-    }
-}
-
-/**
- * Update portfolio statistics
- */
-function updatePortfolioStats(visits) {
-    const totalVisits = visits.length;
-    const uniqueVisitors = new Set(visits.map(v => v.ip_address)).size;
-    const today = new Date().toDateString();
-    const todayVisits = visits.filter(v => new Date(v.created_at).toDateString() === today).length;
-    const liveVisits = visits.filter(v => !v.environment || v.environment === 'live').length;
-
-    const statCards = document.querySelectorAll('.portfolio-stats .stat-card');
-    if (statCards.length >= 4) {
-        statCards[0].querySelector('.stat-number').textContent = totalVisits.toLocaleString();
-        statCards[0].querySelector('.stat-label').textContent = 'Total Views';
-        
-        statCards[1].querySelector('.stat-number').textContent = uniqueVisitors.toLocaleString();
-        statCards[1].querySelector('.stat-label').textContent = 'Unique Visitors';
-        
-        statCards[2].querySelector('.stat-number').textContent = todayVisits.toLocaleString();
-        statCards[2].querySelector('.stat-label').textContent = "Today's Views";
-        
-        statCards[3].querySelector('.stat-number').textContent = liveVisits.toLocaleString();
-        statCards[3].querySelector('.stat-label').textContent = 'Live Visits';
-    }
-}
 
 /**
  * Initialize portfolio analytics
  */
 async function initializePortfolioAnalytics() {
-    const visits = await loadPortfolioAnalytics();
-    updatePortfolioStats(visits);
+    await loadPortfolioAnalytics();
+    setupPortfolioAnalyticsEventListeners();
+}
+
+/**
+ * Load portfolio analytics data from Supabase
+ */
+async function loadPortfolioAnalytics() {
+    try {
+        console.log('Loading portfolio analytics from Supabase...');
+        
+        const { data, error } = await supabaseClient
+            .from('portfolio_analytics')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+        if (error) {
+            console.error('Supabase error loading analytics:', error);
+            // Try to load from local storage as fallback
+            loadAnalyticsFromLocalStorage();
+            return;
+        }
+
+        console.log('Loaded analytics data:', data);
+        portfolioAnalytics = data || [];
+        updatePortfolioAnalyticsDisplay();
+        
+    } catch (error) {
+        console.error('Error loading portfolio analytics:', error);
+        loadAnalyticsFromLocalStorage();
+    }
+}
+
+/**
+ * Update portfolio analytics display with real data
+ */
+function updatePortfolioAnalyticsDisplay() {
+    const container = document.getElementById('portfolioAnalyticsContainer');
+    if (!container) {
+        console.error('Analytics container not found');
+        return;
+    }
+
+    container.innerHTML = '';
+
+    if (portfolioAnalytics.length === 0) {
+        container.innerHTML = `
+            <div class="no-analytics">
+                <i class="fas fa-chart-bar"></i>
+                <p>No analytics data available. Add your first field!</p>
+            </div>
+        `;
+        return;
+    }
+
+    portfolioAnalytics.forEach((item) => {
+        const analyticsElement = createAnalyticsElement(item);
+        container.appendChild(analyticsElement);
+    });
+
+    console.log('Updated analytics display with', portfolioAnalytics.length, 'items');
+}
+
+/**
+ * Create HTML element for analytics item
+ */
+function createAnalyticsElement(item) {
+    const div = document.createElement('div');
+    div.className = 'analytics-item';
+    div.setAttribute('data-analytics-id', item.id);
+    
+    div.innerHTML = `
+        <div class="analytics-content">
+            <div class="analytics-name">${escapeHtml(item.name)}</div>
+            <div class="analytics-value">${escapeHtml(item.value)}</div>
+        </div>
+        <div class="analytics-actions">
+            <button class="btn btn-edit btn-sm" data-analytics-id="${item.id}">Edit</button>
+            ${!isDefaultField(item.name) ? 
+                `<button class="btn btn-remove btn-sm" data-analytics-id="${item.id}">Remove</button>` : 
+                ''
+            }
+        </div>
+    `;
+    
+    return div;
+}
+
+/**
+ * Check if field is a default field (cannot be removed)
+ */
+function isDefaultField(fieldName) {
+    const defaultFields = ['Website Size', 'Loading Time', 'Total Images'];
+    return defaultFields.includes(fieldName);
+}
+
+/**
+ * Setup portfolio analytics event listeners
+ */
+function setupPortfolioAnalyticsEventListeners() {
+    const addFieldBtn = document.getElementById('addAnalyticsFieldBtn');
+    if (addFieldBtn) {
+        addFieldBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openAnalyticsFieldModal();
+        });
+    }
+
+    // Analytics items click handlers
+    const container = document.getElementById('portfolioAnalyticsContainer');
+    if (container) {
+        container.addEventListener('click', function(e) {
+            const target = e.target;
+            const analyticsId = target.getAttribute('data-analytics-id') || 
+                               target.closest('[data-analytics-id]')?.getAttribute('data-analytics-id');
+            
+            if (!analyticsId) return;
+            
+            if (target.classList.contains('btn-edit') || target.closest('.btn-edit')) {
+                e.stopPropagation();
+                e.preventDefault();
+                editAnalyticsField(analyticsId);
+            } else if (target.classList.contains('btn-remove') || target.closest('.btn-remove')) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (confirm('Are you sure you want to remove this field?')) {
+                    removeAnalyticsField(analyticsId);
+                }
+            }
+        });
+    }
+
+    // Analytics modal event listeners
+    const overlay = document.getElementById('analyticsOverlay');
+    const cancelBtn = document.getElementById('analytics-cancel-btn');
+    const form = document.getElementById('analytics-field-form');
+
+    if (overlay) {
+        overlay.addEventListener('click', closeAnalyticsFieldModal);
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeAnalyticsFieldModal);
+    }
+
+    if (form) {
+        form.addEventListener('submit', handleAnalyticsFieldSubmit);
+    }
+}
+
+/**
+ * Open analytics field modal
+ */
+function openAnalyticsFieldModal(analyticsId = null) {
+    const modal = document.getElementById('analytics-field-modal');
+    const form = document.getElementById('analytics-field-form');
+    const title = document.getElementById('analyticsFieldTitle');
+    
+    if (!modal) {
+        console.error('Analytics modal not found');
+        return;
+    }
+    
+    if (analyticsId) {
+        // Edit existing field
+        const field = portfolioAnalytics.find(item => item.id == analyticsId);
+        if (field) {
+            title.textContent = 'Edit Analytics Field';
+            document.getElementById('analytics-field-name').value = field.name || '';
+            document.getElementById('analytics-field-value').value = field.value || '';
+            document.getElementById('analytics-field-type').value = field.type || 'text';
+            editAnalyticsId = analyticsId;
+        }
+    } else {
+        // Add new field
+        editAnalyticsId = null;
+        title.textContent = 'Add Analytics Field';
+        if (form) form.reset();
+        document.getElementById('analytics-field-type').value = 'text';
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+/**
+ * Close analytics field modal
+ */
+function closeAnalyticsFieldModal() {
+    const modal = document.getElementById('analytics-field-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    editAnalyticsId = null;
+}
+
+/**
+ * Handle analytics field form submission
+ */
+async function handleAnalyticsFieldSubmit(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('analytics-field-name').value.trim();
+    const value = document.getElementById('analytics-field-value').value.trim();
+    const type = document.getElementById('analytics-field-type').value;
+    
+    if (!name || !value) {
+        alert('Please fill all fields');
+        return;
+    }
+    
+    showLoading();
+    
+    try {
+        if (editAnalyticsId) {
+            // Update existing field in Supabase
+            console.log('Updating analytics field:', editAnalyticsId);
+            
+            const { data, error } = await supabaseClient
+                .from('portfolio_analytics')
+                .update({
+                    name: name,
+                    value: value,
+                    type: type,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', editAnalyticsId)
+                .select();
+
+            if (error) {
+                console.error('Supabase update error:', error);
+                throw error;
+            }
+
+            console.log('Update successful:', data);
+
+        } else {
+            // Create new field in Supabase
+            console.log('Creating new analytics field');
+            
+            const { data, error } = await supabaseClient
+                .from('portfolio_analytics')
+                .insert([{
+                    name: name,
+                    value: value,
+                    type: type
+                }])
+                .select();
+
+            if (error) {
+                console.error('Supabase insert error:', error);
+                throw error;
+            }
+
+            console.log('Insert successful:', data);
+        }
+        
+        // Reload data from Supabase to get the latest
+        await loadPortfolioAnalytics();
+        closeAnalyticsFieldModal();
+        
+    } catch (error) {
+        console.error('Error saving analytics field:', error);
+        alert('Error saving analytics field: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+/**
+ * Edit analytics field
+ */
+function editAnalyticsField(analyticsId) {
+    console.log('Editing analytics field:', analyticsId);
+    openAnalyticsFieldModal(analyticsId);
+}
+
+/**
+ * Remove analytics field
+ */
+async function removeAnalyticsField(analyticsId) {
+    if (!confirm('Are you sure you want to remove this field?')) {
+        return;
+    }
+    
+    showLoading();
+    
+    try {
+        console.log('Removing analytics field:', analyticsId);
+        
+        const { error } = await supabaseClient
+            .from('portfolio_analytics')
+            .delete()
+            .eq('id', analyticsId);
+
+        if (error) {
+            console.error('Supabase delete error:', error);
+            throw error;
+        }
+
+        console.log('Delete successful');
+        
+        // Reload data from Supabase
+        await loadPortfolioAnalytics();
+        
+    } catch (error) {
+        console.error('Error removing analytics field:', error);
+        alert('Error removing analytics field: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+/**
+ * Load from local storage as fallback
+ */
+function loadAnalyticsFromLocalStorage() {
+    try {
+        const savedAnalytics = localStorage.getItem('portfolio_analytics');
+        if (savedAnalytics) {
+            portfolioAnalytics = JSON.parse(savedAnalytics);
+            updatePortfolioAnalyticsDisplay();
+            console.log('Loaded analytics from local storage');
+        } else {
+            // Create default fields in local storage
+            portfolioAnalytics = [
+                { id: 'local_1', name: 'Website Size', value: '2.5 MB', type: 'text' },
+                { id: 'local_2', name: 'Loading Time', value: '1.2 seconds', type: 'text' },
+                { id: 'local_3', name: 'Total Images', value: '15', type: 'number' }
+            ];
+            localStorage.setItem('portfolio_analytics', JSON.stringify(portfolioAnalytics));
+            updatePortfolioAnalyticsDisplay();
+            console.log('Created default analytics in local storage');
+        }
+    } catch (error) {
+        console.error('Error loading analytics from local storage:', error);
+        portfolioAnalytics = [];
+    }
 }
 
 // ===== IMPORTANT INFO SECTION - FULL FUNCTIONALITY =====
@@ -2307,7 +2604,7 @@ function updateRecentProjects(projects) {
     container.innerHTML = '';
 
     // Take latest 5 (already sorted by creation date in loadProjectOverview)
-    const recentProjects = projects.slice(0, 5);
+    const recentProjects = projects.slice(0, 3);
 
     if (recentProjects.length === 0) {
         container.innerHTML = '<div class="no-data"><p>No projects found</p></div>';
