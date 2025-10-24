@@ -15,12 +15,18 @@ let portfolioImages = [];
 let skills = [];
 let updates = [];
 let todos = [];
+let urgentItems = [];
+let deadlines = [];
+let clients = [];
 let selectedProjectId = null;
 let editProjectId = null;
 let editPortfolioImageId = null;
 let editSkillId = null;
 let editUpdateId = null;
 let editTodoId = null;
+let editUrgentId = null;
+let editDeadlineId = null;
+let editClientId = null;
 let currentPortfolioImageFile = null;
 
 // ===== INITIALIZATION =====
@@ -35,13 +41,17 @@ document.addEventListener('DOMContentLoaded', function() {
 async function initializeApp() {
     showLoading();
     
+    // Load local data first for fallback
+    loadImportantInfoFromLocalStorage();
+    
     await Promise.all([
         loadProjects(),
         initializePortfolioImages(),
         initializeSkills(),
         initializeUpdates(),
         initializeTodoList(),
-        initializePortfolioAnalytics()
+        initializePortfolioAnalytics(),
+        initializeImportantInfo()
     ]);
     
     updateStatusCounts();
@@ -247,6 +257,7 @@ function setupEventListeners() {
     setupProjectModalEvents();
     setupSkillsEventListeners();
     setupUpdatesEventListeners();
+    setupPortfolioImagesEventListeners();
 }
 
 /**
@@ -277,7 +288,9 @@ function setupNotesFunctionality() {
             editProject(e.target.getAttribute('data-project-id'));
         } else if (e.target.classList.contains('btn-remove')) {
             e.stopPropagation();
-            removeProject(e.target.getAttribute('data-project-id'));
+            if (confirm('Are you sure you want to remove this project?')) {
+                removeProject(e.target.getAttribute('data-project-id'));
+            }
         }
     });
 }
@@ -377,7 +390,9 @@ function setupPortfolioImagesEventListeners() {
                 editPortfolioImage(e.target.getAttribute('data-image-id'));
             } else if (e.target.classList.contains('btn-remove')) {
                 e.stopPropagation();
-                removePortfolioImage(e.target.getAttribute('data-image-id'));
+                if (confirm('Are you sure you want to remove this portfolio image?')) {
+                    removePortfolioImage(e.target.getAttribute('data-image-id'));
+                }
             }
         });
     }
@@ -442,6 +457,11 @@ function switchSection(sectionName) {
     if (targetSection && targetNavItem) {
         targetSection.classList.remove('hidden');
         targetNavItem.classList.add('active');
+        
+        // Refresh data when switching to Important Info section
+        if (sectionName === 'info') {
+            loadProjectOverview();
+        }
     }
 }
 
@@ -715,10 +735,6 @@ function editProject(projectId) {
  * Remove project
  */
 async function removeProject(projectId) {
-    if (!confirm('Are you sure you want to remove this project?')) {
-        return;
-    }
-    
     showLoading();
     
     try {
@@ -763,10 +779,6 @@ function editPortfolioImage(imageId) {
  * Remove portfolio image
  */
 async function removePortfolioImage(imageId) {
-    if (!confirm('Are you sure you want to remove this portfolio image?')) {
-        return;
-    }
-    
     showLoading();
     
     try {
@@ -1198,7 +1210,9 @@ function setupSkillsEventListeners() {
                 editSkill(e.target.getAttribute('data-skill-id'));
             } else if (e.target.classList.contains('btn-remove')) {
                 e.stopPropagation();
-                removeSkill(e.target.getAttribute('data-skill-id'));
+                if (confirm('Are you sure you want to remove this skill?')) {
+                    removeSkill(e.target.getAttribute('data-skill-id'));
+                }
             }
         });
     }
@@ -1297,10 +1311,6 @@ function editSkill(skillId) {
  * Remove skill
  */
 async function removeSkill(skillId) {
-    if (!confirm('Are you sure you want to remove this skill?')) {
-        return;
-    }
-    
     showLoading();
     
     try {
@@ -1525,7 +1535,9 @@ function setupUpdatesEventListeners() {
                 editUpdate(updateId);
             } else if (e.target.closest('.update-delete-btn')) {
                 e.stopImmediatePropagation();
-                removeUpdate(updateId);
+                if (confirm('Are you sure you want to delete this update?')) {
+                    removeUpdate(updateId);
+                }
             }
         });
     }
@@ -1615,7 +1627,8 @@ async function handleUpdateSubmit(e) {
                 date: date,
                 time: time,
                 icon: icon,
-                type: type
+                type: type,
+                updated_at: new Date().toISOString()
             };
             
             console.log('Update data:', updateData);
@@ -1688,10 +1701,6 @@ function editUpdate(updateId) {
  * Remove update
  */
 async function removeUpdate(updateId) {
-    if (!confirm('Are you sure you want to delete this update?')) {
-        return;
-    }
-    
     showLoading();
     
     try {
@@ -2045,7 +2054,9 @@ function handleTodoActions(e) {
             editTodo(todoId);
             break;
         case 'delete':
-            deleteTodo(todoId);
+            if (confirm('Are you sure you want to delete this task?')) {
+                deleteTodo(todoId);
+            }
             break;
     }
 }
@@ -2100,10 +2111,6 @@ function editTodo(todoId) {
  * Delete To-Do
  */
 async function deleteTodo(todoId) {
-    if (!confirm('Are you sure you want to delete this task?')) {
-        return;
-    }
-
     try {
         const { error } = await supabaseClient
             .from('todos')
@@ -2211,14 +2218,6 @@ async function initializePortfolioAnalytics() {
 }
 
 // ===== IMPORTANT INFO SECTION - FULL FUNCTIONALITY =====
-
-// Global variables for Important Info section
-let urgentItems = [];
-let deadlines = [];
-let clients = [];
-let editUrgentId = null;
-let editDeadlineId = null;
-let editClientId = null;
 
 /**
  * Initialize Important Info Section
@@ -2368,7 +2367,9 @@ async function loadUrgentItems() {
 
         if (error) {
             console.error('Error loading urgent items:', error);
-            urgentItems = getSampleUrgentItems();
+            // Create table if it doesn't exist
+            await createUrgentItemsTable();
+            urgentItems = [];
         } else {
             urgentItems = data || [];
         }
@@ -2377,35 +2378,33 @@ async function loadUrgentItems() {
         
     } catch (error) {
         console.error('Error loading urgent items:', error);
-        urgentItems = getSampleUrgentItems();
+        urgentItems = [];
         updateUrgentItems();
     }
 }
 
 /**
- * Get Sample Urgent Items (Fallback)
+ * Create Urgent Items Table if it doesn't exist
  */
-function getSampleUrgentItems() {
-    return [
-        {
-            id: '1',
-            title: "Client Feedback Required",
-            description: "Waiting for client feedback on design mockups",
-            priority: "high",
-            deadline: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-            related_to: "Project Alpha",
-            created_at: new Date().toISOString()
-        },
-        {
-            id: '2',
-            title: "Final Payment Due",
-            description: "Send invoice and follow up on final payment",
-            priority: "medium",
-            deadline: new Date(Date.now() + 172800000).toISOString().split('T')[0],
-            related_to: "Project Beta",
-            created_at: new Date().toISOString()
+async function createUrgentItemsTable() {
+    try {
+        const { error } = await supabaseClient
+            .from('urgent_items')
+            .insert([{
+                title: 'Sample Urgent Item',
+                description: 'This is a sample urgent item',
+                priority: 'medium',
+                deadline: new Date().toISOString().split('T')[0],
+                related_to: 'Sample Project'
+            }])
+            .select();
+
+        if (error && error.message.includes('does not exist')) {
+            console.log('Urgent items table does not exist. Please create it in Supabase.');
         }
-    ];
+    } catch (error) {
+        console.log('Urgent items table may not exist. Please create it in Supabase.');
+    }
 }
 
 /**
@@ -2472,7 +2471,9 @@ async function loadDeadlines() {
 
         if (error) {
             console.error('Error loading deadlines:', error);
-            deadlines = getSampleDeadlines();
+            // Create table if it doesn't exist
+            await createDeadlinesTable();
+            deadlines = [];
         } else {
             deadlines = data || [];
         }
@@ -2481,35 +2482,33 @@ async function loadDeadlines() {
         
     } catch (error) {
         console.error('Error loading deadlines:', error);
-        deadlines = getSampleDeadlines();
+        deadlines = [];
         updateDeadlines();
     }
 }
 
 /**
- * Get Sample Deadlines (Fallback)
+ * Create Deadlines Table if it doesn't exist
  */
-function getSampleDeadlines() {
-    return [
-        {
-            id: '1',
-            title: "Project Alpha Delivery",
-            description: "Final delivery to client",
-            deadline_date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-            deadline_time: "15:00",
-            type: "delivery",
-            created_at: new Date().toISOString()
-        },
-        {
-            id: '2',
-            title: "Client Meeting",
-            description: "Weekly progress meeting",
-            deadline_date: new Date(Date.now() + 259200000).toISOString().split('T')[0],
-            deadline_time: "10:00",
-            type: "meeting",
-            created_at: new Date().toISOString()
+async function createDeadlinesTable() {
+    try {
+        const { error } = await supabaseClient
+            .from('deadlines')
+            .insert([{
+                title: 'Sample Deadline',
+                description: 'This is a sample deadline',
+                deadline_date: new Date().toISOString().split('T')[0],
+                deadline_time: '12:00',
+                type: 'project'
+            }])
+            .select();
+
+        if (error && error.message.includes('does not exist')) {
+            console.log('Deadlines table does not exist. Please create it in Supabase.');
         }
-    ];
+    } catch (error) {
+        console.log('Deadlines table may not exist. Please create it in Supabase.');
+    }
 }
 
 /**
@@ -2576,7 +2575,9 @@ async function loadClients() {
 
         if (error) {
             console.error('Error loading clients:', error);
-            clients = getSampleClients();
+            // Create table if it doesn't exist
+            await createClientsTable();
+            clients = [];
         } else {
             clients = data || [];
         }
@@ -2585,35 +2586,33 @@ async function loadClients() {
         
     } catch (error) {
         console.error('Error loading clients:', error);
-        clients = getSampleClients();
+        clients = [];
         updateClients();
     }
 }
 
 /**
- * Get Sample Clients (Fallback)
+ * Create Clients Table if it doesn't exist
  */
-function getSampleClients() {
-    return [
-        {
-            id: '1',
-            name: "John Smith",
-            email: "john@example.com",
-            phone: "+1 (555) 123-4567",
-            company: "Tech Corp Inc",
-            notes: "Regular client, prefers email communication",
-            created_at: new Date().toISOString()
-        },
-        {
-            id: '2',
-            name: "Sarah Johnson",
-            email: "sarah@designstudio.com",
-            phone: "+1 (555) 987-6543",
-            company: "Design Studio LLC",
-            notes: "New client, responsive to messages",
-            created_at: new Date().toISOString()
+async function createClientsTable() {
+    try {
+        const { error } = await supabaseClient
+            .from('clients')
+            .insert([{
+                name: 'Sample Client',
+                email: 'client@example.com',
+                phone: '+1 (555) 123-4567',
+                company: 'Sample Company',
+                notes: 'This is a sample client'
+            }])
+            .select();
+
+        if (error && error.message.includes('does not exist')) {
+            console.log('Clients table does not exist. Please create it in Supabase.');
         }
-    ];
+    } catch (error) {
+        console.log('Clients table may not exist. Please create it in Supabase.');
+    }
 }
 
 /**
@@ -2848,63 +2847,30 @@ async function handleUrgentSubmit(e) {
                 updated_at: new Date().toISOString()
             };
             
-            // Try to save to Supabase
-            try {
-                const { error } = await supabaseClient
-                    .from('urgent_items')
-                    .update(updateData)
-                    .eq('id', editUrgentId);
+            const { error } = await supabaseClient
+                .from('urgent_items')
+                .update(updateData)
+                .eq('id', editUrgentId);
 
-                if (error) throw error;
-            } catch (supabaseError) {
-                console.log('Failed to update in Supabase, using local storage:', supabaseError);
-            }
+            if (error) throw error;
             
-            // Update local data
-            const index = urgentItems.findIndex(item => item.id == editUrgentId);
-            if (index !== -1) {
-                urgentItems[index] = { ...urgentItems[index], ...updateData };
-            }
         } else {
             // Create new urgent item
-            const newItem = {
-                id: 'urgent_' + Date.now(),
-                title: title,
-                description: description,
-                priority: priority,
-                deadline: deadline,
-                related_to: related,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
-            
-            // Try to save to Supabase
-            try {
-                const { data, error } = await supabaseClient
-                    .from('urgent_items')
-                    .insert([{
-                        title: title,
-                        description: description,
-                        priority: priority,
-                        deadline: deadline,
-                        related_to: related
-                    }])
-                    .select();
+            const { data, error } = await supabaseClient
+                .from('urgent_items')
+                .insert([{
+                    title: title,
+                    description: description,
+                    priority: priority,
+                    deadline: deadline,
+                    related_to: related
+                }])
+                .select();
 
-                if (error) throw error;
-                
-                if (data && data[0]) {
-                    newItem.id = data[0].id;
-                }
-            } catch (supabaseError) {
-                console.log('Failed to save to Supabase, using local storage:', supabaseError);
-            }
-            
-            urgentItems.unshift(newItem);
+            if (error) throw error;
         }
         
-        await saveImportantInfoData();
-        updateUrgentItems();
+        await loadUrgentItems();
         closeUrgentModal();
         
     } catch (error) {
@@ -2923,23 +2889,14 @@ async function removeUrgentItem(itemId) {
     showLoading();
     
     try {
-        // Try to delete from Supabase
-        try {
-            const { error } = await supabaseClient
-                .from('urgent_items')
-                .delete()
-                .eq('id', itemId);
+        const { error } = await supabaseClient
+            .from('urgent_items')
+            .delete()
+            .eq('id', itemId);
 
-            if (error) throw error;
-        } catch (supabaseError) {
-            console.log('Failed to delete from Supabase, using local storage:', supabaseError);
-        }
-        
-        // Update local data
-        urgentItems = urgentItems.filter(item => item.id !== itemId);
-        
-        await saveImportantInfoData();
-        updateUrgentItems();
+        if (error) throw error;
+
+        await loadUrgentItems();
         
     } catch (error) {
         console.error('Error removing urgent item:', error);
@@ -3019,63 +2976,30 @@ async function handleDeadlineSubmit(e) {
                 updated_at: new Date().toISOString()
             };
             
-            // Try to save to Supabase
-            try {
-                const { error } = await supabaseClient
-                    .from('deadlines')
-                    .update(updateData)
-                    .eq('id', editDeadlineId);
+            const { error } = await supabaseClient
+                .from('deadlines')
+                .update(updateData)
+                .eq('id', editDeadlineId);
 
-                if (error) throw error;
-            } catch (supabaseError) {
-                console.log('Failed to update in Supabase, using local storage:', supabaseError);
-            }
+            if (error) throw error;
             
-            // Update local data
-            const index = deadlines.findIndex(deadline => deadline.id == editDeadlineId);
-            if (index !== -1) {
-                deadlines[index] = { ...deadlines[index], ...updateData };
-            }
         } else {
             // Create new deadline
-            const newDeadline = {
-                id: 'deadline_' + Date.now(),
-                title: title,
-                description: description,
-                deadline_date: date,
-                deadline_time: time,
-                type: type,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
-            
-            // Try to save to Supabase
-            try {
-                const { data, error } = await supabaseClient
-                    .from('deadlines')
-                    .insert([{
-                        title: title,
-                        description: description,
-                        deadline_date: date,
-                        deadline_time: time,
-                        type: type
-                    }])
-                    .select();
+            const { data, error } = await supabaseClient
+                .from('deadlines')
+                .insert([{
+                    title: title,
+                    description: description,
+                    deadline_date: date,
+                    deadline_time: time,
+                    type: type
+                }])
+                .select();
 
-                if (error) throw error;
-                
-                if (data && data[0]) {
-                    newDeadline.id = data[0].id;
-                }
-            } catch (supabaseError) {
-                console.log('Failed to save to Supabase, using local storage:', supabaseError);
-            }
-            
-            deadlines.unshift(newDeadline);
+            if (error) throw error;
         }
         
-        await saveImportantInfoData();
-        updateDeadlines();
+        await loadDeadlines();
         closeDeadlineModal();
         
     } catch (error) {
@@ -3151,63 +3075,30 @@ async function handleClientSubmit(e) {
                 updated_at: new Date().toISOString()
             };
             
-            // Try to save to Supabase
-            try {
-                const { error } = await supabaseClient
-                    .from('clients')
-                    .update(updateData)
-                    .eq('id', editClientId);
+            const { error } = await supabaseClient
+                .from('clients')
+                .update(updateData)
+                .eq('id', editClientId);
 
-                if (error) throw error;
-            } catch (supabaseError) {
-                console.log('Failed to update in Supabase, using local storage:', supabaseError);
-            }
+            if (error) throw error;
             
-            // Update local data
-            const index = clients.findIndex(client => client.id == editClientId);
-            if (index !== -1) {
-                clients[index] = { ...clients[index], ...updateData };
-            }
         } else {
             // Create new client
-            const newClient = {
-                id: 'client_' + Date.now(),
-                name: name,
-                email: email,
-                phone: phone,
-                company: company,
-                notes: notes,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
-            
-            // Try to save to Supabase
-            try {
-                const { data, error } = await supabaseClient
-                    .from('clients')
-                    .insert([{
-                        name: name,
-                        email: email,
-                        phone: phone,
-                        company: company,
-                        notes: notes
-                    }])
-                    .select();
+            const { data, error } = await supabaseClient
+                .from('clients')
+                .insert([{
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    company: company,
+                    notes: notes
+                }])
+                .select();
 
-                if (error) throw error;
-                
-                if (data && data[0]) {
-                    newClient.id = data[0].id;
-                }
-            } catch (supabaseError) {
-                console.log('Failed to save to Supabase, using local storage:', supabaseError);
-            }
-            
-            clients.unshift(newClient);
+            if (error) throw error;
         }
         
-        await saveImportantInfoData();
-        updateClients();
+        await loadClients();
         closeClientModal();
         
     } catch (error) {
@@ -3226,23 +3117,14 @@ async function removeClient(clientId) {
     showLoading();
     
     try {
-        // Try to delete from Supabase
-        try {
-            const { error } = await supabaseClient
-                .from('clients')
-                .delete()
-                .eq('id', clientId);
+        const { error } = await supabaseClient
+            .from('clients')
+            .delete()
+            .eq('id', clientId);
 
-            if (error) throw error;
-        } catch (supabaseError) {
-            console.log('Failed to delete from Supabase, using local storage:', supabaseError);
-        }
-        
-        // Update local data
-        clients = clients.filter(client => client.id !== clientId);
-        
-        await saveImportantInfoData();
-        updateClients();
+        if (error) throw error;
+
+        await loadClients();
         
     } catch (error) {
         console.error('Error removing client:', error);
@@ -3337,56 +3219,6 @@ function initializeScrollContainer(container, indicator) {
     }
 }
 
-// ===== INITIALIZATION =====
-
-// Update the main initialization function to include Important Info
-async function initializeApp() {
-    showLoading();
-    
-    // Load local data first for fallback
-    loadImportantInfoFromLocalStorage();
-    
-    await Promise.all([
-        loadProjects(),
-        initializePortfolioImages(),
-        initializeSkills(),
-        initializeUpdates(),
-        initializeTodoList(),
-        initializePortfolioAnalytics(),
-        initializeImportantInfo() // Add this line
-    ]);
-    
-    updateStatusCounts();
-    initializeProjectsTableScroll();
-    setupEventListeners();
-    setupSectionSwitching();
-    
-    hideLoading();
-}
-
-// Call this when switching to Important Info section
-function switchSection(sectionName) {
-    document.querySelectorAll('.content-section').forEach(section => {
-        section.classList.add('hidden');
-    });
-    
-    document.querySelectorAll('.nav-item[data-section]').forEach(item => {
-        item.classList.remove('active');
-    });
-    
-    const targetSection = document.getElementById(`${sectionName}-section`);
-    const targetNavItem = document.querySelector(`.nav-item[data-section="${sectionName}"]`);
-    
-    if (targetSection && targetNavItem) {
-        targetSection.classList.remove('hidden');
-        targetNavItem.classList.add('active');
-        
-        // Refresh data when switching to Important Info section
-        if (sectionName === 'info') {
-            loadProjectOverview();
-        }
-    }
-}
 // =============================================
 // END OF CRM DASHBOARD JAVASCRIPT
 // =============================================
