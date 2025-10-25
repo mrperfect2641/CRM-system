@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Dashboard - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            min-height: 400px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .login-brand {
+            flex: 1;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-brand::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.1"><path fill="white" d="M30,30 Q50,10 70,30 T90,50 T70,70 T50,90 T30,70 T10,50 T30,30 Z"/></svg>') repeat;
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .login-brand h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .login-brand p {
+            opacity: 0.9;
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .brand-features {
+            list-style: none;
+            margin-top: 30px;
+        }
+
+        .brand-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .brand-features i {
+            color: #3498db;
+            background: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .login-form-section {
+            flex: 1;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3498db;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .login-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .login-btn:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-error {
+            background: #ffeaea;
+            border: 1px solid #ffcccc;
+            color: #d63031;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .login-error.show {
+            display: flex;
+        }
+
+        .login-error i {
+            color: #d63031;
+        }
+
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                max-width: 400px;
+            }
+            
+            .login-brand {
+                padding: 30px 25px;
+            }
+            
+            .login-form-section {
+                padding: 30px 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                border-radius: 10px;
+            }
+            
+            .login-brand h1 {
+                font-size: 24px;
+            }
+            
+            .login-form-section {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-brand">
+            <div class="brand-content">
+                <h1>CRM Dashboard</h1>
+                <p>Manage your projects, track progress, and grow your freelance business with our comprehensive CRM solution.</p>
+                
+                <ul class="brand-features">
+                    <li>
+                        <i class="fas fa-check"></i>
+                        <span>Project Management</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        <span>Portfolio Tracking</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        <span>Client Management</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        <span>Analytics & Reports</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="login-form-section">
+            <div class="form-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to your account</p>
+            </div>
+
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="login-email" class="form-input" placeholder="Enter your email" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
+                    </div>
+                </div>
+
+                <div id="login-error" class="login-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="error-message">Invalid credentials</span>
+                </div>
+
+                <button type="submit" class="login-btn" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span id="btn-text">Sign In</span>
+                    <i class="fas fa-spinner fa-spin" id="btn-spinner" style="display: none;"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // SHA-256 hashing function
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Double encryption with salt for extra security
+        async function doubleHashWithSalt(message, salt) {
+            const combined = salt + message + salt;
+            return await sha256(combined);
+        }
+
+        // Encrypted credentials storage - BOTH email and password are hashed
+        // REPLACE THESE HASHES WITH YOUR ACTUAL ONES
+        const ENCRYPTED_CREDENTIALS = [
+            {
+                emailHash: '2d5685a8ad8bd69250e0d3062a5a205341229824d1bcbb3b65d03fbddef0389c',    
+                passwordHash: '4406b370d88935bf27126a34d73556124c42a51085058508e694d96a0cc7385d'
+            }
+        ];
+
+        // Security salt - adds an extra layer of protection
+        const SECURITY_SALT = 'crm_dashboard_2024_secure_salt_anurag';
+
+        // Check credentials against encrypted storage
+        async function checkCredentials(email, password) {
+            for (let cred of ENCRYPTED_CREDENTIALS) {
+                // Hash the input email with salt
+                const inputEmailHash = await doubleHashWithSalt(email, SECURITY_SALT);
+                
+                // If email hash matches, check password
+                if (inputEmailHash === cred.emailHash) {
+                    // Hash the input password with salt
+                    const inputPasswordHash = await doubleHashWithSalt(password, SECURITY_SALT);
+                    return inputPasswordHash === cred.passwordHash;
+                }
+            }
+            return false;
+        }
+
+        // Handle login
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+            const loginBtn = document.getElementById('login-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+            
+            if (!email || !password) {
+                document.getElementById('error-message').textContent = 'Please fill in all fields';
+                errorDiv.classList.add('show');
+                return;
+            }
+            
+            // Show loading state
+            btnText.textContent = 'Verifying...';
+            btnSpinner.style.display = 'inline-block';
+            loginBtn.disabled = true;
+            
+            try {
+                const isValid = await checkCredentials(email, password);
+                
+                if (isValid) {
+                    // Successful login
+                    localStorage.setItem('crm_authenticated', 'true');
+                    localStorage.setItem('crm_user_email', email);
+                    window.location.href = 'index.html';
+                } else {
+                    document.getElementById('error-message').textContent = 'Invalid email or password';
+                    errorDiv.classList.add('show');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('error-message').textContent = 'Login error. Please try again.';
+                errorDiv.classList.add('show');
+            } finally {
+                // Reset button state
+                btnText.textContent = 'Sign In';
+                btnSpinner.style.display = 'none';
+                loginBtn.disabled = false;
+            }
+        });
+
+        // Check if already logged in
+        if (localStorage.getItem('crm_authenticated') === 'true') {
+            window.location.href = 'index.html';
+        }
+
+        // Auto-focus on email input
+        document.getElementById('login-email').focus();
+
+        // Security: Clear form on page hide
+        window.addEventListener('beforeunload', function() {
+            document.getElementById('login-form').reset();
+        });
+    </script>
+</body>
+</html>
