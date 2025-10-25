@@ -29,6 +29,10 @@ let editDeadlineId = null;
 let editClientId = null;
 let currentPortfolioImageFile = null;
 
+// Custom Analytics Fields
+let customAnalyticsFields = [];
+let editingFieldId = null;
+
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing CRM Dashboard...');
@@ -51,7 +55,8 @@ async function initializeApp() {
         initializeUpdates(),
         initializeTodoList(),
         initializePortfolioAnalytics(),
-        initializeImportantInfo()
+        initializeImportantInfo(),
+        initializeCustomAnalyticsFields() // Add custom fields
     ]);
     
     updateStatusCounts();
@@ -155,6 +160,7 @@ function setupProjectRowClickEvents() {
  */
 async function initializePortfolioImages() {
     await loadPortfolioImages();
+    setupPortfolioImagesEventListeners();
 }
 
 /**
@@ -287,8 +293,10 @@ function setupNotesFunctionality() {
             editProject(e.target.getAttribute('data-project-id'));
         } else if (e.target.classList.contains('btn-remove')) {
             e.stopPropagation();
+            e.preventDefault();
+            const projectId = e.target.getAttribute('data-project-id');
             if (confirm('Are you sure you want to remove this project?')) {
-                removeProject(e.target.getAttribute('data-project-id'));
+                removeProject(projectId);
             }
         }
     });
@@ -384,13 +392,21 @@ function setupPortfolioImagesEventListeners() {
     const container = document.getElementById('portfolioImagesContainer');
     if (container) {
         container.addEventListener('click', function(e) {
-            if (e.target.classList.contains('btn-edit')) {
+            const target = e.target;
+            const imageId = target.getAttribute('data-image-id') || 
+                           target.closest('[data-image-id]')?.getAttribute('data-image-id');
+            
+            if (!imageId) return;
+            
+            if (target.classList.contains('btn-edit') || target.closest('.btn-edit')) {
                 e.stopPropagation();
-                editPortfolioImage(e.target.getAttribute('data-image-id'));
-            } else if (e.target.classList.contains('btn-remove')) {
+                e.preventDefault();
+                editPortfolioImage(imageId);
+            } else if (target.classList.contains('btn-remove') || target.closest('.btn-remove')) {
                 e.stopPropagation();
+                e.preventDefault();
                 if (confirm('Are you sure you want to remove this portfolio image?')) {
-                    removePortfolioImage(e.target.getAttribute('data-image-id'));
+                    removePortfolioImage(imageId);
                 }
             }
         });
@@ -405,19 +421,39 @@ function setupImageUploadEvents() {
     const imageInput = document.getElementById('portfolioImageInput');
     const imagePreview = document.getElementById('portfolioImagePreview');
     
+    // Remove any existing event listeners first
     if (uploadTrigger) {
-        uploadTrigger.addEventListener('click', () => {
-            if (imageInput) imageInput.click();
+        uploadTrigger.replaceWith(uploadTrigger.cloneNode(true));
+    }
+    if (imageInput) {
+        imageInput.replaceWith(imageInput.cloneNode(true));
+    }
+    if (imagePreview) {
+        imagePreview.replaceWith(imagePreview.cloneNode(true));
+    }
+    
+    // Get fresh references after cloning
+    const freshUploadTrigger = document.getElementById('portfolioUploadTrigger');
+    const freshImageInput = document.getElementById('portfolioImageInput');
+    const freshImagePreview = document.getElementById('portfolioImagePreview');
+    
+    if (freshUploadTrigger) {
+        freshUploadTrigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (freshImageInput) freshImageInput.click();
         });
     }
     
-    if (imageInput) {
-        imageInput.addEventListener('change', handlePortfolioImageUpload);
+    if (freshImageInput) {
+        freshImageInput.addEventListener('change', handlePortfolioImageUpload);
     }
     
-    if (imagePreview) {
-        imagePreview.addEventListener('click', () => {
-            if (imageInput) imageInput.click();
+    if (freshImagePreview) {
+        freshImagePreview.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (freshImageInput) freshImageInput.click();
         });
     }
 }
@@ -573,6 +609,12 @@ async function handleProjectSubmit(e) {
  * Handle portfolio image upload
  */
 function handlePortfolioImageUpload(e) {
+    console.log('Image upload triggered');
+    
+    // Prevent multiple triggers
+    e.preventDefault();
+    e.stopPropagation();
+    
     const file = e.target.files[0];
     if (!file) return;
     
@@ -587,6 +629,9 @@ function handlePortfolioImageUpload(e) {
         };
         reader.readAsDataURL(file);
     }
+    
+    // Reset the input to allow selecting the same file again
+    e.target.value = '';
 }
 
 /**
@@ -601,6 +646,9 @@ function openPortfolioImageModal(imageId = null) {
         console.error('Portfolio image modal element not found!');
         return;
     }
+    
+    // Setup upload events when modal opens
+    setupImageUploadEvents();
     
     if (imageId) {
         editPortfolioImageId = imageId;
@@ -665,13 +713,17 @@ async function handlePortfolioImageSubmit(e) {
     try {
         let imageUrl = '';
         
+        // Handle image upload properly
         if (currentPortfolioImageFile) {
             const fileName = `${Date.now()}-${currentPortfolioImageFile.name}`;
             const { data: uploadData, error: uploadError } = await supabaseClient.storage
                 .from('portfolio-images')
                 .upload(fileName, currentPortfolioImageFile);
                 
-            if (uploadError) throw uploadError;
+            if (uploadError) {
+                console.error('Error uploading image:', uploadError);
+                throw uploadError;
+            }
             
             const { data: urlData } = supabaseClient.storage
                 .from('portfolio-images')
@@ -688,6 +740,7 @@ async function handlePortfolioImageSubmit(e) {
                 updated_at: new Date().toISOString()
             };
             
+            // Only update image_url if a new file was uploaded
             if (currentPortfolioImageFile) {
                 updateData.image_url = imageUrl;
             }
@@ -717,7 +770,15 @@ async function handlePortfolioImageSubmit(e) {
         
     } catch (error) {
         console.error('Error saving portfolio image:', error);
-        alert('Error saving image: ' + error.message);
+        
+        // Provide more specific error messages
+        if (error.message && error.message.includes('does not exist')) {
+            alert('Portfolio images table does not exist. Please create the table in Supabase first.');
+        } else if (error.message && error.message.includes('storage')) {
+            alert('Error uploading image to storage. Please check your storage configuration.');
+        } else {
+            alert('Error saving image: ' + error.message);
+        }
     } finally {
         hideLoading();
     }
@@ -739,12 +800,19 @@ async function removeProject(projectId) {
     showLoading();
     
     try {
-        const { error: notesError } = await supabaseClient
-            .from('project_notes')
-            .delete()
-            .eq('project_id', projectId);
+        // Only delete project notes if they exist
+        try {
+            const { error: notesError } = await supabaseClient
+                .from('project_notes')
+                .delete()
+                .eq('project_id', projectId);
 
-        if (notesError) throw notesError;
+            if (notesError && !notesError.message.includes('does not exist')) {
+                throw notesError;
+            }
+        } catch (notesError) {
+            console.log('Project notes table might not exist, continuing...');
+        }
 
         const { error: projectError } = await supabaseClient
             .from('projects')
@@ -794,7 +862,16 @@ async function removePortfolioImage(imageId) {
         
     } catch (error) {
         console.error('Error removing portfolio image:', error);
-        alert('Error removing image: ' + error.message);
+        
+        // Handle case where table doesn't exist
+        if (error.message && error.message.includes('does not exist')) {
+            // Remove from local array
+            portfolioImages = portfolioImages.filter(img => img.id !== imageId);
+            renderPortfolioImages();
+            alert('Portfolio image removed locally (table does not exist in database).');
+        } else {
+            alert('Error removing image: ' + error.message);
+        }
     } finally {
         hideLoading();
     }
@@ -1110,6 +1187,7 @@ function escapeHtml(unsafe) {
  */
 async function initializeSkills() {
     await loadSkills();
+    setupSkillsEventListeners();
 }
 
 /**
@@ -1206,16 +1284,25 @@ function setupSkillsEventListeners() {
         form.addEventListener('submit', handleSkillSubmit);
     }
     
+    // Use proper event delegation for skills
     const container = document.getElementById('skillsListContainer');
     if (container) {
         container.addEventListener('click', function(e) {
-            if (e.target.classList.contains('btn-edit')) {
+            const target = e.target;
+            const skillId = target.getAttribute('data-skill-id') || 
+                           target.closest('[data-skill-id]')?.getAttribute('data-skill-id');
+            
+            if (!skillId) return;
+            
+            if (target.classList.contains('btn-edit') || target.closest('.btn-edit')) {
                 e.stopPropagation();
-                editSkill(e.target.getAttribute('data-skill-id'));
-            } else if (e.target.classList.contains('btn-remove')) {
+                e.preventDefault();
+                editSkill(skillId);
+            } else if (target.classList.contains('btn-remove') || target.closest('.btn-remove')) {
                 e.stopPropagation();
+                e.preventDefault();
                 if (confirm('Are you sure you want to remove this skill?')) {
-                    removeSkill(e.target.getAttribute('data-skill-id'));
+                    removeSkill(skillId);
                 }
             }
         });
@@ -2169,108 +2256,27 @@ function updateTodoStats() {
     }
 }
 
-// Add these global variables at the top with other globals
-let portfolioAnalytics = [];
-let editAnalyticsId = null;
-
 // ===== PORTFOLIO ANALYTICS FUNCTIONS =====
 
 /**
- * Initialize portfolio analytics
+ * Load portfolio analytics data
  */
-async function initializePortfolioAnalytics() {
-    await loadPortfolioAnalytics();
-    setupPortfolioAnalyticsEventListeners();
-}
-
-/**
- * Load portfolio analytics data from Supabase
- */
-async function loadPortfolioAnalytics() {
-    try {
-        console.log('Loading portfolio analytics from Supabase...');
-        
-        const { data, error } = await supabaseClient
-            .from('portfolio_analytics')
-            .select('*')
-            .order('created_at', { ascending: true });
-
-        if (error) {
-            console.error('Supabase error loading analytics:', error);
-            // Try to load from local storage as fallback
-            loadAnalyticsFromLocalStorage();
-            return;
-        }
-
-        console.log('Loaded analytics data:', data);
-        portfolioAnalytics = data || [];
-        updatePortfolioAnalyticsDisplay();
-        
-    } catch (error) {
-        console.error('Error loading portfolio analytics:', error);
-        loadAnalyticsFromLocalStorage();
-    }
-}
-
-/**
- * Update portfolio analytics display with real data
- */
-function updatePortfolioAnalyticsDisplay() {
-    const container = document.getElementById('portfolioAnalyticsContainer');
-    if (!container) {
-        console.error('Analytics container not found');
-        return;
-    }
-
-    container.innerHTML = '';
-
-    if (portfolioAnalytics.length === 0) {
-        container.innerHTML = `
-            <div class="no-analytics">
-                <i class="fas fa-chart-bar"></i>
-                <p>No analytics data available. Add your first field!</p>
-            </div>
-        `;
-        return;
-    }
-
-    portfolioAnalytics.forEach((item) => {
-        const analyticsElement = createAnalyticsElement(item);
-        container.appendChild(analyticsElement);
-    });
-
-    console.log('Updated analytics display with', portfolioAnalytics.length, 'items');
-}
-
-/**
- * Create HTML element for analytics item
- */
-// ===== PORTFOLIO VISITS ANALYTICS (Real Data) =====
-
-/**
- * Load portfolio visits analytics from Supabase
- */
-async function loadPortfolioAnalytics() {
+async function loadPortfolioAnalyticsData() {
     try {
         const { data, error } = await supabaseClient
             .from('portfolio_visits')
             .select('*')
             .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error loading portfolio visits:', error);
-            return [];
-        }
-
+        if (error) return [];
         return data || [];
     } catch (error) {
-        console.error('Error loading portfolio visits:', error);
         return [];
     }
 }
 
 /**
- * Update portfolio stats with real visits data
+ * Update portfolio statistics
  */
 function updatePortfolioStats(visits) {
     const totalVisits = visits.length;
@@ -2299,122 +2305,203 @@ function updatePortfolioStats(visits) {
  * Initialize portfolio analytics
  */
 async function initializePortfolioAnalytics() {
-    const visits = await loadPortfolioAnalytics();
+    const visits = await loadPortfolioAnalyticsData();
     updatePortfolioStats(visits);
 }
 
+// ===== CUSTOM ANALYTICS FIELDS =====
+
 /**
- * Check if field is a default field (cannot be removed)
+ * Initialize custom analytics fields
  */
-function isDefaultField(fieldName) {
-    const defaultFields = ['Website Size', 'Loading Time', 'Total Images'];
-    return defaultFields.includes(fieldName);
+async function initializeCustomAnalyticsFields() {
+    await loadCustomAnalyticsFields();
+    setupCustomAnalyticsEvents();
 }
 
 /**
- * Setup portfolio analytics event listeners
+ * Load custom analytics fields from Supabase
  */
-function setupPortfolioAnalyticsEventListeners() {
-    const addFieldBtn = document.getElementById('addAnalyticsFieldBtn');
-    if (addFieldBtn) {
-        addFieldBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            openAnalyticsFieldModal();
-        });
-    }
+async function loadCustomAnalyticsFields() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('portfolio_analytics')
+            .select('*')
+            .order('created_at', { ascending: true });
 
-    // Analytics items click handlers
+        if (error) {
+            console.log('Creating default custom analytics fields');
+            await createDefaultCustomFields();
+            return;
+        }
+
+        customAnalyticsFields = data || [];
+        renderCustomAnalyticsFields();
+        
+    } catch (error) {
+        console.error('Error loading custom analytics:', error);
+        await createDefaultCustomFields();
+    }
+}
+
+/**
+ * Create default custom fields
+ */
+async function createDefaultCustomFields() {
+    const defaultFields = [
+        { name: 'Website Size', value: '4.02 MB', type: 'text' },
+        { name: 'Loading Time', value: '3.0 seconds', type: 'text' },
+    ];
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('portfolio_analytics')
+            .insert(defaultFields)
+            .select();
+
+        if (error) throw error;
+
+        customAnalyticsFields = data || [];
+        renderCustomAnalyticsFields();
+    } catch (error) {
+        console.error('Error creating default fields:', error);
+        customAnalyticsFields = defaultFields;
+        renderCustomAnalyticsFields();
+    }
+}
+
+/**
+ * Render custom analytics fields
+ */
+function renderCustomAnalyticsFields() {
     const container = document.getElementById('portfolioAnalyticsContainer');
-    if (container) {
-        container.addEventListener('click', function(e) {
-            const target = e.target;
-            const analyticsId = target.getAttribute('data-analytics-id') || 
-                               target.closest('[data-analytics-id]')?.getAttribute('data-analytics-id');
-            
-            if (!analyticsId) return;
-            
-            if (target.classList.contains('btn-edit') || target.closest('.btn-edit')) {
-                e.stopPropagation();
-                e.preventDefault();
-                editAnalyticsField(analyticsId);
-            } else if (target.classList.contains('btn-remove') || target.closest('.btn-remove')) {
-                e.stopPropagation();
-                e.preventDefault();
-                if (confirm('Are you sure you want to remove this field?')) {
-                    removeAnalyticsField(analyticsId);
-                }
-            }
-        });
+    if (!container) {
+        console.log('Custom analytics container not found');
+        return;
     }
 
-    // Analytics modal event listeners
+    container.innerHTML = '';
+
+    if (customAnalyticsFields.length === 0) {
+        container.innerHTML = `
+            <div class="no-analytics">
+                <i class="fas fa-chart-bar"></i>
+                <p>No analytics data available</p>
+            </div>
+        `;
+        return;
+    }
+
+    customAnalyticsFields.forEach((field) => {
+        const fieldElement = createCustomFieldElement(field);
+        container.appendChild(fieldElement);
+    });
+}
+
+/**
+ * Create custom field element
+ */
+function createCustomFieldElement(field) {
+    const div = document.createElement('div');
+    div.className = 'analytics-item';
+    div.setAttribute('data-field-id', field.id);
+    
+    div.innerHTML = `
+        <div class="analytics-content">
+            <div class="analytics-name">${escapeHtml(field.name)}</div>
+            <div class="analytics-value">${escapeHtml(field.value)}</div>
+        </div>
+        <div class="analytics-actions">
+            <button class="btn btn-edit btn-sm" onclick="editCustomField('${field.id}')">Edit</button>
+            ${!isDefaultCustomField(field.name) ? 
+                `<button class="btn btn-remove btn-sm" onclick="deleteCustomField('${field.id}')">Remove</button>` : 
+                ''
+            }
+        </div>
+    `;
+    
+    return div;
+}
+
+/**
+ * Check if field is default
+ */
+function isDefaultCustomField(name) {
+    const defaultFields = ['Website Size', 'Loading Time'];
+    return defaultFields.includes(name);
+}
+
+/**
+ * Setup custom analytics events
+ */
+function setupCustomAnalyticsEvents() {
+    const addBtn = document.getElementById('addAnalyticsFieldBtn');
+    if (addBtn) {
+        addBtn.onclick = () => openCustomFieldModal();
+    }
+
+    // Modal event listeners
     const overlay = document.getElementById('analyticsOverlay');
     const cancelBtn = document.getElementById('analytics-cancel-btn');
     const form = document.getElementById('analytics-field-form');
 
     if (overlay) {
-        overlay.addEventListener('click', closeAnalyticsFieldModal);
+        overlay.onclick = closeCustomFieldModal;
     }
 
     if (cancelBtn) {
-        cancelBtn.addEventListener('click', closeAnalyticsFieldModal);
+        cancelBtn.onclick = closeCustomFieldModal;
     }
 
     if (form) {
-        form.addEventListener('submit', handleAnalyticsFieldSubmit);
+        form.onsubmit = handleCustomFieldSubmit;
     }
 }
 
 /**
- * Open analytics field modal
+ * Open custom field modal
  */
-function openAnalyticsFieldModal(analyticsId = null) {
+function openCustomFieldModal(fieldId = null) {
     const modal = document.getElementById('analytics-field-modal');
-    const form = document.getElementById('analytics-field-form');
-    const title = document.getElementById('analyticsFieldTitle');
-    
     if (!modal) {
-        console.error('Analytics modal not found');
+        console.error('Custom field modal not found');
         return;
     }
     
-    if (analyticsId) {
-        // Edit existing field
-        const field = portfolioAnalytics.find(item => item.id == analyticsId);
+    if (fieldId) {
+        const field = customAnalyticsFields.find(f => f.id == fieldId);
         if (field) {
-            title.textContent = 'Edit Analytics Field';
-            document.getElementById('analytics-field-name').value = field.name || '';
-            document.getElementById('analytics-field-value').value = field.value || '';
-            document.getElementById('analytics-field-type').value = field.type || 'text';
-            editAnalyticsId = analyticsId;
+            document.getElementById('analyticsFieldTitle').textContent = 'Edit Field';
+            document.getElementById('analytics-field-name').value = field.name;
+            document.getElementById('analytics-field-value').value = field.value;
+            document.getElementById('analytics-field-type').value = field.type;
+            editingFieldId = fieldId;
         }
     } else {
-        // Add new field
-        editAnalyticsId = null;
-        title.textContent = 'Add Analytics Field';
-        if (form) form.reset();
+        document.getElementById('analyticsFieldTitle').textContent = 'Add Field';
+        document.getElementById('analytics-field-form').reset();
         document.getElementById('analytics-field-type').value = 'text';
+        editingFieldId = null;
     }
     
     modal.classList.remove('hidden');
 }
 
 /**
- * Close analytics field modal
+ * Close custom field modal
  */
-function closeAnalyticsFieldModal() {
+function closeCustomFieldModal() {
     const modal = document.getElementById('analytics-field-modal');
     if (modal) {
         modal.classList.add('hidden');
     }
-    editAnalyticsId = null;
+    editingFieldId = null;
 }
 
 /**
- * Handle analytics field form submission
+ * Handle custom field form submission
  */
-async function handleAnalyticsFieldSubmit(e) {
+async function handleCustomFieldSubmit(e) {
     e.preventDefault();
     
     const name = document.getElementById('analytics-field-name').value.trim();
@@ -2429,11 +2516,8 @@ async function handleAnalyticsFieldSubmit(e) {
     showLoading();
     
     try {
-        if (editAnalyticsId) {
-            // Update existing field in Supabase
-            console.log('Updating analytics field:', editAnalyticsId);
-            
-            const { data, error } = await supabaseClient
+        if (editingFieldId) {
+            await supabaseClient
                 .from('portfolio_analytics')
                 .update({
                     name: name,
@@ -2441,117 +2525,53 @@ async function handleAnalyticsFieldSubmit(e) {
                     type: type,
                     updated_at: new Date().toISOString()
                 })
-                .eq('id', editAnalyticsId)
-                .select();
-
-            if (error) {
-                console.error('Supabase update error:', error);
-                throw error;
-            }
-
-            console.log('Update successful:', data);
-
+                .eq('id', editingFieldId);
         } else {
-            // Create new field in Supabase
-            console.log('Creating new analytics field');
-            
-            const { data, error } = await supabaseClient
+            await supabaseClient
                 .from('portfolio_analytics')
                 .insert([{
                     name: name,
                     value: value,
                     type: type
-                }])
-                .select();
-
-            if (error) {
-                console.error('Supabase insert error:', error);
-                throw error;
-            }
-
-            console.log('Insert successful:', data);
+                }]);
         }
         
-        // Reload data from Supabase to get the latest
-        await loadPortfolioAnalytics();
-        closeAnalyticsFieldModal();
+        await loadCustomAnalyticsFields();
+        closeCustomFieldModal();
         
     } catch (error) {
-        console.error('Error saving analytics field:', error);
-        alert('Error saving analytics field: ' + error.message);
+        console.error('Error saving custom field:', error);
+        alert('Error saving field: ' + error.message);
     } finally {
         hideLoading();
     }
 }
 
 /**
- * Edit analytics field
+ * Edit custom field (global function)
  */
-function editAnalyticsField(analyticsId) {
-    console.log('Editing analytics field:', analyticsId);
-    openAnalyticsFieldModal(analyticsId);
+function editCustomField(fieldId) {
+    openCustomFieldModal(fieldId);
 }
 
 /**
- * Remove analytics field
+ * Delete custom field (global function)
  */
-async function removeAnalyticsField(analyticsId) {
-    if (!confirm('Are you sure you want to remove this field?')) {
-        return;
-    }
+async function deleteCustomField(fieldId) {
+    if (!confirm('Are you sure you want to remove this field?')) return;
     
     showLoading();
-    
     try {
-        console.log('Removing analytics field:', analyticsId);
-        
-        const { error } = await supabaseClient
+        await supabaseClient
             .from('portfolio_analytics')
             .delete()
-            .eq('id', analyticsId);
-
-        if (error) {
-            console.error('Supabase delete error:', error);
-            throw error;
-        }
-
-        console.log('Delete successful');
+            .eq('id', fieldId);
         
-        // Reload data from Supabase
-        await loadPortfolioAnalytics();
-        
+        await loadCustomAnalyticsFields();
     } catch (error) {
-        console.error('Error removing analytics field:', error);
-        alert('Error removing analytics field: ' + error.message);
+        alert('Error removing field: ' + error.message);
     } finally {
         hideLoading();
-    }
-}
-
-/**
- * Load from local storage as fallback
- */
-function loadAnalyticsFromLocalStorage() {
-    try {
-        const savedAnalytics = localStorage.getItem('portfolio_analytics');
-        if (savedAnalytics) {
-            portfolioAnalytics = JSON.parse(savedAnalytics);
-            updatePortfolioAnalyticsDisplay();
-            console.log('Loaded analytics from local storage');
-        } else {
-            // Create default fields in local storage
-            portfolioAnalytics = [
-                { id: 'local_1', name: 'Website Size', value: '2.5 MB', type: 'text' },
-                { id: 'local_2', name: 'Loading Time', value: '1.2 seconds', type: 'text' },
-                { id: 'local_3', name: 'Total Images', value: '15', type: 'number' }
-            ];
-            localStorage.setItem('portfolio_analytics', JSON.stringify(portfolioAnalytics));
-            updatePortfolioAnalyticsDisplay();
-            console.log('Created default analytics in local storage');
-        }
-    } catch (error) {
-        console.error('Error loading analytics from local storage:', error);
-        portfolioAnalytics = [];
     }
 }
 
@@ -2631,7 +2651,7 @@ function updateImportantInfoStats(total, inProgress, completed, pending) {
 }
 
 /**
- * Update Recent Projects List
+ * Update Recent Projects List - Show only top 3
  */
 function updateRecentProjects(projects) {
     const container = document.getElementById('recentProjectsList');
@@ -2639,7 +2659,7 @@ function updateRecentProjects(projects) {
 
     container.innerHTML = '';
 
-    // Take latest 5 (already sorted by creation date in loadProjectOverview)
+    // Take only the latest 3 projects
     const recentProjects = projects.slice(0, 3);
 
     if (recentProjects.length === 0) {
@@ -2947,7 +2967,7 @@ function setupImportantInfoEventListeners() {
         refreshFinanceBtn.addEventListener('click', loadProjectOverview);
     }
     
-    // Add buttons - FIXED: Added proper event listeners for add buttons
+    // Add buttons
     const addUrgentBtn = document.getElementById('add-urgent-btn');
     const addDeadlineBtn = document.getElementById('add-deadline-btn');
     const addClientBtn = document.getElementById('add-client-btn');
