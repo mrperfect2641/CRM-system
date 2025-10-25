@@ -3828,6 +3828,8 @@ async function removeConnection(connectionId) {
         hideLoading();
     }
 }
+
+// testing the website Performance
 // =============================================
 // END OF CRM DASHBOARD JAVASCRIPT
 // =============================================
