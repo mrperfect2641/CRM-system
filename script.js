@@ -353,7 +353,9 @@ function setupPortfolioImagesEventListeners() {
     
     const addImageBtn = document.getElementById('addPortfolioImageBtn');
     if (addImageBtn) {
-        addImageBtn.addEventListener('click', function(e) {
+        // Remove existing listeners and add fresh one
+        addImageBtn.replaceWith(addImageBtn.cloneNode(true));
+        document.getElementById('addPortfolioImageBtn').addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             openPortfolioImageModal();
@@ -366,9 +368,11 @@ function setupPortfolioImagesEventListeners() {
     
     if (overlay) {
         overlay.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            closePortfolioImageModal();
+            if (e.target === overlay) {
+                e.preventDefault();
+                e.stopPropagation();
+                closePortfolioImageModal();
+            }
         });
     }
     
@@ -390,30 +394,45 @@ function setupPortfolioImagesEventListeners() {
     
     setupImageUploadEvents();
     
+    // Fix: Use event delegation with proper event stopping
     const container = document.getElementById('portfolioImagesContainer');
     if (container) {
-        container.addEventListener('click', function(e) {
+        // Remove any existing event listeners
+        container.replaceWith(container.cloneNode(true));
+        const freshContainer = document.getElementById('portfolioImagesContainer');
+        
+        freshContainer.addEventListener('click', function(e) {
             const target = e.target;
-            const imageId = target.getAttribute('data-image-id') || 
-                           target.closest('[data-image-id]')?.getAttribute('data-image-id');
+            const removeBtn = target.closest('.btn-remove');
             
-            if (!imageId) return;
-            
-            if (target.classList.contains('btn-edit') || target.closest('.btn-edit')) {
-                e.stopPropagation();
+            if (removeBtn) {
                 e.preventDefault();
-                editPortfolioImage(imageId);
-            } else if (target.classList.contains('btn-remove') || target.closest('.btn-remove')) {
-                e.stopPropagation();
-                e.preventDefault();
-                if (confirm('Are you sure you want to remove this portfolio image?')) {
+                e.stopImmediatePropagation(); // Important: Stop all propagation
+                
+                const imageId = removeBtn.getAttribute('data-image-id') || 
+                               removeBtn.closest('[data-image-id]')?.getAttribute('data-image-id');
+                
+                if (imageId && confirm('Are you sure you want to remove this portfolio image?')) {
                     removePortfolioImage(imageId);
+                }
+                return; // Stop further processing
+            }
+            
+            const editBtn = target.closest('.btn-edit');
+            if (editBtn) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                
+                const imageId = editBtn.getAttribute('data-image-id') || 
+                               editBtn.closest('[data-image-id]')?.getAttribute('data-image-id');
+                
+                if (imageId) {
+                    editPortfolioImage(imageId);
                 }
             }
         });
     }
 }
-
 /**
  * Setup image upload events
  */
@@ -1285,25 +1304,36 @@ function setupSkillsEventListeners() {
         form.addEventListener('submit', handleSkillSubmit);
     }
     
-    // Use proper event delegation for skills
+    // Fix: Skills container with proper event handling
     const container = document.getElementById('skillsListContainer');
     if (container) {
-        container.addEventListener('click', function(e) {
+        // Remove existing listeners
+        container.replaceWith(container.cloneNode(true));
+        const freshContainer = document.getElementById('skillsListContainer');
+        
+        freshContainer.addEventListener('click', function(e) {
             const target = e.target;
-            const skillId = target.getAttribute('data-skill-id') || 
-                           target.closest('[data-skill-id]')?.getAttribute('data-skill-id');
+            const removeBtn = target.closest('.btn-remove');
             
-            if (!skillId) return;
-            
-            if (target.classList.contains('btn-edit') || target.closest('.btn-edit')) {
-                e.stopPropagation();
+            if (removeBtn) {
                 e.preventDefault();
-                editSkill(skillId);
-            } else if (target.classList.contains('btn-remove') || target.closest('.btn-remove')) {
-                e.stopPropagation();
-                e.preventDefault();
-                if (confirm('Are you sure you want to remove this skill?')) {
+                e.stopImmediatePropagation();
+                
+                const skillId = removeBtn.getAttribute('data-skill-id');
+                if (skillId && confirm('Are you sure you want to remove this skill?')) {
                     removeSkill(skillId);
+                }
+                return;
+            }
+            
+            const editBtn = target.closest('.btn-edit');
+            if (editBtn) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                
+                const skillId = editBtn.getAttribute('data-skill-id');
+                if (skillId) {
+                    editSkill(skillId);
                 }
             }
         });
