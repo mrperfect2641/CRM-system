@@ -1506,22 +1506,6 @@ function getSampleUpdates() {
             time: "14:30",
             icon: "fas fa-edit",
             type: "update"
-        },
-        {
-            id: '2',
-            title: "Client Feedback Received",
-            date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-            time: "11:45",
-            icon: "fas fa-check-circle",
-            type: "feedback"
-        },
-        {
-            id: '3',
-            title: "Final Delivery Sent",
-            date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
-            time: "16:20",
-            icon: "fas fa-upload",
-            type: "delivery"
         }
     ];
 }
@@ -3552,24 +3536,6 @@ async function loadConnections() {
  */
 async function createConnectionsTable() {
     const sampleData = [
-        {
-            name: 'John Doe',
-            email: 'john.doe@techcorp.com',
-            company: 'Tech Corp',
-            position: 'CEO',
-            status: 'active',
-            last_contact: new Date().toISOString().split('T')[0],
-            notes: 'Met at tech conference'
-        },
-        {
-            name: 'Jane Smith',
-            email: 'jane.smith@designstudio.com',
-            company: 'Design Studio',
-            position: 'Creative Director',
-            status: 'active',
-            last_contact: new Date().toISOString().split('T')[0],
-            notes: 'Referred by mutual contact'
-        },
         {
             name: 'Mike Johnson',
             email: 'mike.johnson@startup.com',
