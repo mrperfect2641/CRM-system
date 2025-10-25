@@ -2644,6 +2644,8 @@ input:checked + .slider:before {
 .conn-modal-btn:hover {
     opacity: 0.9;
 }
+
+
 /* ============================================= */
 /* END OF CRM DASHBOARD STYLESHEET */
 /* ============================================= */

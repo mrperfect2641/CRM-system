@@ -13,6 +13,28 @@
 </head>
 
 <body>
+    <!-- AUTHENTICATION CHECK - MUST BE FIRST -->
+<script>
+    // Immediate authentication check
+    (function() {
+        // Check if user is authenticated
+        const isAuthenticated = localStorage.getItem('crm_authenticated') === 'true';
+        
+        if (!isAuthenticated) {
+            // Immediately redirect to login page
+            window.location.href = 'login.html';
+        }
+        
+        // Add logout function to global scope with confirmation
+        window.logout = function() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('crm_authenticated');
+                localStorage.removeItem('crm_user_email');
+                window.location.href = 'login.html';
+            }
+        };
+    })();
+</script>
     <!-- ===== LOADING SPINNER ===== -->
     <div class="loading" id="loading">
         <div class="spinner"></div>
@@ -52,7 +74,7 @@
                     <i class="fas fa-bell"></i>
                     <div class="badge">3</div>
                 </div>
-                <div class="user-profile">
+                 <div class="user-profile" onclick="logout()" style="cursor: pointer;" title="Click to logout">
                     <div class="profile-img">AY</div>
                     <span>Anurag Yadav</span>
                 </div>
@@ -902,10 +924,4 @@
 </body>
 
 </html>
-
-
-<!-- 
-list of websites
-
-
--->
+<!-- list of websites -->
