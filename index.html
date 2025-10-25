@@ -632,10 +632,82 @@
         </div>
 
         <!-- ===== CONNECTIONS SECTION ===== -->
-        <div class="content-section hidden" id="connections-section">
-            <div class="portfolio-header">
-                <h1 class="page-title">Connections</h1>
-                <p class="page-description">Manage your professional connections</p>
+        <!-- Connections Section -->
+        <!-- Connections Section -->
+        <div id="connections-section" class="content-section hidden">
+            <div class="connections-section">
+                <div class="section-header">
+                    <h2>Connections</h2>
+                    <button id="addConnectionBtn" class="conn-modal-btn conn-modal-btn-primary">
+                        <i class="fas fa-plus"></i> Add Connection
+                    </button>
+                </div>
+                <div class="connections-table-container">
+                    <table class="connections-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Contact</th>
+                                <th>Company</th>
+                                <th>Position</th>
+                                <th>Status</th>
+                                <th>Last Contact</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="connectionsTableBody">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Modal -->
+        <div id="connectionModal" class="hidden">
+            <div id="connectionOverlay" class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="connectionTitle">Add Connection</h2>
+                </div>
+                <form id="connectionForm" class="modal-form">
+                    <div class="conn-form-group">
+                        <label for="connectionName">Name *</label>
+                        <input type="text" id="connectionName" placeholder="Enter full name" required>
+                    </div>
+                    <div class="conn-form-group">
+                        <label for="connectionEmail">Email *</label>
+                        <input type="email" id="connectionEmail" placeholder="Enter email address" required>
+                    </div>
+                    <div class="conn-form-group">
+                        <label for="connectionCompany">Company</label>
+                        <input type="text" id="connectionCompany" placeholder="Enter company name">
+                    </div>
+                    <div class="conn-form-group">
+                        <label for="connectionPosition">Position</label>
+                        <input type="text" id="connectionPosition" placeholder="Enter job position">
+                    </div>
+                    <div class="conn-form-group">
+                        <label for="connectionStatus">Status</label>
+                        <select id="connectionStatus">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="conn-form-group">
+                        <label for="connectionLastContact">Last Contact</label>
+                        <input type="date" id="connectionLastContact">
+                    </div>
+                    <div class="conn-form-group">
+                        <label for="connectionNotes">Notes</label>
+                        <textarea id="connectionNotes" placeholder="Add any notes about this connection"></textarea>
+                    </div>
+                    <div class="conn-form-actions">
+                        <button type="button" id="connectionCancelBtn"
+                            class="conn-modal-btn conn-modal-btn-secondary">Cancel</button>
+                        <button type="submit" class="conn-modal-btn conn-modal-btn-primary">Save Connection</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

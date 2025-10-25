@@ -56,7 +56,8 @@ async function initializeApp() {
         initializeTodoList(),
         initializePortfolioAnalytics(),
         initializeImportantInfo(),
-        initializeCustomAnalyticsFields() // Add custom fields
+        initializeCustomAnalyticsFields(),
+        initializeConnections() // Add custom fields
     ]);
     
     updateStatusCounts();
@@ -3511,7 +3512,326 @@ function initializeScrollContainer(container, indicator) {
         indicator.style.display = 'none';
     }
 }
+// ===== CONNECTIONS SECTION =====
+let connections = [];
+let editConnectionId = null;
 
+/**
+ * Initialize Connections Section
+ */
+async function initializeConnections() {
+    await loadConnections();
+    setupConnectionsEventListeners();
+}
+
+/**
+ * Load connections from Supabase
+ */
+async function loadConnections() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('connections')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            await createConnectionsTable();
+            return;
+        }
+
+        connections = data || [];
+        renderConnectionsTable();
+        
+    } catch (error) {
+        await createConnectionsTable();
+    }
+}
+
+/**
+ * Create connections table with sample data
+ */
+async function createConnectionsTable() {
+    const sampleData = [
+        {
+            name: 'John Doe',
+            email: 'john.doe@techcorp.com',
+            company: 'Tech Corp',
+            position: 'CEO',
+            status: 'active',
+            last_contact: new Date().toISOString().split('T')[0],
+            notes: 'Met at tech conference'
+        },
+        {
+            name: 'Jane Smith',
+            email: 'jane.smith@designstudio.com',
+            company: 'Design Studio',
+            position: 'Creative Director',
+            status: 'active',
+            last_contact: new Date().toISOString().split('T')[0],
+            notes: 'Referred by mutual contact'
+        },
+        {
+            name: 'Mike Johnson',
+            email: 'mike.johnson@startup.com',
+            company: 'Startup Inc',
+            position: 'CTO',
+            status: 'inactive',
+            last_contact: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            notes: 'Follow up needed'
+        }
+    ];
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('connections')
+            .insert(sampleData)
+            .select();
+
+        if (error) throw error;
+
+        connections = data || [];
+        renderConnectionsTable();
+    } catch (error) {
+        connections = sampleData.map((item, index) => ({ ...item, id: index + 1 }));
+        renderConnectionsTable();
+    }
+}
+
+/**
+ * Render connections table
+ */
+function renderConnectionsTable() {
+    const tableBody = document.getElementById('connectionsTableBody');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = '';
+
+    if (connections.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 40px; color: #6c757d;">
+                    <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; display: block; color: #bdc3c7;"></i>
+                    No connections found. Click "Add Connection" to get started.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    connections.forEach((connection, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>
+                <div class="connection-info">
+                    <div class="connection-name">${escapeHtml(connection.name)}</div>
+                    <div class="connection-email">${escapeHtml(connection.email)}</div>
+                </div>
+            </td>
+            <td>${escapeHtml(connection.company || '-')}</td>
+            <td>${escapeHtml(connection.position || '-')}</td>
+            <td>
+                <span class="status-badge status-${connection.status}">
+                    ${connection.status === 'active' ? 'Active' : 'Inactive'}
+                </span>
+            </td>
+            <td>${formatDisplayDate(connection.last_contact)}</td>
+            <td>
+                <div class="table-actions">
+                    <button class="btn btn-edit btn-sm" data-connection-id="${connection.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-remove btn-sm" data-connection-id="${connection.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+/**
+ * Setup connections event listeners
+ */
+function setupConnectionsEventListeners() {
+    const addBtn = document.getElementById('addConnectionBtn');
+    if (addBtn) {
+        addBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openConnectionModal();
+        });
+    }
+
+    const tableBody = document.getElementById('connectionsTableBody');
+    if (tableBody) {
+        tableBody.addEventListener('click', (e) => {
+            const target = e.target;
+            const btn = target.closest('button');
+            if (!btn) return;
+
+            const connectionId = btn.getAttribute('data-connection-id');
+            if (!connectionId) return;
+
+            if (btn.classList.contains('btn-edit')) {
+                e.stopPropagation();
+                editConnection(connectionId);
+            } else if (btn.classList.contains('btn-remove')) {
+                e.stopPropagation();
+                if (confirm('Are you sure you want to delete this connection?')) {
+                    removeConnection(connectionId);
+                }
+            }
+        });
+    }
+
+    const overlay = document.getElementById('connectionOverlay');
+    const cancelBtn = document.getElementById('connectionCancelBtn');
+    const form = document.getElementById('connectionForm');
+
+    if (overlay) overlay.addEventListener('click', closeConnectionModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeConnectionModal);
+    if (form) form.addEventListener('submit', handleConnectionSubmit);
+}
+
+/**
+ * Open connection modal
+ */
+function openConnectionModal(connectionId = null) {
+    const modal = document.getElementById('connectionModal');
+    if (!modal) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (connectionId) {
+        editConnectionId = connectionId;
+        const connection = connections.find(c => c.id == connectionId);
+        if (connection) {
+            document.getElementById('connectionTitle').textContent = 'Edit Connection';
+            document.getElementById('connectionName').value = connection.name || '';
+            document.getElementById('connectionEmail').value = connection.email || '';
+            document.getElementById('connectionCompany').value = connection.company || '';
+            document.getElementById('connectionPosition').value = connection.position || '';
+            document.getElementById('connectionStatus').value = connection.status || 'active';
+            document.getElementById('connectionLastContact').value = connection.last_contact || today;
+            document.getElementById('connectionNotes').value = connection.notes || '';
+        }
+    } else {
+        editConnectionId = null;
+        document.getElementById('connectionTitle').textContent = 'Add Connection';
+        document.getElementById('connectionForm').reset();
+        document.getElementById('connectionStatus').value = 'active';
+        document.getElementById('connectionLastContact').value = today;
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+/**
+ * Close connection modal
+ */
+function closeConnectionModal() {
+    const modal = document.getElementById('connectionModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    editConnectionId = null;
+}
+
+/**
+ * Handle connection form submission
+ */
+async function handleConnectionSubmit(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('connectionName').value.trim();
+    const email = document.getElementById('connectionEmail').value.trim();
+    const company = document.getElementById('connectionCompany').value.trim();
+    const position = document.getElementById('connectionPosition').value.trim();
+    const status = document.getElementById('connectionStatus').value;
+    const lastContact = document.getElementById('connectionLastContact').value;
+    const notes = document.getElementById('connectionNotes').value.trim();
+    
+    if (!name || !email) {
+        alert('Please fill in name and email fields');
+        return;
+    }
+    
+    showLoading();
+    
+    try {
+        if (editConnectionId) {
+            const { error } = await supabaseClient
+                .from('connections')
+                .update({
+                    name,
+                    email,
+                    company,
+                    position,
+                    status,
+                    last_contact: lastContact,
+                    notes,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', editConnectionId);
+
+            if (error) throw error;
+        } else {
+            const { data, error } = await supabaseClient
+                .from('connections')
+                .insert([{
+                    name,
+                    email,
+                    company,
+                    position,
+                    status,
+                    last_contact: lastContact,
+                    notes
+                }])
+                .select();
+
+            if (error) throw error;
+        }
+        
+        await loadConnections();
+        closeConnectionModal();
+        
+    } catch (error) {
+        alert('Error saving connection: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+/**
+ * Edit connection
+ */
+function editConnection(connectionId) {
+    openConnectionModal(connectionId);
+}
+
+/**
+ * Remove connection
+ */
+async function removeConnection(connectionId) {
+    showLoading();
+    
+    try {
+        const { error } = await supabaseClient
+            .from('connections')
+            .delete()
+            .eq('id', connectionId);
+
+        if (error) throw error;
+
+        await loadConnections();
+        
+    } catch (error) {
+        alert('Error removing connection: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
 // =============================================
 // END OF CRM DASHBOARD JAVASCRIPT
 // =============================================

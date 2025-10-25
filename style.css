@@ -2410,6 +2410,240 @@ input:checked + .slider:before {
         padding: 15px 0 0 0;
     }
 }
+/* Connections Section - Isolated Styles */
+#connections-section .connections-section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin: 20px;
+    overflow: hidden;
+}
+
+#connections-section .connections-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e1e8ed;
+}
+
+#connections-section .connections-section .section-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+#connections-section .connections-table-container {
+    overflow-x: auto;
+}
+
+#connections-section .connections-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#connections-section .connections-table th {
+    background: #f8f9fa;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 1px solid #e1e8ed;
+    font-size: 14px;
+}
+
+#connections-section .connections-table td {
+    padding: 16px;
+    border-bottom: 1px solid #f1f3f4;
+    vertical-align: middle;
+}
+
+#connections-section .connections-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+#connections-section .connection-info {
+    display: flex;
+    flex-direction: column;
+}
+
+#connections-section .connection-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+#connections-section .connection-email {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+#connections-section .status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+#connections-section .status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+#connections-section .status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+#connections-section .table-actions {
+    display: flex;
+    gap: 8px;
+}
+
+#connections-section .table-actions .conn-btn {
+    padding: 6px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    transition: all 0.2s ease;
+}
+
+#connections-section .table-actions .conn-btn-edit {
+    background: #3498db;
+    color: white;
+}
+
+#connections-section .table-actions .conn-btn-remove {
+    background: #e74c3c;
+    color: white;
+}
+
+#connections-section .table-actions .conn-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* Connection Modal - Isolated Styles */
+#connectionModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#connectionModal.hidden {
+    display: none;
+}
+
+#connectionOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+#connectionModal .modal-content {
+    position: relative;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 1001;
+}
+
+#connectionModal .modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #e1e8ed;
+}
+
+#connectionModal .modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+#connectionForm {
+    padding: 20px;
+}
+
+#connectionForm .conn-form-group {
+    margin-bottom: 15px;
+}
+
+#connectionForm .conn-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+#connectionForm .conn-form-group input,
+#connectionForm .conn-form-group select,
+#connectionForm .conn-form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+#connectionForm .conn-form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+#connectionForm .conn-form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e1e8ed;
+}
+
+.conn-modal-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.conn-modal-btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.conn-modal-btn-secondary {
+    background: #95a5a6;
+    color: white;
+}
+
+.conn-modal-btn:hover {
+    opacity: 0.9;
+}
 /* ============================================= */
 /* END OF CRM DASHBOARD STYLESHEET */
 /* ============================================= */
