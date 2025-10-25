@@ -27,13 +27,12 @@
             border-radius: 15px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 800px; /* Wider for landscape */
+            max-width: 800px;
             min-height: 400px;
             overflow: hidden;
-            display: flex; /* Flex for landscape layout */
+            display: flex;
         }
 
-        /* Left side - Brand/Image */
         .login-brand {
             flex: 1;
             background: linear-gradient(135deg, #3498db, #2c3e50);
@@ -101,7 +100,6 @@
             font-size: 12px;
         }
 
-        /* Right side - Login Form */
         .login-form-section {
             flex: 1;
             padding: 50px 40px;
@@ -235,7 +233,6 @@
             margin-bottom: 4px;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .login-container {
                 flex-direction: column;
@@ -268,7 +265,6 @@
 </head>
 <body>
     <div class="login-container">
-        <!-- Left Side - Brand -->
         <div class="login-brand">
             <div class="brand-content">
                 <h1>CRM Dashboard</h1>
@@ -295,7 +291,6 @@
             </div>
         </div>
 
-        <!-- Right Side - Login Form -->
         <div class="login-form-section">
             <div class="form-header">
                 <h2>Welcome Back</h2>
@@ -336,31 +331,40 @@
     <script>
         // SHA-256 hashing function
         async function sha256(message) {
-            // Encode the message as UTF-8
             const msgBuffer = new TextEncoder().encode(message);
-            
-            // Hash the message
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            
-            // Convert ArrayBuffer to Array
             const hashArray = Array.from(new Uint8Array(hashBuffer));
-            
-            // Convert bytes to hex string
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        const HASHED_CREDENTIALS = [
+        // Double encryption with salt for extra security
+        async function doubleHashWithSalt(message, salt) {
+            const combined = salt + message + salt;
+            return await sha256(combined);
+        }
+
+        // Encrypted credentials storage - BOTH email and password are hashed
+        // REPLACE THESE HASHES WITH YOUR ACTUAL ONES
+        const ENCRYPTED_CREDENTIALS = [
             {
-                email: 'anuragyadav2641@gmail.com',
-                passwordHash: 'e8420a23f617fa85b7904908c7e5ba67ad21d95107d9f767a56e607440398ecf' //password:Admin@123#456@
+                emailHash: '2d5685a8ad8bd69250e0d3062a5a205341229824d1bcbb3b65d03fbddef0389c',    
+                passwordHash: '4406b370d88935bf27126a34d73556124c42a51085058508e694d96a0cc7385d'
             }
         ];
 
-        // Check credentials against hashed storage
+        // Security salt - adds an extra layer of protection
+        const SECURITY_SALT = 'crm_dashboard_2024_secure_salt_anurag';
+
+        // Check credentials against encrypted storage
         async function checkCredentials(email, password) {
-            for (let cred of HASHED_CREDENTIALS) {
-                if (cred.email === email) {
-                    const inputPasswordHash = await sha256(password);
+            for (let cred of ENCRYPTED_CREDENTIALS) {
+                // Hash the input email with salt
+                const inputEmailHash = await doubleHashWithSalt(email, SECURITY_SALT);
+                
+                // If email hash matches, check password
+                if (inputEmailHash === cred.emailHash) {
+                    // Hash the input password with salt
+                    const inputPasswordHash = await doubleHashWithSalt(password, SECURITY_SALT);
                     return inputPasswordHash === cred.passwordHash;
                 }
             }
