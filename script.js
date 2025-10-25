@@ -2798,7 +2798,9 @@ async function loadDeadlines() {
         const { data, error } = await supabaseClient
             .from('deadlines')
             .select('*')
-            .order('deadline_date', { ascending: true });
+            .order('deadline_date', { ascending: true })
+            .order('deadline_time', { ascending: true }) 
+            .order('created_at', { ascending: false });
 
         if (error) {
             console.error('Error loading deadlines:', error);
